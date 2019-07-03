@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SmartParking</string>
+    <string name="register">Not account yet? Create one</string>
+    <string name="loginButton">Login</string>
+</resources>
