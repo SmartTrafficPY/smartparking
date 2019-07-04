@@ -1,56 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/changePassword"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <LinearLayout
-        android:layout_width="368dp"
-        android:layout_height="495dp"
-        android:orientation="vertical"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin">
 
         <TextView
             android:id="@+id/signUpLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textFontWeight="2500"
-            android:text="Sign Up" />
+            android:layout_marginBottom="25"
+            android:text="Registro"
+            android:textStyle="bold"
+            android:textSize="24dp"
+            android:textColor="@color/ic_launcher_background"
+            android:textFontWeight="2500" />
 
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="160dp"
-            android:layout_height="157dp"
+            android:layout_width="254dp"
+            android:layout_height="271dp"
             android:layout_gravity="center"
             app:srcCompat="@mipmap/smartparkingLogo_round" />
 
         <EditText
-            android:id="@+id/editText2"
+            android:id="@+id/aliasSignUp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Alias"
+            android:hint="alias"
+            android:textColorHint="@color/divider"
             android:inputType="textPersonName" />
 
         <EditText
-            android:id="@+id/editText6"
+            android:id="@+id/passwordSignUp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="password"
+            android:textColorHint="@color/divider"
             android:inputType="textPassword" />
 
         <TextView
-            android:id="@+id/textView3"
+            android:id="@+id/ageTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/primary_text"
             android:text="Edad" />
 
         <EditText
-            android:id="@+id/editText7"
+            android:id="@+id/ageSignUp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -58,30 +63,39 @@
             android:inputType="number" />
 
         <TextView
-            android:id="@+id/textView2"
+            android:id="@+id/sexTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="75"
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/primary_text"
             android:text="Sexo" />
 
-            <RadioGroup
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/maleRadButton"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" >
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Hombre" />
 
-                <RadioButton
-                    android:id="@+id/radioButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Hombre" />
+            <RadioButton
+                android:id="@+id/femaleRadButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Mujer" />
+        </RadioGroup>
 
-                <RadioButton
-                    android:id="@+id/radioButton2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Mujer" />
-            </RadioGroup>
+        <Button
+            android:id="@+id/signUpButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/icons"
+            android:shadowColor="@color/cardview_shadow_end_color"
+            android:background="@color/ic_launcher_background"
+            android:text="@string/signUpButton" />
 
-    </LinearLayout>
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

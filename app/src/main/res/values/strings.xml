@@ -2,4 +2,33 @@
     <string name="app_name">SmartParking</string>
     <string name="register">Not account yet? Create one</string>
     <string name="loginButton">Login</string>
+    <string name="welcome">Welcome</string>
+    <string name="loginText">Login in !</string>
+    <string name="signUpButton">Sign in</string>
+    <string name="version_number">v1.0 Beta</string>
+    <string name="conacytThanks">
+        Esta aplicación es uno de los casos de estudio del proyecto SmartTraffic que es cofinanciado
+        por el CONACYT a través del programa PROCIENCIA- FEEI, FONACIDE.</string>
+    <string name="current_password">Contraseña actual</string>
+    <string name="settings_password">Nueva contraseña</string>
+    <string name="settings_password2">Repita nueva contraseña</string>
+    <string name="button_save">Guardar</string>
+    <string name="button_back">Atras</string>
+
+    <string name="eula_warning_body">Ud. no aceptó aún los términos de uso de la aplicación.
+        Por favor lea hasta el final y marque la casilla de aceptación si está de acuerdo
+        con las condiciones
+    </string>
+    <string name="eula_URL">http://example.com/</string>
+    <string name="server_address"></string>
+    <string name="eula_warning_title"></string>
+    <string name="eula_title">Aviso Legal de Responsabilidades</string>
+    <string name="eula_checkbox">I Accept the terms and Conditions</string>
+    <string name="eula_body">El uso de esta aplicación es completamente voluntario por parte del usuario.
+        Los proveedores de esta aplicación se comprometen en usar los datos recolectados de los
+        usuarios de forma responsable y de manera privada.
+    </string>
+    <string name="button_accept">Acepto</string>
+    <string name="button_cancel">Cancelar</string>
+
 </resources>

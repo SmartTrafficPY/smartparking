@@ -15,21 +15,36 @@
         android:paddingRight="24dp"
         tools:ignore="MissingConstraints">
 
+        <TextView
+            android:id="@+id/welcomeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:textAllCaps="true"
+            android:textColor="@color/ic_launcher_background"
+            android:textSize="24dp"
+            android:textStyle="bold|italic|normal"
+            android:layout_gravity="center"
+            android:text="@string/welcome" />
+
         <ImageView
             android:id="@+id/initLogo"
+            android:layout_marginTop="80dp"
             android:layout_width="match_parent"
             android:layout_height="234dp"
             android:src="@mipmap/smartparkingLogo_round/smartparkingLogo_round.png"
-            app:srcCompat="@color/colorAccent"
             tools:srcCompat="@mipmap/smartparkingLogo_round" />
 
         <TextView
             android:id="@+id/aliasTextView"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:layout_marginTop="8dp"
+            android:textColor="@color/primary_text"
             android:layout_marginBottom="8dp"
-            android:text="User alias" />
+            android:text="@string/loginText" />
 
         <EditText
             android:id="@+id/aliasLogin"
@@ -37,6 +52,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Alias"
+            android:textColorHint="@color/divider"
             android:inputType="textPersonName" />
 
         <EditText
@@ -45,12 +61,16 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Password"
+            android:textColorHint="@color/divider"
             android:inputType="textPassword" />
 
         <Button
             android:id="@+id/loginButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/icons"
+            android:shadowColor="@color/cardview_shadow_end_color"
+            android:background="@color/ic_launcher_background"
             android:text="@string/loginButton" />
 
         <android.support.design.widget.TextInputLayout
@@ -62,6 +82,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
+                android:textIsSelectable="true"
+                android:textColorLink="@color/blue"
                 android:text="@string/register" />
 
         </android.support.design.widget.TextInputLayout>
