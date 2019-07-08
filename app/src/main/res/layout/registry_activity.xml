@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/changePassword"
+    android:id="@+id/registryProfile"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -14,7 +14,6 @@
             android:id="@+id/signUpLabel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="25"
             android:text="Registro"
             android:textStyle="bold"
             android:textSize="24dp"
@@ -23,10 +22,18 @@
 
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="254dp"
-            android:layout_height="271dp"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
             android:layout_gravity="center"
-            app:srcCompat="@mipmap/smartparkingLogo_round" />
+            android:src="@mipmap/smartparkinglogo_round" />
+
+        <TextView
+            android:id="@+id/credencialesTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/primary_text"
+            android:text="Credenciales" />
 
         <EditText
             android:id="@+id/aliasSignUp"
@@ -44,13 +51,14 @@
             android:ems="10"
             android:hint="password"
             android:textColorHint="@color/divider"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"/>
 
         <TextView
             android:id="@+id/ageTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
+            android:layout_marginTop="25dp"
             android:textColor="@color/primary_text"
             android:text="Edad" />
 
@@ -60,6 +68,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="años"
+            android:layout_marginBottom="25dp"
             android:inputType="number" />
 
         <TextView
@@ -67,6 +76,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
+            android:layout_marginBottom="5dp"
             android:textColor="@color/primary_text"
             android:text="Sexo" />
 
@@ -79,19 +89,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Hombre" />
+                android:text="Hombre"/>
 
             <RadioButton
                 android:id="@+id/femaleRadButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Mujer" />
+                android:text="Mujer"/>
         </RadioGroup>
 
         <Button
             android:id="@+id/signUpButton"
             android:layout_width="match_parent"
+            android:layout_marginTop="25dp"
             android:layout_height="wrap_content"
             android:textColor="@color/icons"
             android:shadowColor="@color/cardview_shadow_end_color"

@@ -1,6 +1,7 @@
-package smarttraffic.smartparking;
+package smarttraffic.smartparking.activities;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -8,18 +9,19 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import retrofit2.http.GET;
-import retrofit2.Call;
-
+import smarttraffic.smartparking.controllers.ControllerLogin;
+import smarttraffic.smartparking.dataModels.Credentials;
+import smarttraffic.smartparking.R;
 
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
+    private static final int REQUEST_SIGNUP = 0;
 
     // binds the elements of the login_layout
     @BindView(R.id.aliasLogin)
@@ -28,11 +30,13 @@ public class LoginActivity extends AppCompatActivity {
     EditText passwordText;
     @BindView(R.id.loginButton)
     Button loginButton;
+    @BindView(R.id.linkSignUp)
+    TextView goSignUp;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity);
+        super.onCreate(savedInstanceState);
         ButterKnife.bind(this);
         //Using this fields...
 
@@ -42,15 +46,19 @@ public class LoginActivity extends AppCompatActivity {
                 login(); // function that makes the login process...
             }
         });
+
+        goSignUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, RegistryActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
     private void login() {
-        Log.d(TAG, "Trying to make the login");
-
-        if (!validCredentials()) {
-            onLoginFailed();
-            return;
-        }
+        Log.d(TAG, "User trying to make the login");
 
         loginButton.setEnabled(false);
 
@@ -60,40 +68,44 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog.setMessage("Verificando...");
         progressDialog.show();
 
-
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
                         // On complete call either onLoginSuccess or onLoginFailed
-                        onLoginSuccess();
+                        if (!validCredentials()) {
+                            onLoginFailed();
+                        }else{
+                            onLoginSuccess();
+                        }
                         progressDialog.dismiss();
                     }
-                }, 3000);
-
-
+                }, 2000);
     }
 
     private boolean validCredentials() {
         boolean validLogin = false;
-        //TODO: connect to the Django-sever to authenticate this credentials...
 
-        //contact with server and return an ID if credentials exists...
-        //...or a message of not found tuple(alias, password)
+        Credentials credentials = new Credentials();
 
-        String alias = aliasText.getText().toString();
-        String password = passwordText.getText().toString();
+        credentials.setAlias(aliasText.getText().toString());
+        credentials.setPassword(passwordText.getText().toString());
 
+        ControllerLogin controller = new ControllerLogin();
+        controller.start(credentials); //the controller get the response of the API service...
 
+        //TODO: Here should return TRUE if credentials exists...
         return validLogin;
 
     }
 
     public void onLoginSuccess() {
-        loginButton.setEnabled(true);
+        Intent homeIntent = new Intent(LoginActivity.this, HomeActivity.class);
+        startActivity(homeIntent);
         finish();
     }
 
     public void onLoginFailed() {
+        /**TODO: Send a Notification to the user, and open the possibility of resetPassword...**/
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
         loginButton.setEnabled(true);
     }
@@ -104,5 +116,16 @@ public class LoginActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == REQUEST_SIGNUP) {
+            if (resultCode == RESULT_OK) {
+                // TODO: Implement successful signup logic here
+                // By default we just finish the Activity and log them in automatically
+                this.finish();
+            } else{
+                // not good
+            }
+        }
+    }
 }

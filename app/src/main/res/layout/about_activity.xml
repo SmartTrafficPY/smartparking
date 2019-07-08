@@ -23,8 +23,7 @@
                 android:layout_height="250dp"
                 android:layout_gravity="center"
                 android:layout_centerInParent="true"
-                android:contentDescription="@string/about_image"
-                android:src="@mipmap/smartparkingLogo_round" />
+                android:src="@mipmap/smartparkinglogo_round" />
 
             <TextView
                 android:id="@+id/version_number"
