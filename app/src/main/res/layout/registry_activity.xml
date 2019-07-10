@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/registryProfile"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -33,7 +32,8 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:textColor="@color/primary_text"
-            android:text="Credenciales" />
+            android:text="Credenciales"
+            android:textStyle="bold"/>
 
         <EditText
             android:id="@+id/aliasSignUp"
@@ -58,9 +58,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            android:layout_marginTop="25dp"
             android:textColor="@color/primary_text"
-            android:text="Edad" />
+            android:text="Edad"
+            android:textStyle="bold"/>
 
         <EditText
             android:id="@+id/ageSignUp"
@@ -68,7 +68,6 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="años"
-            android:layout_marginBottom="25dp"
             android:inputType="number" />
 
         <TextView
@@ -78,9 +77,11 @@
             android:layout_marginLeft="5dp"
             android:layout_marginBottom="5dp"
             android:textColor="@color/primary_text"
-            android:text="Sexo" />
+            android:text="Sexo"
+            android:textStyle="bold"/>
 
         <RadioGroup
+            android:id="@+id/sexRadioGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -96,8 +97,31 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Mujer"/>
+                android:text="Mujer"
+                android:layout_marginBottom="25dp"/>
         </RadioGroup>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp">
+
+                <CheckBox
+                    android:id="@+id/acceptTermsCheckBox"
+                    android:layout_width="25dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/textInTermsAndCond"
+                    android:layout_width="250dp"
+                    android:layout_height="match_parent"
+                    android:layout_toEndOf="@+id/acceptTermsCheckBox"
+                    android:layout_toRightOf="@+id/acceptTermsCheckBox"
+                    android:gravity="center"
+                    android:text="@string/terms_conditions"
+                    android:textColor="@color/blue"
+                    android:textIsSelectable="true"/>
+        </RelativeLayout>
 
         <Button
             android:id="@+id/signUpButton"

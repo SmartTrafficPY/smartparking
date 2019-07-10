@@ -103,3 +103,4 @@ public class InitActivity extends AppCompatActivity {
     }
 
 }
+

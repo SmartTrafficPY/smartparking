@@ -33,6 +33,13 @@
     <string name="button_send">Enviar</string>
     <string name="init_text">SmartParking</string>
     <string name="no_network_connection">Sin conexion a Internet !</string>
-
+    <string name="credentials">credenciales</string>
+    <string name="alias_key">alias</string>
+    <string name="password_key">password</string>
+    <string name="age_key">age</string>
+    <string name="sex_key">sexo</string>
+    <string name="id_key">identificador</string>
+    <string name="preference_file_key">ProfileSharedPreferencesPrivateData</string>
+    <string name="terms_conditions">Acepto los <u>términos y condiciones</u>.</string>
 
 </resources>

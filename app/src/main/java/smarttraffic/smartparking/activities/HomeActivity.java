@@ -23,4 +23,11 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_activity);
     }
+
+    @Override
+    public void onBackPressed() {
+        // disable going back...
+        moveTaskToBack(true);
+    }
+
 }

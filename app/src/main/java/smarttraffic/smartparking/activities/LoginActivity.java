@@ -2,6 +2,7 @@ package smarttraffic.smartparking.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -10,13 +11,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import smarttraffic.smartparking.controllers.ControllerLogin;
-import smarttraffic.smartparking.dataModels.Credentials;
+
 import smarttraffic.smartparking.R;
+import smarttraffic.smartparking.receivers.LoginReceiver;
+import smarttraffic.smartparking.services.LoginService;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -38,7 +39,6 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.login_activity);
         super.onCreate(savedInstanceState);
         ButterKnife.bind(this);
-        //Using this fields...
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,6 +55,11 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(LoginService.LOGIN_ACTION);
+        filter.addAction(LoginService.BAD_LOGIN_ACTION);
+        LoginReceiver loginReceiver = new LoginReceiver();
+        registerReceiver(loginReceiver, filter);
     }
 
     private void login() {
@@ -71,43 +76,19 @@ public class LoginActivity extends AppCompatActivity {
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
-                        // On complete call either onLoginSuccess or onLoginFailed
-                        if (!validCredentials()) {
-                            onLoginFailed();
-                        }else{
-                            onLoginSuccess();
-                        }
+                        /**Here the service get the request of Login...**/
+                        sendLoginRequest();
+                        loginButton.setEnabled(true);
                         progressDialog.dismiss();
                     }
-                }, 2000);
+                }, 1000);
     }
 
-    private boolean validCredentials() {
-        boolean validLogin = false;
-
-        Credentials credentials = new Credentials();
-
-        credentials.setAlias(aliasText.getText().toString());
-        credentials.setPassword(passwordText.getText().toString());
-
-        ControllerLogin controller = new ControllerLogin();
-        controller.start(credentials); //the controller get the response of the API service...
-
-        //TODO: Here should return TRUE if credentials exists...
-        return validLogin;
-
-    }
-
-    public void onLoginSuccess() {
-        Intent homeIntent = new Intent(LoginActivity.this, HomeActivity.class);
-        startActivity(homeIntent);
-        finish();
-    }
-
-    public void onLoginFailed() {
-        /**TODO: Send a Notification to the user, and open the possibility of resetPassword...**/
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
-        loginButton.setEnabled(true);
+    private void sendLoginRequest() {
+        Intent loginIntent = new Intent(LoginActivity.this, LoginService.class);
+        loginIntent.putExtra("alias", aliasText.getText().toString());
+        loginIntent.putExtra("password", passwordText.getText().toString());
+        startService(loginIntent);
     }
 
     @Override
@@ -116,16 +97,4 @@ public class LoginActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == REQUEST_SIGNUP) {
-            if (resultCode == RESULT_OK) {
-                // TODO: Implement successful signup logic here
-                // By default we just finish the Activity and log them in automatically
-                this.finish();
-            } else{
-                // not good
-            }
-        }
-    }
 }

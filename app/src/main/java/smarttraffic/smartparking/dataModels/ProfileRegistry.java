@@ -2,15 +2,25 @@ package smarttraffic.smartparking.dataModels;
 
 public class ProfileRegistry {
 
+    private Integer id;
     private String password;
     private String alias;
     private Integer age;
     private String sex;
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     @Override
     public String toString() {
         return "ProfileRegistry{" +
-                "password='" + password + '\'' +
+                "id=" + id +
+                ", password='" + password + '\'' +
                 ", alias='" + alias + '\'' +
                 ", age=" + age +
                 ", sex='" + sex + '\'' +

@@ -9,17 +9,17 @@ import smarttraffic.smartparking.dataModels.Credentials;
 import smarttraffic.smartparking.dataModels.ProfileRegistry;
 
 public interface SmartParkingAPI {
-    @POST("/login")
+    @POST("login")
     Call<LoginFeed> loginUser(@Body Credentials credentials);
 
-    @POST("/signUp")
+    @POST("profiles/")
     Call<ProfileRegistry> signUpUser(@Body ProfileRegistry profileRegistry);
 
-    @POST("/logout")
-    Call<LogoutFeed> logoutUser(@Body Credentials credentials);
-
-    @POST("/logout")
-    Call<LogoutFeed> configProfile(@Body Credentials credentials);
+//    @POST("/logout")
+//    Call<LogoutFeed> logoutUser(@Body Credentials credentials);
+//
+//    @POST("/logout")
+//    Call<LogoutFeed> configProfile(@Body Credentials credentials);
 
     /*
     * Here should be all the API Rest services that the mobile app

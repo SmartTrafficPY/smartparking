@@ -1,9 +1,14 @@
 package smarttraffic.smartparking.dataModels;
 
-public class Credentials {
+import java.io.Serializable;
+
+public class Credentials implements Serializable {
 
     private String alias;
     private String password;
+
+    public Credentials() {
+    }
 
     public String getAlias() {
         return alias;

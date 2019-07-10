@@ -1,7 +1,8 @@
 package smarttraffic.smartparking.controllers;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -11,18 +12,21 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import smarttraffic.smartparking.activities.LoginActivity;
+import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.apiFeed.LoginFeed;
 import smarttraffic.smartparking.dataModels.Credentials;
 import smarttraffic.smartparking.SmartParkingAPI;
 
 public class ControllerLogin implements Callback<LoginFeed> {
 
-    private static final String TAG = "LoginController";
+    private static final String TAG = "ControllerLogin";
+    private SharedPreferences sharedPref;
 
-    static final String BASE_URL = "http://10.50.225.77:8000/api/smartparking/profiles/login/";
+    static final String BASE_URL = "http://10.50.225.77:8000/smartparking/profiles/";
 
-    public void start(Credentials credentials) {
+    public void start(Credentials credentials, Context context) {
+        sharedPref = context.getSharedPreferences(String.valueOf(R.string.credentials),
+                Context.MODE_PRIVATE);
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -40,32 +44,32 @@ public class ControllerLogin implements Callback<LoginFeed> {
 
     @Override
     public void onResponse(Call<LoginFeed> call, Response<LoginFeed> response) {
-        /**
-         *                 switch (response.code()) {
-         *                     case 200:
-         *                         PokemonFeed data = response.body();
-         *                         view.notifyDataSetChanged(data.getResults());
-         *                         break;
-         *                     case 401:
-         *
-         *                         break;
-         *                     default:
-         *
-         *                         break;
-         *                 }
-         **/
-        if(response.isSuccessful()) {
-            LoginFeed loginFeed = response.body();
-            Log.d(TAG, loginFeed.getIdentifier());
-            System.out.println(loginFeed.getIdentifier());
-        } else {
-            System.out.println(response.errorBody());
-            Log.e(TAG, String.valueOf(response.errorBody()));
+        switch (response.code()) {
+            case 200:
+                LoginFeed data = response.body();
+                saveLoginFeed(data);
+                break;
+            default:
+                response.errorBody();
+                break;
         }
     }
 
     @Override
     public void onFailure(Call<LoginFeed> call, Throwable t) {
         t.printStackTrace();
+        Log.e(TAG,t.toString());
+        Log.d(TAG,t.getMessage());
+    }
+
+    public void saveLoginFeed(LoginFeed loginFeed){
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        editor.putString(String.valueOf(R.string.alias_key), loginFeed.getAlias());
+        editor.putString(String.valueOf(R.string.password_key), loginFeed.getPassword());
+        editor.putString(String.valueOf(R.string.sex_key), loginFeed.getSex());
+        editor.putInt(String.valueOf(R.string.age_key), loginFeed.getAge());
+        editor.putInt(String.valueOf(R.string.id_key), loginFeed.getId());
+        editor.commit();
     }
 }
