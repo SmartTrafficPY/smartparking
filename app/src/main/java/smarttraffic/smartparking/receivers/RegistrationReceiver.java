@@ -1,7 +1,9 @@
 package smarttraffic.smartparking.receivers;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
@@ -17,6 +19,17 @@ public class RegistrationReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if(intent.getAction().equals(RegistrationService.REGISTRATION_ACTION)) {
             Log.i(TAG,"New user receive!");
+            //Basic alert Dialog....
+            AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+            alertDialog.setTitle("Registro");
+            alertDialog.setMessage("Realizado con exito!");
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
             //Go to Login...or Home?
             Intent i = new Intent(context, LoginActivity.class);
             context.startActivity(i);

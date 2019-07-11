@@ -1,5 +1,6 @@
 package smarttraffic.smartparking.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -69,11 +70,24 @@ public class RegistryActivity extends AppCompatActivity {
         RegistrationReceiver registrationReceiver = new RegistrationReceiver();
         registerReceiver(registrationReceiver, filter);
 
+        final ProgressDialog progressDialog = new ProgressDialog(RegistryActivity.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Creando el registro...");
+
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(dataIsComplete()){
-                    sendRegistrationPetition();
+                    progressDialog.show();
+                    new android.os.Handler().postDelayed(
+                            new Runnable() {
+                                public void run() {
+                                    /**Here the service get the request of registration...**/
+                                    sendRegistrationPetition();
+                                    progressDialog.dismiss();
+                                }
+                            }, 1000);
                 }
             }
         });
