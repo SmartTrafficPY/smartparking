@@ -1,6 +1,7 @@
 package smarttraffic.smartparking.activities;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import smarttraffic.smartparking.R;
+import smarttraffic.smartparking.receivers.RegistrationReceiver;
 import smarttraffic.smartparking.services.RegistrationService;
 
 public class RegistryActivity extends AppCompatActivity {
@@ -61,6 +63,12 @@ public class RegistryActivity extends AppCompatActivity {
 //            }
 //        });
 
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(RegistrationService.REGISTRATION_ACTION);
+        filter.addAction(RegistrationService.BAD_REGISTRATION_ACTION);
+        RegistrationReceiver registrationReceiver = new RegistrationReceiver();
+        registerReceiver(registrationReceiver, filter);
+
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,9 +81,6 @@ public class RegistryActivity extends AppCompatActivity {
     }
 
     private boolean dataIsComplete() {
-        Integer age = Integer.parseInt(ageInput.getText().toString());
-        String pass = passwordInput.getText().toString();
-        String alias = aliasInput.getText().toString();
         if(termsAndConditions.isChecked()){
             if(!aliasInput.getText().toString().isEmpty() && !passwordInput.getText().toString().isEmpty()){
                 if(maleRadButton.isChecked() || femaleRadButton.isChecked()){

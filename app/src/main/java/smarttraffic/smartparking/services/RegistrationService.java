@@ -47,14 +47,14 @@ public class RegistrationService extends IntentService {
         try {
             Response<ProfileRegistry> result = call.execute();
             if(result.code() == 201){
-                Intent responseIntent = new Intent();
-                responseIntent.setAction(REGISTRATION_ACTION);
-                sendBroadcast(responseIntent);
+                Intent resultIntent = new Intent();
+                resultIntent.setAction(REGISTRATION_ACTION);
+                sendBroadcast(resultIntent);
             }else{
-                Intent responseIntent = new Intent();
-                responseIntent.putExtra("exists", "Profile already exists");
-                responseIntent.setAction(BAD_REGISTRATION_ACTION);
-                sendBroadcast(responseIntent);
+                Intent errorIntent = new Intent();
+                errorIntent.putExtra("exists", "Profile already exists");
+                errorIntent.setAction(BAD_REGISTRATION_ACTION);
+                sendBroadcast(errorIntent);
             }
         } catch (IOException e) {
             e.printStackTrace();

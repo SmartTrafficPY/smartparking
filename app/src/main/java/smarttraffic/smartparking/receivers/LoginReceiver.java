@@ -16,6 +16,27 @@ public class LoginReceiver extends BroadcastReceiver {
     private Integer age;
     private Integer identifier;
 
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if(intent.getAction().equals(LoginService.LOGIN_ACTION)) {
+            Bundle extras = intent.getExtras();
+            setAge(extras.getInt("age", -1));
+            setIdentifier(extras.getInt("identifier", 0));
+            setSexResponse(extras.getString("sex"));
+            if (identifier != 0){
+                Intent i = new Intent(context, HomeActivity.class);
+                // in future should pass token ?
+                i.putExtra("id", getIdentifier());
+                context.startActivity(i);
+            }
+        }
+        else if(intent.getAction().equals(LoginService.BAD_LOGIN_ACTION)) {
+            setErrorMessage(intent.getStringExtra("not_exists"));
+            Toast.makeText(context, "Wrong Alias or Password!", Toast.LENGTH_LONG).show();
+        }
+    }
+
+
     public String getErrorMessage() {
         return errorMessage;
     }
@@ -48,24 +69,5 @@ public class LoginReceiver extends BroadcastReceiver {
 
     public void setIdentifier(Integer identifier) {
         this.identifier = identifier;
-    }
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        if(intent.getAction().equals(LoginService.LOGIN_ACTION)) {
-            Bundle extras = intent.getExtras();
-            setAge(extras.getInt("age", -1));
-            setIdentifier(extras.getInt("identifier", 0));
-            setSexResponse(extras.getString("sex"));
-            if (identifier != 0){
-                Intent i = new Intent(context, HomeActivity.class);
-                i.putExtra("id", getIdentifier());
-                context.startActivity(i);
-            }
-        }
-        else if(intent.getAction().equals(LoginService.BAD_LOGIN_ACTION)) {
-            setErrorMessage(intent.getStringExtra("not_exists"));
-            Toast.makeText(context, "Wrong Alias or Password!", Toast.LENGTH_LONG).show();
-        }
     }
 }
