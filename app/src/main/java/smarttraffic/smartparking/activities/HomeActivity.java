@@ -1,12 +1,19 @@
 package smarttraffic.smartparking.activities;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.menuNavigation.Fragment1;
@@ -79,12 +86,30 @@ public class HomeActivity extends AppCompatActivity {
                         return true;
                     }
                 });
+
+//        Intent intent = getIntent();
+//        String statusRegistry = intent.getStringExtra("status_registro");
+//        if(statusRegistry != null){
+//            showToast(statusRegistry);
+//        }
     }
 
     @Override
     public void onBackPressed() {
         // disable going back...
         moveTaskToBack(true);
+    }
+
+    // Show images in Toast prompt.
+    @SuppressLint("ResourceAsColor")
+    private void showToast(String message) {
+        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        LinearLayout toastContentView = (LinearLayout) toast.getView();
+        ImageView imageView = new ImageView(getApplicationContext());
+        imageView.setImageResource(R.mipmap.toast_smartparking);
+        toastContentView.addView(imageView, 0);
+        toast.show();
     }
 
 }

@@ -1,17 +1,29 @@
 package smarttraffic.smartparking.receivers;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import butterknife.BindView;
+import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.activities.HomeActivity;
 import smarttraffic.smartparking.services.LoginService;
 
 public class LoginReceiver extends BroadcastReceiver {
 
+    @BindView(R.id.forgotPassword)
+    TextView forgotPassword;
+
     private static final String TAG = "LoginReceiver";
+
+
     private String sex;
     private Integer age;
     private Integer identifier;
@@ -23,19 +35,16 @@ public class LoginReceiver extends BroadcastReceiver {
             setAge(extras.getInt("age", -1));
             setIdentifier(extras.getInt("identifier", 0));
             setSexResponse(extras.getString("sex"));
-            if (identifier != 0){
-                Intent i = new Intent(context, HomeActivity.class);
-                // in future should pass token ?
-                i.putExtra("id", getIdentifier());
-                context.startActivity(i);
-            }
+            Intent i = new Intent(context, HomeActivity.class);
+            // in future should pass token ?
+            i.putExtra("id", getIdentifier());
+            context.startActivity(i);
         }
         else if(intent.getAction().equals(LoginService.BAD_LOGIN_ACTION)) {
-            setErrorMessage(intent.getStringExtra("not_exists"));
-            Toast.makeText(context, "Wrong Alias or Password!", Toast.LENGTH_LONG).show();
+            setErrorMessage(intent.getStringExtra(LoginService.PROBLEM));
+            showToast(getErrorMessage(),context);
         }
     }
-
 
     public String getErrorMessage() {
         return errorMessage;
@@ -69,5 +78,17 @@ public class LoginReceiver extends BroadcastReceiver {
 
     public void setIdentifier(Integer identifier) {
         this.identifier = identifier;
+    }
+
+    // Show images in Toast prompt.
+    @SuppressLint("ResourceAsColor")
+    private void showToast(String message, Context context) {
+        Toast toast = Toast.makeText(context, message, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        LinearLayout toastContentView = (LinearLayout) toast.getView();
+        ImageView imageView = new ImageView(context);
+        imageView.setImageResource(R.mipmap.toast_smartparking);
+        toastContentView.addView(imageView, 0);
+        toast.show();
     }
 }

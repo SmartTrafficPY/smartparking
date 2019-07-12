@@ -7,10 +7,14 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,7 +26,6 @@ import smarttraffic.smartparking.services.LoginService;
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
-    private static final int REQUEST_SIGNUP = 0;
 
     // binds the elements of the login_layout
     @BindView(R.id.aliasLogin)
@@ -33,6 +36,8 @@ public class LoginActivity extends AppCompatActivity {
     Button loginButton;
     @BindView(R.id.linkSignUp)
     TextView goSignUp;
+    @BindView(R.id.forgotPassword)
+    TextView forgotPassword;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,7 +48,9 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                login(); // function that makes the login process...
+                if(checkCredentialsInput()){
+                    login(); // function that makes the login process...
+                }
             }
         });
 
@@ -55,11 +62,25 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        forgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, ResetPassActivity.class);
+                startActivity(intent);
+            }
+        });
+
         IntentFilter filter = new IntentFilter();
         filter.addAction(LoginService.LOGIN_ACTION);
         filter.addAction(LoginService.BAD_LOGIN_ACTION);
         LoginReceiver loginReceiver = new LoginReceiver();
         registerReceiver(loginReceiver, filter);
+
+        Intent intent = getIntent();
+        String statusRegistry = intent.getStringExtra("status_registro");
+        if(statusRegistry != null){
+            showToast(statusRegistry);
+        }
     }
 
     private void login() {
@@ -72,16 +93,16 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Verificando...");
         progressDialog.show();
+        sendLoginRequest();
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
                         /**Here the service get the request of Login...**/
-                        sendLoginRequest();
                         loginButton.setEnabled(true);
                         progressDialog.dismiss();
                     }
-                }, 1000);
+                }, 3000);
     }
 
     private void sendLoginRequest() {
@@ -95,6 +116,31 @@ public class LoginActivity extends AppCompatActivity {
     public void onBackPressed() {
         // disable going back...
         moveTaskToBack(true);
+    }
+
+    // Show images in Toast prompt.
+    private void showToast(String message) {
+        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        LinearLayout toastContentView = (LinearLayout) toast.getView();
+        ImageView imageView = new ImageView(getApplicationContext());
+        imageView.setImageResource(R.mipmap.toast_smartparking_round);
+        toastContentView.addView(imageView, 0);
+        toast.show();
+    }
+
+    private boolean checkCredentialsInput(){
+        if(passwordText.getText().toString() != null){
+            if(aliasText.getText().toString().length() > 5){
+                return true;
+            }else{
+                showToast("La CONTRASEÑA debe tener al menos 6 caracteres!");
+                return false;
+            }
+        }else{
+            showToast("El ALIAS no puede estar vacio!");
+            return false;
+        }
     }
 
 }

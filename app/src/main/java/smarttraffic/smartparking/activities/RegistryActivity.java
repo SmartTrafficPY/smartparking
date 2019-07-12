@@ -6,10 +6,14 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -70,58 +74,69 @@ public class RegistryActivity extends AppCompatActivity {
         RegistrationReceiver registrationReceiver = new RegistrationReceiver();
         registerReceiver(registrationReceiver, filter);
 
-        final ProgressDialog progressDialog = new ProgressDialog(RegistryActivity.this,
-                R.style.AppTheme_Dark_Dialog);
-        progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Creando el registro...");
 
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(dataIsComplete()){
-                    progressDialog.show();
-                    new android.os.Handler().postDelayed(
-                            new Runnable() {
-                                public void run() {
-                                    /**Here the service get the request of registration...**/
-                                    sendRegistrationPetition();
-                                    progressDialog.dismiss();
-                                }
-                            }, 1000);
-                }
+                createRegister();
             }
         });
 
     }
 
-    private boolean dataIsComplete() {
+    private void createRegister() {
+        Log.d(TAG, "User trying to registry");
+
+        signInButton.setEnabled(false);
+
+        final ProgressDialog progressDialog = new ProgressDialog(RegistryActivity.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Creando el registro...");
+        progressDialog.show();
+        sendRegistrationPetition();
+
+        if(dataIsCorrectlyComplete()){
+            progressDialog.show();
+            new android.os.Handler().postDelayed(
+                    new Runnable() {
+                        public void run() {
+                            /**Here the service get the request of registration...**/
+                            signInButton.setEnabled(true);
+                            progressDialog.dismiss();
+                        }
+                    }, 3000);
+        }
+
+    }
+
+    private boolean dataIsCorrectlyComplete() {
         if(termsAndConditions.isChecked()){
-            if(!aliasInput.getText().toString().isEmpty() && !passwordInput.getText().toString().isEmpty()){
-                if(maleRadButton.isChecked() || femaleRadButton.isChecked()){
-                    if(ageInput.getText()!= null){
-                        return true;
+            if(aliasInput.getText().toString().length() > 5){
+                if(!passwordInput.getText().toString().isEmpty()){
+                    if(maleRadButton.isChecked() || femaleRadButton.isChecked()){
+                        if(!ageInput.getText().toString().isEmpty()){
+                            return true;
+                        }else{
+                            showToast("Favor ponga su EDAD(en años)!");
+                            return false;
+                        }
                     }else{
-                        Toast.makeText(RegistryActivity.this,
-                                "Favor ponga su edad(en años)!", Toast.LENGTH_LONG).show();
+                        showToast("Es necesario elegir alguna opcion de SEXO!");
                         return false;
                     }
                 }else{
-                    Toast.makeText(RegistryActivity.this,
-                            "Es necesario elegir alguna opcion de sexo!", Toast.LENGTH_LONG).show();
+                    showToast("La CONTRASEÑA no puede estar vacia!");
                     return false;
                 }
             }else{
-                Toast.makeText(RegistryActivity.this,
-                        "Tanto el alias como el password son necesarios!", Toast.LENGTH_LONG).show();
+                showToast("El ALIAS debe tener al menos 6 caracteres!");
                 return false;
             }
         }else{
-            Toast.makeText(RegistryActivity.this,
-                    "Tienes que aceptar los terminos y condiciones!",
-                    Toast.LENGTH_LONG).show();
+            showToast("Tienes que aceptar los TERMINOS y CONDICIONES!");
             return false;
         }
-
     }
 
     private void sendRegistrationPetition() {
@@ -143,6 +158,17 @@ public class RegistryActivity extends AppCompatActivity {
         }else{
             return null;
         }
+    }
+
+    // Show images in Toast prompt.
+    private void showToast(String message) {
+        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        LinearLayout toastContentView = (LinearLayout) toast.getView();
+        ImageView imageView = new ImageView(getApplicationContext());
+        imageView.setImageResource(R.mipmap.toast_smartparking_round);
+        toastContentView.addView(imageView, 0);
+        toast.show();
     }
 
 }

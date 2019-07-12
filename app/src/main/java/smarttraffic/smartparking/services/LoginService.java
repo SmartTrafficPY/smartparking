@@ -10,9 +10,14 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -24,6 +29,11 @@ import smarttraffic.smartparking.apiFeed.LoginFeed;
 import smarttraffic.smartparking.dataModels.Credentials;
 
 public class LoginService extends IntentService {
+
+    public static final String PROBLEM = "Found some Problem in Login";
+    private static final String CANNOT_LOGIN = "No se logro hacer inicio. Revisar credenciales!";
+    private static final String CANNOT_CONNECT_SERVER = "No se pudo conectar con el servidor, favor revisar conexion!";
+
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      *
@@ -49,7 +59,14 @@ public class LoginService extends IntentService {
                 .setLenient()
                 .create();
 
+        final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .build();
+
         Retrofit retrofit = new Retrofit.Builder()
+                .client(okHttpClient)
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
@@ -69,11 +86,15 @@ public class LoginService extends IntentService {
                 sendBroadcast(responseIntent);
             }else {
                 Intent responseIntent = new Intent();
-                responseIntent.putExtra("not_exists", "Wrong credentials");
+                responseIntent.putExtra(PROBLEM, CANNOT_LOGIN);
                 responseIntent.setAction(BAD_LOGIN_ACTION);
                 sendBroadcast(responseIntent);
             }
         } catch (IOException e) {
+            Intent responseIntent = new Intent();
+            responseIntent.putExtra(PROBLEM, CANNOT_CONNECT_SERVER);
+            responseIntent.setAction(BAD_LOGIN_ACTION);
+            sendBroadcast(responseIntent);
             e.printStackTrace();
         }
     }

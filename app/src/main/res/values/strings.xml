@@ -40,6 +40,7 @@
     <string name="id_key">identificador</string>
     <string name="preference_file_key">ProfileSharedPreferencesPrivateData</string>
     <string name="terms_conditions">Acepto los <u>términos y condiciones</u>.</string>
+    <string name="forgotPassword">Has olvidado la contraseña?</string>
     <!--Menu String values...-->
     <string name="usuario"></string>
     <string name="seccion_1">S1</string>
