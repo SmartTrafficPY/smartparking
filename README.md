@@ -4,9 +4,7 @@
 
 # SmartParking: facilitating the search for parking places.
 
-<p align="center">
   <a href="https://www.smarttraffic.com.py/SmartParking/"><img src="https://github.com/SmartTrafficPY/smartparking/blob/master/Smartparking.png" title="SmartParking" alt="SmartParking"></a>
-</p>
 
 Repository corresponding to the development of the client part of the SmartParking tool, one of the case studies within the SmartTraffic project framework.
 
@@ -67,7 +65,7 @@ $ bower install
     - 🍴 Fork this repo!
 
 - **Option 2**
-    - 👯 Clone this repo to your local machine using `https://github.com/joanaz/HireDot2.git`
+    - 👯 Clone this repo to your local machine using `https://github.com/SmartTrafficPY/smartparking.git`
 
 ### Step 2
 
@@ -97,7 +95,7 @@ This project is co-funded by CONACYT through the PROCIENCIA program with resourc
 
 ## License
 
-[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+[![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)  
 
 - **[Apache License 2.0](https://github.com/SmartTrafficPY/smartparking/blob/master/LICENSE)**
-- Copyright 2015 © <a href="http://smarttraffic.com.py" target="_blank">SmartTraffic</a>.
+- Copyright 2019 © <a href="http://smarttraffic.com.py" target="_blank">SmartTraffic</a>.
