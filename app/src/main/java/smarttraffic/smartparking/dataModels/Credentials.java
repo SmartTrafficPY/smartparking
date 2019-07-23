@@ -4,18 +4,18 @@ import java.io.Serializable;
 
 public class Credentials implements Serializable {
 
-    private String alias;
+    private String username;
     private String password;
 
     public Credentials() {
     }
 
-    public String getAlias() {
-        return alias;
+    public String getUsername() {
+        return username;
     }
 
-    public void setAlias(String alias) {
-        this.alias = alias;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
@@ -29,7 +29,7 @@ public class Credentials implements Serializable {
     @Override
     public String toString() {
         return "Credentials{" +
-                "alias='" + alias + '\'' +
+                "username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 '}';
     }

@@ -16,7 +16,11 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import smarttraffic.smartparking.SmartParkingAPI;
+import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
+import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
 import smarttraffic.smartparking.dataModels.ProfileRegistry;
+import smarttraffic.smartparking.dataModels.SmartParkingProfile;
+import smarttraffic.smartparking.receivers.RegistrationReceiver;
 
 public class RegistrationService extends IntentService {
 
@@ -24,7 +28,7 @@ public class RegistrationService extends IntentService {
     private static final String CANNOT_CONNECT_SERVER = "No se pudo conectar con el servidor," +
             " favor revisar conexion!";
 
-    static final String BASE_URL = "http://10.50.225.77:8000/smartparking/";
+    static final String BASE_URL = "http://10.50.225.75:8000/api/smartparking/";
 
     public static final String REGISTRATION_ACTION = "Registro correcto";
     public static final String BAD_REGISTRATION_ACTION = "Registro no realizado";
@@ -36,8 +40,10 @@ public class RegistrationService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         ProfileRegistry profileRegistry = new ProfileRegistry();
+        profileRegistry.setSmartParkingProfile(new SmartParkingProfile());
         Bundle extras = intent.getExtras();
         setRegistrationExtras(extras, profileRegistry);
+
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -46,6 +52,8 @@ public class RegistrationService extends IntentService {
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .writeTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
+                .addInterceptor(new ReceivedCookiesInterceptor(this))
+                .addInterceptor(new AddCookiesInterceptor(this))
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -56,33 +64,28 @@ public class RegistrationService extends IntentService {
 
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
         Call<ProfileRegistry> call = smartParkingAPI.signUpUser(profileRegistry);
+        Intent registrationIntent = new Intent("registrationIntent");
+        registrationIntent.setClass(this, RegistrationReceiver.class);
 
         try {
             Response<ProfileRegistry> result = call.execute();
             if(result.code() == 201){
-                Intent resultIntent = new Intent();
-                resultIntent.setAction(REGISTRATION_ACTION);
-                sendBroadcast(resultIntent);
+                registrationIntent.setAction(REGISTRATION_ACTION);
             }else{
-                Intent errorIntent = new Intent();
-                errorIntent.putExtra("exists", "Profile already exists");
-                errorIntent.setAction(BAD_REGISTRATION_ACTION);
-                sendBroadcast(errorIntent);
+                registrationIntent.putExtra("exists", "Profile already exists");
+                registrationIntent.setAction(BAD_REGISTRATION_ACTION);
             }
         } catch (IOException e) {
-            Intent responseIntent = new Intent();
-            responseIntent.putExtra(PROBLEM, CANNOT_CONNECT_SERVER);
-            responseIntent.setAction(BAD_REGISTRATION_ACTION);
-            sendBroadcast(responseIntent);
+            registrationIntent.putExtra(PROBLEM, CANNOT_CONNECT_SERVER);
+            registrationIntent.setAction(BAD_REGISTRATION_ACTION);
             e.printStackTrace();
         }
-
+        sendBroadcast(registrationIntent);
     }
 
     private void setRegistrationExtras(Bundle extras, ProfileRegistry profileRegistry){
-        profileRegistry.setAge(extras.getInt("age"));
-        profileRegistry.setAlias(extras.getString("alias"));
+        profileRegistry.setUsername(extras.getString("username"));
         profileRegistry.setPassword(extras.getString("password"));
-        profileRegistry.setSex(extras.getString("sex"));
+        profileRegistry.getSmartParkingProfile().setSex(extras.getString("sex"));
     }
 }

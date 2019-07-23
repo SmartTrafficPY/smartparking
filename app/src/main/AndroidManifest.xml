@@ -55,12 +55,20 @@
             android:name="smarttraffic.smartparking.activities.ResetPassActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.SmartParking"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="smarttraffic.smartparking.activities.LoginActivity" />
+        </activity>
         <activity
             android:name="smarttraffic.smartparking.activities.ChangePassActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.SmartParking"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="smarttraffic.smartparking.activities.HomeActivity" />
+        </activity>
 
         <service
             android:name=".services.LoginService"
@@ -70,11 +78,32 @@
             android:name=".services.RegistrationService"
             android:enabled="true"
             android:exported="false"></service>
+        <service
+            android:name=".services.InitService"
+            android:enabled="true"
+            android:exported="false"></service>
 
+        <receiver android:name=".receivers.InitReceiver"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="initIntent"/>
+            </intent-filter>
+        </receiver>
         <receiver android:name=".receivers.LoginReceiver"
-            android:enabled="true"></receiver>
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="loginIntent"/>
+            </intent-filter>
+        </receiver>
         <receiver android:name=".receivers.RegistrationReceiver"
-            android:enabled="true"></receiver>
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="registrationIntent"/>
+            </intent-filter>
+        </receiver>
 
     </application>
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/registryProfile"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -36,11 +37,11 @@
             android:textStyle="bold"/>
 
         <EditText
-            android:id="@+id/aliasSignUp"
+            android:id="@+id/usernameSignUp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="alias"
+            android:hint="username"
             android:textColorHint="@color/divider"
             android:inputType="textPersonName" />
 
@@ -53,22 +54,42 @@
             android:textColorHint="@color/divider"
             android:inputType="textPassword"/>
 
-        <TextView
-            android:id="@+id/ageTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:textColor="@color/primary_text"
-            android:text="Edad"
-            android:textStyle="bold"/>
 
-        <EditText
-            android:id="@+id/ageSignUp"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="años"
-            android:inputType="number" />
+            android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/ageTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:textColor="@color/primary_text"
+                    android:text="Fecha de nacimiento"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/birthDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="44dp"
+                    android:layout_below="@+id/ageTextView"
+                    android:ems="10"
+                    android:textSize="20dp"
+                    android:gravity="center"
+                    android:hint="yyyy-MM-dd"
+                    android:inputType="date" />
+
+                <ImageButton
+                    android:id="@+id/datePickerButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ageTextView"
+                    android:src="@drawable/datepicker"
+                    android:layout_marginLeft="15dp"
+                    android:layout_toRightOf="@+id/birthDate"
+                    />
+
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/sexTextView"

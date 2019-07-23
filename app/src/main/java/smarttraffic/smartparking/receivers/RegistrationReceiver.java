@@ -34,8 +34,8 @@ public class RegistrationReceiver extends BroadcastReceiver {
 
         if(intent.getAction().equals(RegistrationService.REGISTRATION_ACTION)) {
             Log.i(TAG,"New user receive!");
-                //Go to Login...or Home?
             Intent i = new Intent(context, LoginActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             i.putExtra("status_registro", "Registro exitoso!");
             context.startActivity(i);
         }

@@ -3,6 +3,7 @@ package smarttraffic.smartparking.activities;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
@@ -14,6 +15,8 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
+
+import java.util.HashSet;
 
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.menuNavigation.Fragment1;
@@ -87,7 +90,8 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 });
 
-//        Intent intent = getIntent();
+
+        Intent intent = getIntent();
 //        String statusRegistry = intent.getStringExtra("status_registro");
 //        if(statusRegistry != null){
 //            showToast(statusRegistry);

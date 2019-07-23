@@ -3,13 +3,21 @@ package smarttraffic.smartparking.activities;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import java.util.HashSet;
+
 import smarttraffic.smartparking.R;
+import smarttraffic.smartparking.services.InitService;
 
 
 public class InitActivity extends AppCompatActivity {
@@ -22,29 +30,42 @@ public class InitActivity extends AppCompatActivity {
      * -Login
      * -Home
     **/
-
+    public static final String PREF_COOKIES = "PREF_COOKIES";
+    private static final String COOKIES_CLIENT = "Cookies Client";
     public static final String LOG_TAG = InitActivity.class.getSimpleName();
     private boolean withInternetConnection;
-    private ProgressDialog progressDialog;
-
-
+    private static final String INIT_APP_MESSAGE = "Inicializando la aplicación...";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.init_activity);
-        showProgress(true, "Inicializando la aplicación...");
-        if (isNetworkAvailable()) {
-            setWithInternetConnection(true);
-            //Call Login API...
-            //Get userData...
-            initializeFirstActivity();
-        } else {
-            setWithInternetConnection(false);
-            Toast.makeText(this,getString(R.string.no_network_connection),Toast.LENGTH_LONG);
-        }
+        SharedPreferences sharedPreferences = this.getSharedPreferences(COOKIES_CLIENT, Context.MODE_PRIVATE);
+        HashSet<String> preferences = (HashSet<String>) sharedPreferences.getStringSet(PREF_COOKIES, new HashSet<String>());
+        showInitProgress(true, String.valueOf(preferences.size()));
     }
 
-    public void showProgress(final boolean show, final String message) {
+    public void showInitProgress(final boolean show, final String message) {
+        final ProgressDialog progressDialog = new ProgressDialog(InitActivity.this,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage(message);
+
+        new android.os.Handler().postDelayed(
+                new Runnable() {
+                    public void run() {
+                        if (isNetworkAvailable()) {
+                            progressDialog.show();
+                            setWithInternetConnection(true);
+                            initializeFirstActivity();
+                        } else {
+                            setWithInternetConnection(false);
+                            showToast(getString(R.string.no_network_connection));
+                        }
+                        progressDialog.dismiss();
+                    }
+                }, 3000);
+
+
         if (progressDialog != null) {
             runOnUiThread(new Runnable() {
                 @Override
@@ -81,25 +102,24 @@ public class InitActivity extends AppCompatActivity {
     }
 
     private void initializeFirstActivity() {
-        int splashTimeOut = 3000;
-        //TODO: get currentUser session data saved in SharedPreferences...
-////        User currentUser = new User();
-//        final Intent i;
-//        if (currentUser == null) {
-//            i = new Intent(InitActivity.this, LoginActivity.class);
-//        } else {
-//            i = new Intent(InitActivity.this, HomeActivity.class);
-//        }
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                startActivity(i);
-//                finish();
-//            }
-//        }, splashTimeOut);
-        Intent i = new Intent(InitActivity.this, LoginActivity.class);
-        startActivity(i);
-        finish();
+        isUserLogged();
+//        finish();
+    }
+
+    // Show images in Toast prompt.
+    private void showToast(String message) {
+        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        LinearLayout toastContentView = (LinearLayout) toast.getView();
+        ImageView imageView = new ImageView(getApplicationContext());
+        imageView.setImageResource(R.mipmap.toast_smartparking_round);
+        toastContentView.addView(imageView, 0);
+        toast.show();
+    }
+
+    private void isUserLogged() {
+        Intent initService = new Intent(InitActivity.this, InitService.class);
+        startService(initService);
     }
 
 }

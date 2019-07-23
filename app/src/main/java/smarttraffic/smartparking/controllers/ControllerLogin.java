@@ -7,6 +7,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -22,7 +23,7 @@ public class ControllerLogin implements Callback<LoginFeed> {
     private static final String TAG = "ControllerLogin";
     private SharedPreferences sharedPref;
 
-    static final String BASE_URL = "http://10.50.225.77:8000/smartparking/profiles/";
+    static final String BASE_URL = "http://10.50.225.75:8000/smartparking/profiles/";
 
     public void start(Credentials credentials, Context context) {
         sharedPref = context.getSharedPreferences(String.valueOf(R.string.credentials),
@@ -38,8 +39,8 @@ public class ControllerLogin implements Callback<LoginFeed> {
 
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
 
-        Call<LoginFeed> call = smartParkingAPI.loginUser(credentials);
-        call.enqueue(this);
+//        Call<ResponseBody> call = smartParkingAPI.loginUser(credentials);
+//        call.enqueue(this);
     }
 
     @Override
@@ -64,11 +65,8 @@ public class ControllerLogin implements Callback<LoginFeed> {
 
     public void saveLoginFeed(LoginFeed loginFeed){
         SharedPreferences.Editor editor = sharedPref.edit();
-
-        editor.putString(String.valueOf(R.string.alias_key), loginFeed.getAlias());
+        editor.putString(String.valueOf(R.string.username_key), loginFeed.getUsername());
         editor.putString(String.valueOf(R.string.password_key), loginFeed.getPassword());
-        editor.putString(String.valueOf(R.string.sex_key), loginFeed.getSex());
-        editor.putInt(String.valueOf(R.string.age_key), loginFeed.getAge());
         editor.putInt(String.valueOf(R.string.id_key), loginFeed.getId());
         editor.commit();
     }

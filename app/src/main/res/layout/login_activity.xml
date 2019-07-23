@@ -38,7 +38,7 @@
             tools:srcCompat="@mipmap/smartparkinglogo_round" />
 
         <TextView
-            android:id="@+id/aliasTextView"
+            android:id="@+id/usernameTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -48,7 +48,7 @@
             android:text="@string/loginText" />
 
         <EditText
-            android:id="@+id/aliasLogin"
+            android:id="@+id/usernameLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"

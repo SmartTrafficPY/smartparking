@@ -13,7 +13,7 @@ import smarttraffic.smartparking.dataModels.ProfileRegistry;
 
 public class ControllerSignUp implements Callback<ProfileRegistry> {
 
-    static final String BASE_URL = "http://10.50.225.77:8000/api/smartparking/profiles/";
+    static final String BASE_URL = "http://10.50.225.75:8000/api/smartparking/profiles/";
 
     public void start(ProfileRegistry profileRegistry) {
         Gson gson = new GsonBuilder()
@@ -27,8 +27,8 @@ public class ControllerSignUp implements Callback<ProfileRegistry> {
 
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
 
-        Call<ProfileRegistry> call = smartParkingAPI.signUpUser(profileRegistry);
-        call.enqueue(this);
+//        Call<ProfileRegistry> call = smartParkingAPI.signUpUser(profileRegistry);
+//        call.enqueue(this);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class ControllerSignUp implements Callback<ProfileRegistry> {
          **/
         if(response.isSuccessful()) {
             ProfileRegistry profileRegistry = response.body();
-            System.out.println(profileRegistry.getAlias());
+            System.out.println(profileRegistry.getUsername());
         } else {
             System.out.println(response.errorBody());
         }

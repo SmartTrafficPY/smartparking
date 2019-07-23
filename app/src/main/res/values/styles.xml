@@ -22,4 +22,10 @@
         <item name="android:background">@color/white</item>
     </style>
 
+    <style name="datepicker" parent="AppTheme.Dark.Dialog">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/primary_text</item>
+    </style>
+
 </resources>

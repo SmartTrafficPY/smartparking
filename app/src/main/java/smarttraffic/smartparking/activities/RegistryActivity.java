@@ -1,23 +1,30 @@
 package smarttraffic.smartparking.activities;
 
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Calendar;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,16 +40,21 @@ public class RegistryActivity extends AppCompatActivity {
 
     private static final String TAG = "RegistryActivity";
 
-    @BindView(R.id.aliasSignUp)
-    EditText aliasInput;
+    private static final String CERO = "0";
+    private static final String GUION = "-";
+
+    @BindView(R.id.usernameSignUp)
+    EditText usernameInput;
     @BindView(R.id.passwordSignUp)
     EditText passwordInput;
-    @BindView(R.id.ageSignUp)
-    EditText ageInput;
+    @BindView(R.id.birthDate)
+    TextView birthDate;
     @BindView(R.id.maleRadButton)
     RadioButton maleRadButton;
     @BindView(R.id.femaleRadButton)
     RadioButton femaleRadButton;
+    @BindView(R.id.datePickerButton)
+    ImageButton datePickerButton;
     @BindView(R.id.sexRadioGroup)
     RadioGroup sexSelectRadioGroup;
     @BindView(R.id.acceptTermsCheckBox)
@@ -51,6 +63,12 @@ public class RegistryActivity extends AppCompatActivity {
     TextView textInTermsAndCond;
     @BindView(R.id.signUpButton)
     Button signInButton;
+
+    public final Calendar calendar = Calendar.getInstance();
+
+    final int actuallMonth = calendar.get(Calendar.MONTH);
+    final int actuallDay = calendar.get(Calendar.DAY_OF_MONTH);
+    final int actuallYear = calendar.get(Calendar.YEAR);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,6 +92,13 @@ public class RegistryActivity extends AppCompatActivity {
         RegistrationReceiver registrationReceiver = new RegistrationReceiver();
         registerReceiver(registrationReceiver, filter);
 
+        datePickerButton.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onClick(View v) {
+                getDatePickedUp();
+            }
+        });
 
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,6 +106,27 @@ public class RegistryActivity extends AppCompatActivity {
                 createRegister();
             }
         });
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void getDatePickedUp() {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, R.style.datepicker, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                //Esta variable lo que realiza es aumentar en uno el mes ya que comienza desde 0 = enero
+                final int mesActual = month + 1;
+                //Formateo el día obtenido: antepone el 0 si son menores de 10
+                String diaFormateado = (dayOfMonth < 10)? CERO + String.valueOf(dayOfMonth):String.valueOf(dayOfMonth);
+                //Formateo el mes obtenido: antepone el 0 si son menores de 10
+                String mesFormateado = (mesActual < 10)? CERO + String.valueOf(mesActual):String.valueOf(mesActual);
+                //Muestro la fecha con el formato deseado
+                birthDate.setText(year + GUION + mesFormateado + GUION + diaFormateado);
+            }
+
+        }, actuallYear, actuallMonth, actuallDay);
+
+        datePickerDialog.show();
 
     }
 
@@ -93,10 +139,9 @@ public class RegistryActivity extends AppCompatActivity {
                 R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Creando el registro...");
-        progressDialog.show();
-        sendRegistrationPetition();
 
         if(dataIsCorrectlyComplete()){
+            sendRegistrationPetition();
             progressDialog.show();
             new android.os.Handler().postDelayed(
                     new Runnable() {
@@ -107,15 +152,14 @@ public class RegistryActivity extends AppCompatActivity {
                         }
                     }, 3000);
         }
-
     }
 
     private boolean dataIsCorrectlyComplete() {
         if(termsAndConditions.isChecked()){
-            if(aliasInput.getText().toString().length() > 5){
+            if(usernameInput.getText().toString().length() > 5){
                 if(!passwordInput.getText().toString().isEmpty()){
                     if(maleRadButton.isChecked() || femaleRadButton.isChecked()){
-                        if(!ageInput.getText().toString().isEmpty()){
+                        if(!birthDate.getText().toString().isEmpty()){
                             return true;
                         }else{
                             showToast("Favor ponga su EDAD(en años)!");
@@ -141,9 +185,9 @@ public class RegistryActivity extends AppCompatActivity {
 
     private void sendRegistrationPetition() {
         Intent registryIntent = new Intent(RegistryActivity.this, RegistrationService.class);
-        registryIntent.putExtra("alias", aliasInput.getText().toString());
+        registryIntent.putExtra("username", usernameInput.getText().toString());
         registryIntent.putExtra("password", passwordInput.getText().toString());
-        registryIntent.putExtra("age", Integer.parseInt(ageInput.getText().toString()));
+        registryIntent.putExtra("age", birthDate.getText().toString());
         if(onRadioButtonClicked() != null){
             registryIntent.putExtra("sex", onRadioButtonClicked());
         }

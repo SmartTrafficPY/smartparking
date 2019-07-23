@@ -6,11 +6,10 @@ public class LoginFeed {
 
     private Integer id;
     private String password;
-    private String alias;
-    private Integer age;
-    private String sex;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
+    private Timestamp last_login;
+    private String username;
+    private String email;
+    private Timestamp date_joined;
 
     public Integer getId() {
         return id;
@@ -28,57 +27,49 @@ public class LoginFeed {
         this.password = password;
     }
 
+    public Timestamp getLast_login() {
+        return last_login;
+    }
+
+    public void setLast_login(Timestamp last_login) {
+        this.last_login = last_login;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Timestamp getDate_joined() {
+        return date_joined;
+    }
+
+    public void setDate_joined(Timestamp date_joined) {
+        this.date_joined = date_joined;
+    }
+
     @Override
     public String toString() {
         return "LoginFeed{" +
                 "id=" + id +
                 ", password='" + password + '\'' +
-                ", alias='" + alias + '\'' +
-                ", age=" + age +
-                ", sex='" + sex + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
+                ", last_login=" + last_login +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", date_joined=" + date_joined +
                 '}';
     }
 
-    public String getAlias() {
-        return alias;
-    }
-
-    public void setAlias(String alias) {
-        this.alias = alias;
-    }
-
-    public Integer getAge() {
-        return age;
-    }
-
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-
-    public String getSex() {
-        return sex;
-    }
-
-    public void setSex(String sex) {
-        this.sex = sex;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }
 

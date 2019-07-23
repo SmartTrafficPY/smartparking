@@ -31,16 +31,15 @@ public class LoginReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if(intent.getAction().equals(LoginService.LOGIN_ACTION)) {
-            Bundle extras = intent.getExtras();
-            setAge(extras.getInt("age", -1));
-            setIdentifier(extras.getInt("identifier", 0));
-            setSexResponse(extras.getString("sex"));
             Intent i = new Intent(context, HomeActivity.class);
-            // in future should pass token ?
-            i.putExtra("id", getIdentifier());
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(i);
         }
         else if(intent.getAction().equals(LoginService.BAD_LOGIN_ACTION)) {
+            setErrorMessage(intent.getStringExtra(LoginService.PROBLEM));
+            showToast(getErrorMessage(),context);
+        }
+        else if(intent.getAction().equals(LoginService.COOKIES_NOT_FOUND)) {
             setErrorMessage(intent.getStringExtra(LoginService.PROBLEM));
             showToast(getErrorMessage(),context);
         }

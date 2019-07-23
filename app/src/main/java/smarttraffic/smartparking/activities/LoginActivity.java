@@ -28,8 +28,8 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
 
     // binds the elements of the login_layout
-    @BindView(R.id.aliasLogin)
-    EditText aliasText;
+    @BindView(R.id.usernameLogin)
+    EditText usernameText;
     @BindView(R.id.passwordLogin)
     EditText passwordText;
     @BindView(R.id.loginButton)
@@ -107,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void sendLoginRequest() {
         Intent loginIntent = new Intent(LoginActivity.this, LoginService.class);
-        loginIntent.putExtra("alias", aliasText.getText().toString());
+        loginIntent.putExtra("username", usernameText.getText().toString());
         loginIntent.putExtra("password", passwordText.getText().toString());
         startService(loginIntent);
     }
@@ -130,8 +130,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private boolean checkCredentialsInput(){
-        if(passwordText.getText().toString() != null){
-            if(aliasText.getText().toString().length() > 5){
+        if(usernameText.getText().toString() != null){
+            if(passwordText.getText().toString().length() > 5){
                 return true;
             }else{
                 showToast("La CONTRASEÑA debe tener al menos 6 caracteres!");

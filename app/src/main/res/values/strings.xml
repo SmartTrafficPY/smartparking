@@ -33,7 +33,7 @@
     <string name="init_text">SmartParking</string>
     <string name="no_network_connection">Sin conexion a Internet !</string>
     <string name="credentials">credenciales</string>
-    <string name="alias_key">alias</string>
+    <string name="username_key">username</string>
     <string name="password_key">password</string>
     <string name="age_key">age</string>
     <string name="sex_key">sexo</string>
