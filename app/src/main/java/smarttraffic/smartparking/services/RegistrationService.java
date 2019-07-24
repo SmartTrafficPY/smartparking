@@ -19,8 +19,15 @@ import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
 import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
 import smarttraffic.smartparking.dataModels.ProfileRegistry;
+import smarttraffic.smartparking.dataModels.ProfileUser;
 import smarttraffic.smartparking.dataModels.SmartParkingProfile;
 import smarttraffic.smartparking.receivers.RegistrationReceiver;
+
+/**
+ * Created by Joaquin Olivera on july 19.
+ *
+ * @author joaquin
+ */
 
 public class RegistrationService extends IntentService {
 
@@ -63,12 +70,12 @@ public class RegistrationService extends IntentService {
                 .build();
 
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
-        Call<ProfileRegistry> call = smartParkingAPI.signUpUser(profileRegistry);
+        Call<ProfileUser> call = smartParkingAPI.signUpUser(profileRegistry);
         Intent registrationIntent = new Intent("registrationIntent");
         registrationIntent.setClass(this, RegistrationReceiver.class);
 
         try {
-            Response<ProfileRegistry> result = call.execute();
+            Response<ProfileUser> result = call.execute();
             if(result.code() == 201){
                 registrationIntent.setAction(REGISTRATION_ACTION);
             }else{

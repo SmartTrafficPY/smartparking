@@ -23,6 +23,12 @@ import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.receivers.LoginReceiver;
 import smarttraffic.smartparking.services.LoginService;
 
+/**
+ * Created by Joaquin Olivera on july 19.
+ *
+ * @author joaquin
+ */
+
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";

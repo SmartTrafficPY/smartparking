@@ -7,8 +7,12 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Part;
+import retrofit2.http.Path;
+import smarttraffic.smartparking.dataModels.ProfileUser;
 import smarttraffic.smartparking.dataModels.ProfileRegistry;
+import smarttraffic.smartparking.dataModels.ResetPassword;
 
 public interface SmartParkingAPI {
 
@@ -18,13 +22,8 @@ public interface SmartParkingAPI {
      **/
 
     @Multipart
-    @POST("login/")
-    Call<ResponseBody> loginUser(@Part("username") RequestBody username,
-                                 @Part("password") RequestBody password);
-
-    @Multipart
     @POST("loggin/")
-    Call<ResponseBody> logginUser(@Part("username") RequestBody username,
+    Call<ProfileUser> logginUser(@Part("username") RequestBody username,
                                  @Part("password") RequestBody password);
 
     @GET("isUserLogged/")
@@ -34,13 +33,38 @@ public interface SmartParkingAPI {
     Call<ResponseBody> logoutUser();
 
     /**
+     * UPDATE USER PROFILE INFO
+     * **/
+
+    @PUT("users/{identifier}/")
+    Call<ResponseBody> updateUserProfile(@Path("identifier") Integer userId, @Body ProfileRegistry newProfile);
+
+    /**
      * LIST OF ALL USERS PROFILE
      * **/
 
     @GET("users/")
-    Call<ResponseBody> usersList();
+    Call<ProfileUser> usersList();
+
+    /**
+     * GET USER PROFILE INFORMATION
+     * **/
+
+    @GET("users/{identifier}/")
+    Call<ProfileUser> userProfile(@Path("identifier") Integer identifier);
+
+    /**
+     * REGISTRATION OF USER
+     **/
 
     @POST("users/")
-    Call<ProfileRegistry> signUpUser(@Body ProfileRegistry profileRegistry);
+    Call<ProfileUser> signUpUser(@Body ProfileRegistry profileRegistry);
+
+    /**
+     * HERE THE CONSULT IF USER, WITH DATA FOR RECOVER PASS
+     **/
+
+    @POST("isReseteable/")
+    Call<ResponseBody> canResetPass(@Body ResetPassword resetPassword);
 
 }

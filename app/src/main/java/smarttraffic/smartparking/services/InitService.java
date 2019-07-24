@@ -25,6 +25,12 @@ import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
 import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
 import smarttraffic.smartparking.receivers.InitReceiver;
 
+/**
+ * Created by Joaquin Olivera on july 19.
+ *
+ * @author joaquin
+ */
+
 public class InitService extends IntentService {
 
     /**

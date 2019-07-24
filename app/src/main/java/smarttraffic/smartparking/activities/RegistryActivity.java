@@ -32,13 +32,19 @@ import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.receivers.RegistrationReceiver;
 import smarttraffic.smartparking.services.RegistrationService;
 
+/**
+ * Created by Joaquin Olivera on july 19.
+ *
+ * @author joaquin
+ */
+
 public class RegistryActivity extends AppCompatActivity {
 
     /**
      * The user register and get a profile on the system...
      * **/
 
-    private static final String TAG = "RegistryActivity";
+    private static final String LOG_TAG = "RegistryActivity";
 
     private static final String CERO = "0";
     private static final String GUION = "-";
@@ -114,24 +120,18 @@ public class RegistryActivity extends AppCompatActivity {
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, R.style.datepicker, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                //Esta variable lo que realiza es aumentar en uno el mes ya que comienza desde 0 = enero
                 final int mesActual = month + 1;
-                //Formateo el día obtenido: antepone el 0 si son menores de 10
                 String diaFormateado = (dayOfMonth < 10)? CERO + String.valueOf(dayOfMonth):String.valueOf(dayOfMonth);
-                //Formateo el mes obtenido: antepone el 0 si son menores de 10
                 String mesFormateado = (mesActual < 10)? CERO + String.valueOf(mesActual):String.valueOf(mesActual);
-                //Muestro la fecha con el formato deseado
                 birthDate.setText(year + GUION + mesFormateado + GUION + diaFormateado);
             }
 
         }, actuallYear, actuallMonth, actuallDay);
-
         datePickerDialog.show();
-
     }
 
     private void createRegister() {
-        Log.d(TAG, "User trying to registry");
+        Log.d(LOG_TAG, "User trying to registry");
 
         signInButton.setEnabled(false);
 

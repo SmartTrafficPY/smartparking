@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -15,6 +14,12 @@ import butterknife.BindView;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.activities.HomeActivity;
 import smarttraffic.smartparking.services.LoginService;
+
+/**
+ * Created by Joaquin Olivera on july 19.
+ *
+ * @author joaquin
+ */
 
 public class LoginReceiver extends BroadcastReceiver {
 

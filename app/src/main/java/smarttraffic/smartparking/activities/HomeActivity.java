@@ -1,9 +1,7 @@
 package smarttraffic.smartparking.activities;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
-import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
@@ -16,12 +14,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import java.util.HashSet;
-
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.menuNavigation.Fragment1;
 import smarttraffic.smartparking.menuNavigation.Fragment2;
 import smarttraffic.smartparking.menuNavigation.Fragment3;
+
+/**
+ * Created by Joaquin Olivera on july 19.
+ *
+ * @author joaquin
+ */
 
 public class HomeActivity extends AppCompatActivity {
 

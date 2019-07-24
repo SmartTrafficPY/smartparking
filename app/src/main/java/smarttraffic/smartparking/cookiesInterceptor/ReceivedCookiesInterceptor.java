@@ -2,7 +2,6 @@ package smarttraffic.smartparking.cookiesInterceptor;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -10,6 +9,12 @@ import java.util.HashSet;
 
 import okhttp3.Interceptor;
 import okhttp3.Response;
+
+/**
+ * Created by Joaquin Olivera on july 19.
+ *
+ * @author joaquin
+ */
 
 public class ReceivedCookiesInterceptor implements Interceptor {
     public static final String PREF_COOKIES = "PREF_COOKIES";

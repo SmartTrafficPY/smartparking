@@ -1,5 +1,11 @@
 package smarttraffic.smartparking.dataModels;
 
+/**
+ * Created by Joaquin Olivera on july 19.
+ *
+ * @author joaquin
+ */
+
 public class SmartParkingProfile {
 
     private String birth_date;

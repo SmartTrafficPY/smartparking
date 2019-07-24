@@ -2,6 +2,7 @@
     <string name="app_name">SmartParking</string>
     <string name="register">Not account yet? Create one</string>
     <string name="loginButton">Login</string>
+    <string name="sendButton">Enviar</string>
     <string name="welcome">Welcome</string>
     <string name="loginText">Log in !</string>
     <string name="signUpButton">Sign in</string>

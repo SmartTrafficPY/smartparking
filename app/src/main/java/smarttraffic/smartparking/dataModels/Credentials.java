@@ -2,6 +2,12 @@ package smarttraffic.smartparking.dataModels;
 
 import java.io.Serializable;
 
+/**
+ * Created by Joaquin Olivera on july 19.
+ *
+ * @author joaquin
+ */
+
 public class Credentials implements Serializable {
 
     private String username;

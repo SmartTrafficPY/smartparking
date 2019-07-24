@@ -8,6 +8,12 @@ import smarttraffic.smartparking.activities.HomeActivity;
 import smarttraffic.smartparking.activities.LoginActivity;
 import smarttraffic.smartparking.services.InitService;
 
+/**
+ * Created by Joaquin Olivera on july 19.
+ *
+ * @author joaquin
+ */
+
 public class InitReceiver extends BroadcastReceiver {
 
     private static final String LOG_TAG = "InitReceiver";

@@ -19,6 +19,11 @@ import java.util.HashSet;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.services.InitService;
 
+/**
+ * Created by Joaquin Olivera on july 19.
+ *
+ * @author joaquin
+ */
 
 public class InitActivity extends AppCompatActivity {
 
@@ -30,6 +35,7 @@ public class InitActivity extends AppCompatActivity {
      * -Login
      * -Home
     **/
+
     public static final String PREF_COOKIES = "PREF_COOKIES";
     private static final String COOKIES_CLIENT = "Cookies Client";
     public static final String LOG_TAG = InitActivity.class.getSimpleName();
@@ -103,7 +109,7 @@ public class InitActivity extends AppCompatActivity {
 
     private void initializeFirstActivity() {
         isUserLogged();
-//        finish();
+        finish();
     }
 
     // Show images in Toast prompt.

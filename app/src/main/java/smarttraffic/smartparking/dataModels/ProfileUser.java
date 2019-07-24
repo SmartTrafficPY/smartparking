@@ -1,25 +1,27 @@
 package smarttraffic.smartparking.dataModels;
 
-
 /**
  * Created by Joaquin Olivera on july 19.
  *
  * @author joaquin
  */
 
-public class ProfileRegistry {
+public class ProfileUser {
 
-    private String password;
+    private Integer id;
     private String username;
     private String first_name;
     private String last_name;
     private String email;
     private SmartParkingProfile smartParkingProfile;
 
+    public ProfileUser() {
+    }
+
     @Override
     public String toString() {
-        return "ProfileRegistry{" +
-                "password='" + password + '\'' +
+        return "ProfileUser{" +
+                "id=" + id +
                 ", username='" + username + '\'' +
                 ", first_name='" + first_name + '\'' +
                 ", last_name='" + last_name + '\'' +
@@ -28,12 +30,12 @@ public class ProfileRegistry {
                 '}';
     }
 
-    public String getPassword() {
-        return password;
+    public Integer getId() {
+        return id;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getUsername() {
@@ -75,6 +77,4 @@ public class ProfileRegistry {
     public void setSmartParkingProfile(SmartParkingProfile smartParkingProfile) {
         this.smartParkingProfile = smartParkingProfile;
     }
-
 }
-

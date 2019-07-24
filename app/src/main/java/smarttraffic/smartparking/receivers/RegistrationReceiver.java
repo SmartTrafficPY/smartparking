@@ -14,6 +14,12 @@ import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.activities.LoginActivity;
 import smarttraffic.smartparking.services.RegistrationService;
 
+/**
+ * Created by Joaquin Olivera on july 19.
+ *
+ * @author joaquin
+ */
+
 public class RegistrationReceiver extends BroadcastReceiver {
 
     public String getErrorMessage() {

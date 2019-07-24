@@ -4,22 +4,17 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -28,15 +23,22 @@ import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
 import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
 import smarttraffic.smartparking.dataModels.Credentials;
+import smarttraffic.smartparking.dataModels.ProfileUser;
 import smarttraffic.smartparking.receivers.LoginReceiver;
+
+/**
+ * Created by Joaquin Olivera on july 19.
+ *
+ * @author joaquin
+ */
 
 public class LoginService extends IntentService {
 
     public static final String PROBLEM = "Ha fallado el proceso de ingreso!";
     private static final String CANNOT_LOGIN = "No se logro hacer inicio. Revisar credenciales!";
     private static final String CANNOT_CONNECT_SERVER = "No se pudo conectar con el servidor, favor revisar conexion!";
-    public static final String PREF_COOKIES = "PREF_COOKIES";
-    private static final String COOKIES_CLIENT = "Cookies Client";
+    private static final String ULI = "User Login Information";
+    private static final String IULI = "IDENTIFICADOR USUARIO LOGGED IN";
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -72,8 +74,8 @@ public class LoginService extends IntentService {
                 .addInterceptor(new AddCookiesInterceptor(this))
                 .build();
 
-        SharedPreferences sharedPreferences = this.getSharedPreferences(COOKIES_CLIENT, Context.MODE_PRIVATE);
-        HashSet<String> preferences = (HashSet<String>) sharedPreferences.getStringSet(PREF_COOKIES, new HashSet<String>());
+        SharedPreferences sharedPreferences = this.getSharedPreferences(ULI, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
@@ -84,15 +86,16 @@ public class LoginService extends IntentService {
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
         RequestBody username = (RequestBody) RequestBody.create(MediaType.parse("form-data"), user);
         RequestBody password = (RequestBody) RequestBody.create(MediaType.parse("form-data"), pass);
-        Call<ResponseBody> call = smartParkingAPI.logginUser(username, password);
+        Call<ProfileUser> call = smartParkingAPI.logginUser(username, password);
         Intent loginIntent = new Intent("loginIntent");
         loginIntent.setClass(this, LoginReceiver.class);
 
         try{
-            Response<ResponseBody> result = call.execute();
-            Headers h = result.headers();
+            Response<ProfileUser> result = call.execute();
             if (result.code() == 200){
                 loginIntent.setAction(LOGIN_ACTION);
+                editor.putInt(IULI, result.body().getId()).apply();
+                editor.commit();
             }else if (result.code() == 404){
                 loginIntent.putExtra(PROBLEM, CANNOT_LOGIN);
                 loginIntent.setAction(BAD_LOGIN_ACTION);
@@ -108,5 +111,6 @@ public class LoginService extends IntentService {
         }
         sendBroadcast(loginIntent);
     }
+
 
 }
