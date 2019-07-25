@@ -86,9 +86,6 @@
         <receiver android:name=".receivers.InitReceiver"
             android:exported="true"
             android:enabled="true">
-            <intent-filter>
-                <action android:name="initIntent"/>
-            </intent-filter>
         </receiver>
         <receiver android:name=".receivers.LoginReceiver"
             android:exported="true"

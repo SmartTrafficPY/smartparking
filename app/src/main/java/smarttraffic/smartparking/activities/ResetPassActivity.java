@@ -2,9 +2,6 @@ package smarttraffic.smartparking.activities;
 
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
-import android.content.Intent;
-import android.content.RestrictionEntry;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -42,7 +39,6 @@ import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
 import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
 import smarttraffic.smartparking.dataModels.ResetPassword;
-import smarttraffic.smartparking.services.RegistrationService;
 
 /**
  * Created by Joaquin Olivera on july 19.
@@ -85,7 +81,7 @@ public class ResetPassActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.reset_password_activity);
+        setContentView(R.layout.reset_password_layout);
         ButterKnife.bind(this);
 
         datePickerButton.setOnClickListener(new View.OnClickListener() {

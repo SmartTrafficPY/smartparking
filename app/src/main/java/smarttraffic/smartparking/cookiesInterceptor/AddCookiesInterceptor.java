@@ -41,8 +41,8 @@ public class AddCookiesInterceptor implements Interceptor {
         HashSet<String> preferences = (HashSet<String>) sharedPreferences.getStringSet(PREF_COOKIES, new HashSet<String>());
 
         for (String cookie : preferences) {
-            builder.addHeader(COOKIE, cookie);
-            builder.addHeader(CSRF_TOKEN, cookie.substring(10, cookie.indexOf(";")));
+            builder.header(COOKIE, cookie);
+            builder.header(CSRF_TOKEN, cookie.substring(10, cookie.indexOf(";")));
             Log.v(LOG_TAG, cookie);
         }
 

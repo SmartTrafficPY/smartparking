@@ -1,29 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/menu_seccion_1"
-            android:title="@string/seccion_1"/>
+            android:id="@+id/home_menu"
+            android:icon="@drawable/homemenu"
+            android:title="@string/back_home"/>
         <item
-            android:id="@+id/menu_seccion_2"
-            android:title="@string/seccion_2"/>
+            android:id="@+id/menu_settings"
+            android:icon="@drawable/settings_menu"
+            android:title="@string/seccion_ajustes"/>
         <item
-            android:id="@+id/menu_seccion_3"
-            android:title="@string/seccion_3"/>
+            android:id="@+id/menu_changepass"
+            android:icon="@drawable/changepass_menu"
+            android:title="@string/seccion_change_pass"/>
+        <item
+            android:id="@+id/menu_logout"
+            android:icon="@drawable/logout_menu"
+            android:title="@string/opcion_log_out" />
+        <item
+            android:id="@+id/menu_about"
+            android:icon="@drawable/about_menu"
+            android:title="@string/opcion_about_smartparking" />
     </group>
 
-    <item
-        android:id="@+id/navigation_subheader"
-        android:title="@string/otras_opciones">
-        <menu>
-            <item
-                android:id="@+id/menu_opcion_1"
-                android:title="@string/opcion_1"/>
-            <item
-                android:id="@+id/menu_opcion_2"
-                android:title="@string/opcion_2"/>
-        </menu>
-    </item>
-    <!--android:icon="@drawable/ic_menu"-->
+    <!--<item-->
+        <!--android:id="@+id/navigation_subheader"-->
+        <!--android:title="@string/other_optiones">-->
+        <!--<menu>-->
+            <!--<item-->
+                <!--android:id="@+id/menu_opcion_logout"-->
+                <!--android:title="@string/opcion_log_out"/>-->
+            <!--<item-->
+                <!--android:id="@+id/menu_opcion_about"-->
+                <!--android:title="@string/opcion_about_smartparking"/>-->
+        <!--</menu>-->
+    <!--</item>-->
 
 </menu>

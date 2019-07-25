@@ -38,7 +38,7 @@ public class ChangePassActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.change_password_activity);
+        setContentView(R.layout.change_password_layout);
         ButterKnife.bind(this);
 
         changePassButton.setOnClickListener(new View.OnClickListener() {

@@ -4,7 +4,6 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -75,9 +74,6 @@ public class InitService extends IntentService {
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
-
-        SharedPreferences sharedPreferences = this.getSharedPreferences(COOKIES_CLIENT, Context.MODE_PRIVATE);
-        HashSet<String> preferences = (HashSet<String>) sharedPreferences.getStringSet(PREF_COOKIES, new HashSet<String>());
 
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
         Call<ResponseBody> call = smartParkingAPI.isUserLogged();

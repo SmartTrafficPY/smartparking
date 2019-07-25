@@ -43,17 +43,19 @@
     <string name="terms_conditions">Acepto los <u>términos y condiciones</u>.</string>
     <string name="forgotPassword">Has olvidado la contraseña?</string>
     <!--Menu String values...-->
-    <string name="usuario"></string>
-    <string name="seccion_1">S1</string>
-    <string name="seccion_2">S2</string>
-    <string name="seccion_3">S3</string>
-    <string name="otras_opciones">Otros...</string>
-    <string name="opcion_1">O1</string>
-    <string name="opcion_2">O2</string>
+    <string name="usuario">Name of user profile</string>
+    <string name="seccion_ajustes">Ajustes</string>
+    <string name="seccion_change_pass">Cambio de contraseña</string>
+    <string name="back_home">Home</string>
+    <string name="other_optiones">Otros...</string>
+    <string name="opcion_log_out">Log Out</string>
+    <string name="opcion_about_smartparking">About SmartParking</string>
     <string name="fragment1">f1</string>
     <string name="fragment2">f2</string>
     <string name="fragment3">f3</string>
-
+    <!--Navigation Drawable-->
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
 
 
 </resources>

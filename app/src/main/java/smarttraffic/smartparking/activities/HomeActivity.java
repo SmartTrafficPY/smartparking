@@ -1,23 +1,30 @@
 package smarttraffic.smartparking.activities;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
+import android.content.res.Configuration;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import smarttraffic.smartparking.R;
-import smarttraffic.smartparking.menuNavigation.Fragment1;
-import smarttraffic.smartparking.menuNavigation.Fragment2;
-import smarttraffic.smartparking.menuNavigation.Fragment3;
+import smarttraffic.smartparking.menuNavigation.AboutFragment;
+import smarttraffic.smartparking.menuNavigation.ChangePassFragment;
+import smarttraffic.smartparking.menuNavigation.HomeFragment;
+import smarttraffic.smartparking.menuNavigation.LogOutFragment;
+import smarttraffic.smartparking.menuNavigation.SettingsFragment;
 
 /**
  * Created by Joaquin Olivera on july 19.
@@ -36,68 +43,88 @@ public class HomeActivity extends AppCompatActivity {
      * -Settings
     * */
 
-    private static final String TAG = "HomeActivity";
+    private static final String LOG_TAG = "HomeActivity";
+
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.drawer_layout)
+    DrawerLayout mDrawer;
+    @BindView(R.id.navview)
+    NavigationView nvDrawer;
+
+    private ActionBarDrawerToggle drawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.navigation_menu);
+        setContentView(R.layout.home_layout);
+        ButterKnife.bind(this);
         /**
          * Here we are dealing with the navigationMenu
          * **/
-        final DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        NavigationView navView = (NavigationView) findViewById(R.id.navview);
+        setSupportActionBar(toolbar);
+        setupDrawerContent(nvDrawer);
+        drawerToggle = setupDrawerToggle();
 
-        navView.setNavigationItemSelectedListener(
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (drawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void setupDrawerContent(NavigationView navigationView) {
+        navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
-
-                        boolean fragmentTransaction = false;
-                        Fragment fragment = null;
-
-                        switch (menuItem.getItemId()) {
-                            case R.id.menu_seccion_1:
-                                fragment = new Fragment1();
-                                fragmentTransaction = true;
-                                break;
-                            case R.id.menu_seccion_2:
-                                fragment = new Fragment2();
-                                fragmentTransaction = true;
-                                break;
-                            case R.id.menu_seccion_3:
-                                fragment = new Fragment3();
-                                fragmentTransaction = true;
-                                break;
-                            case R.id.menu_opcion_1:
-                                Log.i("NavigationView", "Pulsada opción 1");
-                                break;
-                            case R.id.menu_opcion_2:
-                                Log.i("NavigationView", "Pulsada opción 2");
-                                break;
-                        }
-
-                        if(fragmentTransaction) {
-                            getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.content_frame, fragment)
-                                    .commit();
-
-                            menuItem.setChecked(true);
-                            getSupportActionBar().setTitle(menuItem.getTitle());
-                        }
-
-                        drawerLayout.closeDrawers();
-
+                        selectDrawerItem(menuItem);
                         return true;
                     }
                 });
+    }
 
+    public void selectDrawerItem(MenuItem menuItem) {
+        // Create a new fragment and specify the fragment to show based on nav item clicked
+        Fragment fragment = null;
+        Class fragmentClass;
+        switch(menuItem.getItemId()) {
+            case R.id.home_menu:
+                fragmentClass = HomeFragment.class;
+                break;
+            case R.id.menu_settings:
+                fragmentClass = SettingsFragment.class;
+                break;
+            case R.id.menu_changepass:
+                fragmentClass = ChangePassFragment.class;
+                break;
+            case R.id.menu_logout:
+                fragmentClass = LogOutFragment.class;
+                break;
+            default:
+                fragmentClass = AboutFragment.class;
+        }
 
-        Intent intent = getIntent();
-//        String statusRegistry = intent.getStringExtra("status_registro");
-//        if(statusRegistry != null){
-//            showToast(statusRegistry);
-//        }
+        try {
+            fragment = (Fragment) fragmentClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Insert the fragment by replacing any existing fragment
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+        // Highlight the selected item has been done by NavigationView
+        menuItem.setChecked(true);
+        // Set action bar title
+        setTitle(menuItem.getTitle());
+
+        // Close the navigation drawer
+        mDrawer.closeDrawers();
     }
 
     @Override
@@ -116,6 +143,26 @@ public class HomeActivity extends AppCompatActivity {
         imageView.setImageResource(R.mipmap.toast_smartparking);
         toastContentView.addView(imageView, 0);
         toast.show();
+    }
+
+    private ActionBarDrawerToggle setupDrawerToggle() {
+        // NOTE: Make sure you pass in a valid toolbar reference.  ActionBarDrawToggle() does not require it
+        // and will not render the hamburger icon without it.
+        return new ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.drawer_open,  R.string.drawer_close);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Pass any configuration change to the drawer toggles
+        drawerToggle.onConfigurationChanged(newConfig);
     }
 
 }

@@ -3,20 +3,18 @@ package smarttraffic.smartparking.activities;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import java.util.HashSet;
-
 import smarttraffic.smartparking.R;
+import smarttraffic.smartparking.receivers.InitReceiver;
 import smarttraffic.smartparking.services.InitService;
 
 /**
@@ -36,18 +34,20 @@ public class InitActivity extends AppCompatActivity {
      * -Home
     **/
 
-    public static final String PREF_COOKIES = "PREF_COOKIES";
-    private static final String COOKIES_CLIENT = "Cookies Client";
-    public static final String LOG_TAG = InitActivity.class.getSimpleName();
     private boolean withInternetConnection;
     private static final String INIT_APP_MESSAGE = "Inicializando la aplicación...";
+    IntentFilter filter = new IntentFilter();
+    InitReceiver initReceiver = new InitReceiver();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.init_activity);
-        SharedPreferences sharedPreferences = this.getSharedPreferences(COOKIES_CLIENT, Context.MODE_PRIVATE);
-        HashSet<String> preferences = (HashSet<String>) sharedPreferences.getStringSet(PREF_COOKIES, new HashSet<String>());
-        showInitProgress(true, String.valueOf(preferences.size()));
+        setContentView(R.layout.init_layout);
+        showInitProgress(true, INIT_APP_MESSAGE);
+        //Register the Receiver...
+        filter.addAction(InitService.TO_HOME);
+        filter.addAction(InitService.HAVE_TO_LOGIN);
+        registerReceiver(initReceiver, filter);
     }
 
     public void showInitProgress(final boolean show, final String message) {
@@ -105,6 +105,16 @@ public class InitActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        //Register the Receiver...
+        filter.addAction(InitService.TO_HOME);
+        filter.addAction(InitService.HAVE_TO_LOGIN);
+        registerReceiver(initReceiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(initReceiver);
     }
 
     private void initializeFirstActivity() {

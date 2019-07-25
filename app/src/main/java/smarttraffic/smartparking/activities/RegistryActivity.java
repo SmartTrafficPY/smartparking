@@ -2,13 +2,17 @@ package smarttraffic.smartparking.activities;
 
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -69,6 +73,8 @@ public class RegistryActivity extends AppCompatActivity {
     TextView textInTermsAndCond;
     @BindView(R.id.signUpButton)
     Button signInButton;
+    @BindView(R.id.passModeButton)
+    ImageButton passwordModeButton;
 
     public final Calendar calendar = Calendar.getInstance();
 
@@ -79,7 +85,7 @@ public class RegistryActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.registry_activity);
+        setContentView(R.layout.registry_layout);
         ButterKnife.bind(this);
 
 //        signInButton.setEnabled(false);
@@ -113,6 +119,25 @@ public class RegistryActivity extends AppCompatActivity {
             }
         });
 
+        passwordModeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Context context = getApplicationContext();
+                //TODO: if image is showText set TO don't ShowText
+                // and set password text Visual for user...
+                Drawable imageOfButton = passwordModeButton.getDrawable();
+                if(imageOfButton == context.getDrawable(R.drawable.showtext)){
+                    passwordModeButton.setImageDrawable(
+                            context.getDrawable(R.drawable.dontshowtext));
+                    //Show Password:
+                    passwordInput.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                }else{
+                    passwordModeButton.setImageDrawable(context.getDrawable(R.drawable.showtext));
+                    //Hide Password:
+                    passwordInput.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                }
+            }
+        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
