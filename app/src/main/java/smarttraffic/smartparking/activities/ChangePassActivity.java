@@ -38,7 +38,10 @@ public class ChangePassActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.change_password_layout);
+        /**
+         * Menu Fragment manege the layout, maybe this could manage the actions of it...
+         * setContentView(R.layout.change_password_layout);
+         * **/
         ButterKnife.bind(this);
 
         changePassButton.setOnClickListener(new View.OnClickListener() {
@@ -55,6 +58,5 @@ public class ChangePassActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
     }
-
 
 }

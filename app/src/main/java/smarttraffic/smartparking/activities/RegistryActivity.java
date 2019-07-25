@@ -81,6 +81,7 @@ public class RegistryActivity extends AppCompatActivity {
     final int actuallMonth = calendar.get(Calendar.MONTH);
     final int actuallDay = calendar.get(Calendar.DAY_OF_MONTH);
     final int actuallYear = calendar.get(Calendar.YEAR);
+    private boolean showPasswordText = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -125,16 +126,17 @@ public class RegistryActivity extends AppCompatActivity {
                 Context context = getApplicationContext();
                 //TODO: if image is showText set TO don't ShowText
                 // and set password text Visual for user...
-                Drawable imageOfButton = passwordModeButton.getDrawable();
-                if(imageOfButton == context.getDrawable(R.drawable.showtext)){
+                if(!showPasswordText){
                     passwordModeButton.setImageDrawable(
                             context.getDrawable(R.drawable.dontshowtext));
                     //Show Password:
                     passwordInput.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                    showPasswordText = !showPasswordText;
                 }else{
                     passwordModeButton.setImageDrawable(context.getDrawable(R.drawable.showtext));
                     //Hide Password:
                     passwordInput.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                    showPasswordText = !showPasswordText;
                 }
             }
         });

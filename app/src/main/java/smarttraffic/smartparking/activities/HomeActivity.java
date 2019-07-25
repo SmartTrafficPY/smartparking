@@ -122,15 +122,17 @@ public class HomeActivity extends AppCompatActivity {
         menuItem.setChecked(true);
         // Set action bar title
         setTitle(menuItem.getTitle());
-
         // Close the navigation drawer
         mDrawer.closeDrawers();
     }
 
     @Override
     public void onBackPressed() {
-        // disable going back...
-        moveTaskToBack(true);
+        if (mDrawer.isDrawerOpen(GravityCompat.START)) {
+            mDrawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     // Show images in Toast prompt.

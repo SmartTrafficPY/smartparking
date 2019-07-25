@@ -30,6 +30,7 @@
     </string>
     <string name="button_accept">Acepto</string>
     <string name="button_cancel">Cancelar</string>
+    <string name="button_afirmative">Si</string>
     <string name="button_send">Enviar</string>
     <string name="init_text">SmartParking</string>
     <string name="no_network_connection">Sin conexion a Internet !</string>
@@ -48,7 +49,7 @@
     <string name="seccion_change_pass">Cambio de contraseña</string>
     <string name="back_home">Home</string>
     <string name="other_optiones">Otros...</string>
-    <string name="opcion_log_out">Log Out</string>
+    <string name="opcion_log_out">Log out</string>
     <string name="opcion_about_smartparking">About SmartParking</string>
     <string name="fragment1">f1</string>
     <string name="fragment2">f2</string>
@@ -56,6 +57,9 @@
     <!--Navigation Drawable-->
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string name="cancel">Cancel</string>
+    <string name="dialog_logout">Está seguro de querer cerrar sesión?</string>
+    <string name="logout_smartparking">Salir de SmartParking?</string>
 
 
 </resources>
