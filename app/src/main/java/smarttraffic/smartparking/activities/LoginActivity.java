@@ -55,7 +55,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(checkCredentialsInput()){
-                    login(); // function that makes the login process...
+                    login();
+                    // function that makes the login process...
                 }
             }
         });

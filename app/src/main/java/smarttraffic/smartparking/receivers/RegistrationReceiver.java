@@ -31,17 +31,15 @@ public class RegistrationReceiver extends BroadcastReceiver {
     }
 
     private String errorMessage;
-
-
-    private static final String TAG = "RegistrationReceiver";
+    private static final String LOG_TAG = "RegistrationReceiver";
 
     @Override
     public void onReceive(Context context, Intent intent) {
 
         if(intent.getAction().equals(RegistrationService.REGISTRATION_ACTION)) {
-            Log.i(TAG,"New user receive!");
+            showToast(RegistrationService.REGISTRATION_ACTION, context);
             Intent i = new Intent(context, LoginActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             context.startActivity(i);
         }
         else if(intent.getAction().equals(RegistrationService.BAD_REGISTRATION_ACTION)) {

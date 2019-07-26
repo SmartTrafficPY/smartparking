@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -66,7 +67,7 @@ public class ResetPassActivity extends AppCompatActivity {
     @BindView(R.id.resetPassButton)
     Button resetPass;
     @BindView(R.id.datePickerButtonResetPass)
-    Button datePickerButton;
+    ImageButton datePickerButton;
     @BindView(R.id.maleResetPass)
     RadioButton maleRadioButton;
     @BindView(R.id.femaleResetPass)
