@@ -1,4 +1,4 @@
-package smarttraffic.smartparking.menuNavigation;
+package smarttraffic.smartparking.fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -32,7 +32,7 @@ import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
 public class LogOutFragment extends Fragment {
 
     private static final String LOG_TAG = "LogOutFragment";
-    static final String BASE_URL = "http://10.50.225.75:8000/admin/";
+    static final String BASE_URL = "http://10.50.225.75:8000/api/smartparking/";
 
     public LogOutFragment() {
         // Required empty public constructor
@@ -75,6 +75,7 @@ public class LogOutFragment extends Fragment {
                                 switch (response.code()) {
                                     case 200:
                                         //TODO: Delete shared Preferences...
+//                                        eraseAllPreferences();
                                         Intent intent = new Intent(context, LoginActivity.class);
                                         startActivity(intent);
                                         break;
@@ -103,4 +104,14 @@ public class LogOutFragment extends Fragment {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.home_layout, container, false);
     }
+
+//    private void eraseAllPreferences(){
+//        //TODO: This should erase all SharedPreferences of the user...
+//        SharedPreferences.Editor profileEditor = getContext().getSharedPreferences(
+//                LoginService.ULI, Context.MODE_PRIVATE).edit();
+//        profileEditor.remove(LoginService.IULI).commit();
+//        SharedPreferences.Editor sessionEditor = getContext().getSharedPreferences(
+//                AddCookiesInterceptor.COOKIES_CLIENT, Context.MODE_PRIVATE).edit();
+//        sessionEditor.remove(AddCookiesInterceptor.PREF_COOKIES).commit();
+//    }
 }

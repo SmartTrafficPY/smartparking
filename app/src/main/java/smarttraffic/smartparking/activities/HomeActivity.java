@@ -20,11 +20,11 @@ import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import smarttraffic.smartparking.R;
-import smarttraffic.smartparking.menuNavigation.AboutFragment;
-import smarttraffic.smartparking.menuNavigation.ChangePassFragment;
-import smarttraffic.smartparking.menuNavigation.HomeFragment;
-import smarttraffic.smartparking.menuNavigation.LogOutFragment;
-import smarttraffic.smartparking.menuNavigation.SettingsFragment;
+import smarttraffic.smartparking.fragments.AboutFragment;
+import smarttraffic.smartparking.fragments.ChangePassFragment;
+import smarttraffic.smartparking.fragments.HomeFragment;
+import smarttraffic.smartparking.fragments.LogOutFragment;
+import smarttraffic.smartparking.fragments.SettingsFragment;
 
 /**
  * Created by Joaquin Olivera on july 19.

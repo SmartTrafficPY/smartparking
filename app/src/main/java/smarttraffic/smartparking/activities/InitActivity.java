@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.receivers.InitReceiver;
 import smarttraffic.smartparking.services.InitService;
@@ -36,6 +37,7 @@ public class InitActivity extends AppCompatActivity {
 
     private boolean withInternetConnection;
     private static final String INIT_APP_MESSAGE = "Inicializando la aplicación...";
+
     IntentFilter filter = new IntentFilter();
     InitReceiver initReceiver = new InitReceiver();
 
@@ -70,7 +72,6 @@ public class InitActivity extends AppCompatActivity {
                         progressDialog.dismiss();
                     }
                 }, 3000);
-
 
         if (progressDialog != null) {
             runOnUiThread(new Runnable() {

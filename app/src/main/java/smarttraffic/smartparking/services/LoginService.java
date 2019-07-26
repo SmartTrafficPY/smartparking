@@ -35,10 +35,10 @@ import smarttraffic.smartparking.receivers.LoginReceiver;
 public class LoginService extends IntentService {
 
     public static final String PROBLEM = "Ha fallado el proceso de ingreso!";
-    private static final String CANNOT_LOGIN = "No se logro hacer inicio. Revisar credenciales!";
-    private static final String CANNOT_CONNECT_SERVER = "No se pudo conectar con el servidor, favor revisar conexion!";
-    private static final String ULI = "User Login Information";
-    private static final String IULI = "IDENTIFICADOR USUARIO LOGGED IN";
+    public static final String CANNOT_LOGIN = "No se logro hacer inicio. Revisar credenciales!";
+    public static final String CANNOT_CONNECT_SERVER = "No se pudo conectar con el servidor, favor revisar conexion!";
+    public static final String ULI = "User Login Information";
+    public static final String IULI = "IDENTIFICADOR USUARIO LOGGED IN";
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -58,9 +58,6 @@ public class LoginService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         String pass = intent.getStringExtra("password");
         String user = intent.getStringExtra("username");
-        Credentials credentials = new Credentials();
-        credentials.setUsername(user);
-        credentials.setPassword(pass);
 
         Gson gson = new GsonBuilder()
                 .setLenient()
@@ -96,7 +93,7 @@ public class LoginService extends IntentService {
                 loginIntent.setAction(LOGIN_ACTION);
                 editor.putInt(IULI, result.body().getId()).apply();
                 editor.commit();
-            }else if (result.code() == 404){
+            }else if (result.code() == 403){
                 loginIntent.putExtra(PROBLEM, CANNOT_LOGIN);
                 loginIntent.setAction(BAD_LOGIN_ACTION);
             }
@@ -111,6 +108,4 @@ public class LoginService extends IntentService {
         }
         sendBroadcast(loginIntent);
     }
-
-
 }

@@ -21,10 +21,11 @@ public class AddCookiesInterceptor implements Interceptor {
 
     public static final String LOG_TAG = AddCookiesInterceptor.class.getSimpleName();
 
-    public static final String PREF_COOKIES = "PREF_COOKIES";
+    public static final String SESSION_COOKIES = "SESSION_COOKIES";
+    public static final String CSRF_COOKIES = "CSRF_COOKIES";
     public static final String CSRF_TOKEN = "X-CSRFToken";
     public static final String COOKIE = "Cookie";
-    private static final String COOKIES_CLIENT = "Cookies Client";
+    public static final String COOKIES_CLIENT = "Cookies Client";
 
     private Context context;
 
@@ -37,15 +38,29 @@ public class AddCookiesInterceptor implements Interceptor {
 
         Request.Builder builder = chain.request().newBuilder();
 
-        SharedPreferences sharedPreferences = context.getSharedPreferences(COOKIES_CLIENT, Context.MODE_PRIVATE);
-        HashSet<String> preferences = (HashSet<String>) sharedPreferences.getStringSet(PREF_COOKIES, new HashSet<String>());
+        SharedPreferences sharedPreferences = context.getSharedPreferences(
+                COOKIES_CLIENT, Context.MODE_PRIVATE);
+        HashSet<String> csrfCookies = (HashSet<String>) sharedPreferences.getStringSet(
+                CSRF_COOKIES, new HashSet<String>());
+        HashSet<String> sessionCookies = (HashSet<String>) sharedPreferences.getStringSet(
+                SESSION_COOKIES, new HashSet<String>());
+        String cookiesConcat = new String();
 
-        for (String cookie : preferences) {
-            builder.header(COOKIE, cookie);
-            builder.header(CSRF_TOKEN, cookie.substring(10, cookie.indexOf(";")));
+        for (String cookie : csrfCookies) {
+            cookiesConcat = cookie;
+            builder.addHeader(CSRF_TOKEN, cookie.substring(10, cookie.indexOf(";")));
             Log.v(LOG_TAG, cookie);
         }
 
+        for (String cookie : sessionCookies) {
+            cookiesConcat = cookiesConcat + ", " + cookie;
+            builder.header(COOKIE, cookie);
+            Log.v(LOG_TAG, cookie);
+        }
+
+        builder.addHeader(COOKIE, cookiesConcat);
+
         return chain.proceed(builder.build());
     }
+
 }

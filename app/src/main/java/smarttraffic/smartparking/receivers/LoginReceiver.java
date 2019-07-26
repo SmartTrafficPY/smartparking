@@ -26,8 +26,7 @@ public class LoginReceiver extends BroadcastReceiver {
     @BindView(R.id.forgotPassword)
     TextView forgotPassword;
 
-    private static final String TAG = "LoginReceiver";
-
+    private static final String LOG_TAG = "LoginReceiver";
 
     private String sex;
     private Integer age;

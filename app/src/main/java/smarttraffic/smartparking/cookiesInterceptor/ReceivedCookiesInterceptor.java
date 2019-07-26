@@ -17,7 +17,8 @@ import okhttp3.Response;
  */
 
 public class ReceivedCookiesInterceptor implements Interceptor {
-    public static final String PREF_COOKIES = "PREF_COOKIES";
+    public static final String CSRF_COOKIES = "CSRF_COOKIES";
+    public static final String SESSION_COOKIES = "SESSION_COOKIES";
     public static final String SET_COOKIE = "Set-Cookie";
 
     public static final String LOG_TAG = ReceivedCookiesInterceptor.class.getSimpleName();
@@ -35,19 +36,21 @@ public class ReceivedCookiesInterceptor implements Interceptor {
 
         if (!originalResponse.headers(SET_COOKIE).isEmpty()) {
             SharedPreferences sharedPreferences = context.getSharedPreferences(COOKIES_CLIENT, Context.MODE_PRIVATE);
-            HashSet<String> cookies = (HashSet<String>) sharedPreferences.getStringSet(PREF_COOKIES, new HashSet<String>());
-
-//            HashSet<String> cookies = (HashSet<String>) PreferenceManager.
-//                    getDefaultSharedPreferences(context).getStringSet(
-//                            PREF_COOKIES, new HashSet<String>());
+            HashSet<String> sessionCookies = new HashSet<String>();
+            HashSet<String> csrfCookies = new HashSet<String>();
 
             for (String header : originalResponse.headers(SET_COOKIE)) {
-                cookies.add(header);
+                if(header.startsWith("sessionid")){
+                    sessionCookies.add(header);
+                }else{
+                    csrfCookies.add(header);
+                }
             }
 
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putStringSet(PREF_COOKIES, cookies).apply();
-            editor.commit();//.apply();
+            editor.putStringSet(CSRF_COOKIES, csrfCookies).apply();
+            editor.putStringSet(SESSION_COOKIES, sessionCookies).apply();
+            editor.commit();
 
             Log.v(LOG_TAG, originalResponse.headers().get(SET_COOKIE));
 

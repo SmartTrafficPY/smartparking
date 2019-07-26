@@ -1,24 +1,23 @@
 package smarttraffic.smartparking.services;
 
 import android.app.IntentService;
-import android.content.Context;
+
 import android.content.Intent;
-import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
+
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
 import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
 import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
@@ -48,8 +47,7 @@ public class InitService extends IntentService {
     public static final String TO_HOME = "El usuario ya esta registrado";
     public static final String BAD_ACTION = "Inicio incorrecto!";
     public static final String CANNOT_CONNECT_SERVER = "No se pudo conectar con el servidor, favor revisar conexion!";
-    public static final String PREF_COOKIES = "PREF_COOKIES";
-    private static final String COOKIES_CLIENT = "Cookies Client";
+
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      *
@@ -82,8 +80,7 @@ public class InitService extends IntentService {
         initIntent.setClass(this, InitReceiver.class);
 
         try{
-            Response result = call.execute();
-            Headers c = result.headers();
+            Response<ResponseBody> result = call.execute();
             if (result.code() == 200){
                 initIntent.setAction(TO_HOME);
             }else {

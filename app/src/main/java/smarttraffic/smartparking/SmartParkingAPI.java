@@ -10,6 +10,7 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
+import smarttraffic.smartparking.dataModels.Credentials;
 import smarttraffic.smartparking.dataModels.ProfileUser;
 import smarttraffic.smartparking.dataModels.ProfileRegistry;
 import smarttraffic.smartparking.dataModels.ResetPassword;
@@ -19,8 +20,7 @@ public interface SmartParkingAPI {
     /**
      * Login, Logout user session and a Service to know if user is or not Logged
      * and get the CSRF token...
-     **/
-
+     * **/
     @Multipart
     @POST("loggin/")
     Call<ProfileUser> logginUser(@Part("username") RequestBody username,
@@ -31,6 +31,9 @@ public interface SmartParkingAPI {
 
     @GET("logout/")
     Call<ResponseBody> logoutUser();
+
+//    @GET("loggin/")
+//    Call<ResponseBody> getCookies();
 
     /**
      * UPDATE USER PROFILE INFO

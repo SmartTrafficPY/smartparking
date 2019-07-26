@@ -1,6 +1,5 @@
-package smarttraffic.smartparking.menuNavigation;
+package smarttraffic.smartparking.fragments;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -9,9 +8,9 @@ import android.view.ViewGroup;
 
 import smarttraffic.smartparking.R;
 
-public class ChangePassFragment extends Fragment {
+public class SettingsFragment extends Fragment {
 
-    public ChangePassFragment() {
+    public SettingsFragment() {
         // Required empty public constructor
     }
 
@@ -19,6 +18,6 @@ public class ChangePassFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.change_password_layout, container, false);
+        return inflater.inflate(R.layout.settings_layout, container, false);
     }
 }
