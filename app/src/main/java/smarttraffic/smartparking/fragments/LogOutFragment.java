@@ -3,6 +3,7 @@ package smarttraffic.smartparking.fragments;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -28,11 +29,13 @@ import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.activities.LoginActivity;
 import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
 import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
+import smarttraffic.smartparking.services.LoginService;
 
 public class LogOutFragment extends Fragment {
 
     private static final String LOG_TAG = "LogOutFragment";
-    static final String BASE_URL = "http://10.50.225.75:8000/api/smartparking/";
+    private static final String BASE_URL = "http://10.50.225.75:8000/api/smartparking/";
+    private static final String BASE_URL_HOME = "http://192.168.100.5:8000/api/smartparking/";
 
     public LogOutFragment() {
         // Required empty public constructor
@@ -62,7 +65,7 @@ public class LogOutFragment extends Fragment {
 
                         Retrofit retrofit = new Retrofit.Builder()
                                 .client(okHttpClient)
-                                .baseUrl(BASE_URL)
+                                .baseUrl(BASE_URL_HOME)
                                 .addConverterFactory(GsonConverterFactory.create(gson))
                                 .build();
                         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
@@ -102,16 +105,13 @@ public class LogOutFragment extends Fragment {
         AlertDialog dialog = builder.create();
         dialog.show();
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.home_layout, container, false);
+        return null;
     }
 
-//    private void eraseAllPreferences(){
-//        //TODO: This should erase all SharedPreferences of the user...
-//        SharedPreferences.Editor profileEditor = getContext().getSharedPreferences(
-//                LoginService.ULI, Context.MODE_PRIVATE).edit();
-//        profileEditor.remove(LoginService.IULI).commit();
-//        SharedPreferences.Editor sessionEditor = getContext().getSharedPreferences(
-//                AddCookiesInterceptor.COOKIES_CLIENT, Context.MODE_PRIVATE).edit();
-//        sessionEditor.remove(AddCookiesInterceptor.PREF_COOKIES).commit();
-//    }
+    private void eraseAllPreferences(){
+        //TODO: This should erase all SharedPreferences of the user...
+        SharedPreferences.Editor profileEditor = getContext().getSharedPreferences(
+                LoginService.ULI, Context.MODE_PRIVATE).edit();
+        profileEditor.remove(LoginService.IULI).commit();
+    }
 }

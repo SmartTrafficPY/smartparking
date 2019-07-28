@@ -43,7 +43,7 @@ public class LoginReceiver extends BroadcastReceiver {
             setErrorMessage(intent.getStringExtra(LoginService.PROBLEM));
             showToast(getErrorMessage(),context);
         }
-        else if(intent.getAction().equals(LoginService.COOKIES_NOT_FOUND)) {
+        else if(intent.getAction().equals(LoginService.SERVER_PROBLEM)) {
             setErrorMessage(intent.getStringExtra(LoginService.PROBLEM));
             showToast(getErrorMessage(),context);
         }

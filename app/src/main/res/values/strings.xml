@@ -28,6 +28,7 @@
         Los proveedores de esta aplicación se comprometen en usar los datos recolectados de los
         usuarios de forma responsable y de manera privada.
     </string>
+    <string name="passwords_not_match">Las contraseñas no coinciden!</string>
     <string name="button_accept">Acepto</string>
     <string name="button_cancel">Cancelar</string>
     <string name="button_afirmative">Si</string>

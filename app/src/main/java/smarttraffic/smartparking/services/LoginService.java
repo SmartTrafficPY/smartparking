@@ -22,7 +22,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
 import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
-import smarttraffic.smartparking.dataModels.Credentials;
 import smarttraffic.smartparking.dataModels.ProfileUser;
 import smarttraffic.smartparking.receivers.LoginReceiver;
 
@@ -48,11 +47,13 @@ public class LoginService extends IntentService {
     public LoginService() {
         super("LoginService");
     }
+
+    static final String BASE_URL_HOME = "http://192.168.100.5:8000/api/smartparking/";
     static final String BASE_URL = "http://10.50.225.75:8000/api/smartparking/";
 
     public static final String LOGIN_ACTION = "Login exitoso!";
     public static final String BAD_LOGIN_ACTION = "Credenciales incorrectas";
-    public static final String COOKIES_NOT_FOUND = "Faltan las cookies!";
+    public static final String SERVER_PROBLEM = "Existe un error con la comunicacion con el servidor!";
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -76,7 +77,7 @@ public class LoginService extends IntentService {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl(BASE_URL)
+                .baseUrl(BASE_URL_HOME)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
@@ -93,13 +94,13 @@ public class LoginService extends IntentService {
                 loginIntent.setAction(LOGIN_ACTION);
                 editor.putInt(IULI, result.body().getId()).apply();
                 editor.commit();
-            }else if (result.code() == 403){
+            }else if (result.code() == 404){
                 loginIntent.putExtra(PROBLEM, CANNOT_LOGIN);
                 loginIntent.setAction(BAD_LOGIN_ACTION);
             }
             else {
-                loginIntent.putExtra(PROBLEM, COOKIES_NOT_FOUND);
-                loginIntent.setAction(COOKIES_NOT_FOUND);
+                loginIntent.putExtra(PROBLEM, SERVER_PROBLEM);
+                loginIntent.setAction(SERVER_PROBLEM);
             }
         } catch (IOException e) {
             loginIntent.putExtra(PROBLEM, CANNOT_CONNECT_SERVER);

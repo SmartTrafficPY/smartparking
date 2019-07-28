@@ -40,6 +40,7 @@ public class InitService extends IntentService {
         super("InitService");
     }
 
+    static final String BASE_URL_HOME = "http://192.168.100.5:8000/api/smartparking/";
     private static final String BASE_URL = "http://10.50.225.75:8000/api/smartparking/";
 
     public static final String PROBLEM = "Usuario no encontrado!";
@@ -69,7 +70,7 @@ public class InitService extends IntentService {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(initClient)
-                .baseUrl(BASE_URL)
+                .baseUrl(BASE_URL_HOME)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 

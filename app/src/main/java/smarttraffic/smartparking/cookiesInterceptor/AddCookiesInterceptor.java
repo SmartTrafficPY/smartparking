@@ -47,18 +47,17 @@ public class AddCookiesInterceptor implements Interceptor {
         String cookiesConcat = new String();
 
         for (String cookie : csrfCookies) {
-            cookiesConcat = cookie;
-            builder.addHeader(CSRF_TOKEN, cookie.substring(10, cookie.indexOf(";")));
+            cookiesConcat = cookie.substring(0, cookie.indexOf(";"));
+            builder.header(CSRF_TOKEN, cookie.substring(10, cookie.indexOf(";")));
             Log.v(LOG_TAG, cookie);
         }
 
         for (String cookie : sessionCookies) {
-            cookiesConcat = cookiesConcat + ", " + cookie;
-            builder.header(COOKIE, cookie);
+            cookiesConcat = cookiesConcat + "; " + cookie.substring(0, cookie.indexOf(";"));
             Log.v(LOG_TAG, cookie);
         }
 
-        builder.addHeader(COOKIE, cookiesConcat);
+        builder.header(COOKIE, cookiesConcat);
 
         return chain.proceed(builder.build());
     }

@@ -31,7 +31,7 @@ import smarttraffic.smartparking.services.LoginService;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private static final String TAG = "LoginActivity";
+    private static final String LOG_TAG = "LoginActivity";
 
     // binds the elements of the login_layout
     @BindView(R.id.usernameLogin)
@@ -91,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login() {
-        Log.d(TAG, "User trying to make the login");
+        Log.d(LOG_TAG, "User trying to make the login");
 
         loginButton.setEnabled(false);
 
