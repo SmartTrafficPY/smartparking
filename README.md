@@ -46,7 +46,7 @@ This app get the data from the sensors mobile phone (gps, acelerometer, giroscop
 
 ## Documentation
 
-All the documentation we have on this proyect is on the [SmartTraffic project page](smarttraffic.com.py), in the section of dissemination.
+All the documentation we have on this proyect is on the [SmartTraffic project page](http://smarttraffic.com.py), in the section of dissemination.
 
 ## Contributing
 
