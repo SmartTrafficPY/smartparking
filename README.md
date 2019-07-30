@@ -4,7 +4,9 @@
 
 # SmartParking: facilitating the search for parking places.
 
-  <a href="https://www.smarttraffic.com.py/SmartParking/"><img src="https://github.com/SmartTrafficPY/smartparking/blob/master/Smartparking.png" title="SmartParking" alt="SmartParking"></a>
+<p align="center">
+  <a href="https://www.smarttraffic.com.py/SmartParking/"><img  src="https://github.com/SmartTrafficPY/smartparking/blob/master/Smartparking.png" title="SmartParking" alt="SmartParking"></a>
+</p>
 
 Repository corresponding to the development of the client part of the SmartParking tool, one of the case studies within the SmartTraffic project framework.
 
@@ -13,15 +15,14 @@ Repository corresponding to the development of the client part of the SmartParki
 - [Installation](#installation)
 - [Features](#features)
 - [Contributing](#contributing)
-- [Team](#team)
 - [FAQ](#faq)
 - [Support](#support)
 - [License](#license)
 
 ## Installation
 
-- All the `code` required to get started
-- Images of what it should look like
+This is the `source code` of the client side of the project.
+At the time, our server is still in develop, like this application
 
 ### Clone
 
@@ -29,31 +30,23 @@ Repository corresponding to the development of the client part of the SmartParki
 
 ### Setup
 
-- If you want more syntax highlighting, format your code like this:
-
-> update and install this package first
-
-```shell
-$ brew update
-$ brew install fvcproductions
-```
-
-> now install npm and bower packages
-
-
-```shell
-$ npm install
-$ bower install
-```
-
-- For all the possible languages that support syntax highlithing on GitHub (which is basically all of them), refer <a href="https://github.com/github/linguist/blob/master/lib/linguist/languages.yml" target="_blank">here</a>.
-
+- If you want to the app to point to your server you need to change the BASE_URL variable to your own server `<ip-address>`
+- Make sure you register some data from the parking places with their spots
 ---
 
-
 ## Features
+- Map with information of the availability of parking places
+- Has a proximity monitoring module
+- Manage parking spots and places
+- User adminitration with session based authentication
+
 ## Usage
+This aplication is the client side of a more complex system, where a server needs to control and have access to information about a parking place, with all the spots in it. This means that need to be register a place, with coordinates, places withs there own coordinates, and enter the data to this server.
+This app get the data from the sensors mobile phone (gps, acelerometer, giroscope) and with the user position, transport mode(walking, driving...) determine if the user is occuping a spot or maybe free it. This is how the data of disponibility of the spots is recorded, then this info, is pass it to the other users.
+
 ## Documentation
+
+All the documentation we have on this proyect is on the [SmartTraffic project page](smarttraffic.com.py), in the section of dissemination.
 
 ## Contributing
 
@@ -73,7 +66,7 @@ $ bower install
 
 ### Step 3
 
-- 🔃 Create a new pull request using <a href="https://github.com/joanaz/HireDot2/compare/" target="_blank">`https://github.com/joanaz/HireDot2/compare/`</a>.
+- 🔃 Create a new pull request using.
 
 ---
 
