@@ -13,6 +13,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.apiFeed.LoginFeed;
 import smarttraffic.smartparking.dataModels.Credentials;
@@ -23,8 +24,6 @@ public class ControllerLogin implements Callback<LoginFeed> {
     private static final String TAG = "ControllerLogin";
     private SharedPreferences sharedPref;
 
-    static final String BASE_URL = "http://10.50.225.75:8000/smartparking/profiles/";
-
     public void start(Credentials credentials, Context context) {
         sharedPref = context.getSharedPreferences(String.valueOf(R.string.credentials),
                 Context.MODE_PRIVATE);
@@ -33,7 +32,7 @@ public class ControllerLogin implements Callback<LoginFeed> {
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(Constants.getBaseUrl())
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 

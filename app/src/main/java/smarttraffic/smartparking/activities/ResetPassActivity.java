@@ -35,6 +35,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
@@ -58,7 +59,6 @@ public class ResetPassActivity extends AppCompatActivity {
     private static final String GUION = "-";
     private static final String FAIL_RESET_MESSAGE = "Algo sucedio durante el proceso de " +
             "recuperacion de la contraseña";
-    static final String BASE_URL = "http://10.50.225.75:8000/api/smartparking/";
 
     @BindView(R.id.birthDateResetPass)
     TextView birthDate;
@@ -159,7 +159,7 @@ public class ResetPassActivity extends AppCompatActivity {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl(BASE_URL)
+                .baseUrl(Constants.getBaseUrl())
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 

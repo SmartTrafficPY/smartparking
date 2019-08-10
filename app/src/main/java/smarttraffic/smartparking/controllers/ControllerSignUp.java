@@ -8,12 +8,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.dataModels.ProfileRegistry;
 
 public class ControllerSignUp implements Callback<ProfileRegistry> {
 
-    static final String BASE_URL = "http://10.50.225.75:8000/api/smartparking/profiles/";
 
     public void start(ProfileRegistry profileRegistry) {
         Gson gson = new GsonBuilder()
@@ -21,7 +21,7 @@ public class ControllerSignUp implements Callback<ProfileRegistry> {
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(Constants.getBaseUrl())
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 

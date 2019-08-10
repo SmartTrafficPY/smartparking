@@ -15,6 +15,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
 import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
@@ -34,9 +35,6 @@ public class RegistrationService extends IntentService {
     public static final String PROBLEM = "Found some Problem in Login";
     private static final String CANNOT_CONNECT_SERVER = "No se pudo conectar con el servidor," +
             " favor revisar conexion!";
-
-    static final String BASE_URL_HOME = "http://192.168.100.5:8000/api/smartparking/";
-    static final String BASE_URL = "http://10.50.225.75:8000/api/smartparking/";
 
     public static final String REGISTRATION_ACTION = "Registro correcto";
     public static final String BAD_REGISTRATION_ACTION = "Registro no realizado";
@@ -66,7 +64,7 @@ public class RegistrationService extends IntentService {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl(BASE_URL_HOME)
+                .baseUrl(Constants.getBaseUrlHome())
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 

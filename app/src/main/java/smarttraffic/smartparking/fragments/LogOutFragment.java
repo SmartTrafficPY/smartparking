@@ -24,6 +24,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.activities.LoginActivity;
@@ -34,8 +35,6 @@ import smarttraffic.smartparking.services.LoginService;
 public class LogOutFragment extends Fragment {
 
     private static final String LOG_TAG = "LogOutFragment";
-    private static final String BASE_URL = "http://10.50.225.75:8000/api/smartparking/";
-    private static final String BASE_URL_HOME = "http://192.168.100.5:8000/api/smartparking/";
 
     public LogOutFragment() {
         // Required empty public constructor
@@ -65,7 +64,7 @@ public class LogOutFragment extends Fragment {
 
                         Retrofit retrofit = new Retrofit.Builder()
                                 .client(okHttpClient)
-                                .baseUrl(BASE_URL_HOME)
+                                .baseUrl(Constants.getBaseUrl())
                                 .addConverterFactory(GsonConverterFactory.create(gson))
                                 .build();
                         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);

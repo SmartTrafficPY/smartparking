@@ -18,6 +18,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
 import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
@@ -39,9 +40,6 @@ public class InitService extends IntentService {
     public InitService() {
         super("InitService");
     }
-
-    static final String BASE_URL_HOME = "http://192.168.100.5:8000/api/smartparking/";
-    private static final String BASE_URL = "http://10.50.225.75:8000/api/smartparking/";
 
     public static final String PROBLEM = "Usuario no encontrado!";
     public static final String HAVE_TO_LOGIN = "El usuario no esta loggeado";
@@ -70,7 +68,7 @@ public class InitService extends IntentService {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(initClient)
-                .baseUrl(BASE_URL_HOME)
+                .baseUrl(Constants.getBaseUrlHome())
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 

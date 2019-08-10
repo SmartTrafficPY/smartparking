@@ -10,7 +10,6 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
-import smarttraffic.smartparking.dataModels.Credentials;
 import smarttraffic.smartparking.dataModels.Passwords;
 import smarttraffic.smartparking.dataModels.ProfileUser;
 import smarttraffic.smartparking.dataModels.ProfileRegistry;
@@ -18,7 +17,6 @@ import smarttraffic.smartparking.dataModels.ResetPassword;
 
 public interface SmartParkingAPI {
 
-    public static final String BASE_URL = "http://10.50.225.75:8000/api/smartparking/";
 
     /**
      * Login, Logout user session and a Service to know if user is or not Logged

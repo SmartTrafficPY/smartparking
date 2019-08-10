@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -58,6 +59,16 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_layout);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment initialFragment = null;
+        try {
+            initialFragment = (Fragment) HomeFragment.class.newInstance();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
+        fragmentManager.beginTransaction().replace(R.id.content_frame, initialFragment).commit();
         ButterKnife.bind(this);
         /**
          * Here we are dealing with the navigationMenu
@@ -90,6 +101,7 @@ public class HomeActivity extends AppCompatActivity {
     public void selectDrawerItem(MenuItem menuItem) {
         // Create a new fragment and specify the fragment to show based on nav item clicked
         Fragment fragment = null;
+        FragmentManager fragmentManager = getSupportFragmentManager();
         Class fragmentClass;
         switch(menuItem.getItemId()) {
             case R.id.home_menu:
@@ -104,8 +116,11 @@ public class HomeActivity extends AppCompatActivity {
             case R.id.menu_logout:
                 fragmentClass = LogOutFragment.class;
                 break;
-            default:
+            case R.id.menu_about:
                 fragmentClass = AboutFragment.class;
+                break;
+            default:
+                fragmentClass = HomeFragment.class;
         }
 
         try {
@@ -115,9 +130,7 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         // Insert the fragment by replacing any existing fragment
-        FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-
         // Highlight the selected item has been done by NavigationView
         menuItem.setChecked(true);
         // Set action bar title
