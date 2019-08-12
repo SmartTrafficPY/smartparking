@@ -20,14 +20,20 @@ public class InitReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if(intent.getAction().equals(InitService.TO_HOME)) {
-            Intent i = new Intent(context, HomeActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);
-        }else{
-            Intent i = new Intent(context, LoginActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);
-        }
+//        if(intent.getAction().equals(InitService.TO_HOME)) {
+//            Intent i = new Intent(context, HomeActivity.class);
+//            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            context.startActivity(i);
+//        }else{
+//            Intent i = new Intent(context, LoginActivity.class);
+//            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            context.startActivity(i);
+//        }
+        /**
+         * FIX: Just for now... to avoid login cause is not working the Network...
+         * **/
+        Intent i = new Intent(context, HomeActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(i);
     }
 }
