@@ -6,7 +6,6 @@ package smarttraffic.smartparking;
  * @author joaquin
  */
 
-
 public class Constants {
 
     /**
@@ -20,6 +19,12 @@ public class Constants {
     private static final String BASE_URL = "http://10.50.225.77:8000/api/smartparking/";
     private static final String BASE_URL_HOME = "http://192.168.100.5:8000/api/smartparking/";
     private static final String CHANNEL_ID = "SMARTPARKING_CHANNEL_ID";
+
+    public static String getProximityIntentAction() {
+        return PROXIMITY_INTENT_ACTION;
+    }
+
+    private static final String PROXIMITY_INTENT_ACTION = "SMARTPARKING.PROXIMITY_ALERT";
 
     public static String getChannelId() {
         return CHANNEL_ID;

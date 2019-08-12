@@ -1,16 +1,19 @@
 package smarttraffic.smartparking.activities;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
+import android.location.Location;
+import android.location.LocationManager;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NotificationCompat;
@@ -26,6 +29,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import smarttraffic.smartparking.Constants;
@@ -35,6 +40,7 @@ import smarttraffic.smartparking.fragments.ChangePassFragment;
 import smarttraffic.smartparking.fragments.HomeFragment;
 import smarttraffic.smartparking.fragments.LogOutFragment;
 import smarttraffic.smartparking.fragments.SettingsFragment;
+import smarttraffic.smartparking.receivers.ProximityAlert;
 
 import static smarttraffic.smartparking.R.mipmap.smartparking_logo_round;
 
@@ -47,13 +53,13 @@ import static smarttraffic.smartparking.R.mipmap.smartparking_logo_round;
 public class HomeActivity extends AppCompatActivity {
 
     /**
-    * IF the user is log in, can enter here...else: Login first
-    * HERE should show the map with the info of parking spots status
+     * IF the user is log in, can enter here...else: Login first
+     * HERE should show the map with the info of parking spots status
      * Father of:
      * -About
      * -Change Pass
      * -Settings
-    * */
+     * */
 
     private static final String LOG_TAG = "HomeActivity";
 
@@ -66,13 +72,15 @@ public class HomeActivity extends AppCompatActivity {
 
     private ActionBarDrawerToggle drawerToggle;
 
+    private ArrayList<Location> parkingLots;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_layout);
         ButterKnife.bind(this);
 
-        sendNotification(1,"SmartParking", "This is just a test to see the Notification");
+        sendNotification(1, "SmartParking", "This is just a test to see the Notification");
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment initialFragment = null;
@@ -116,7 +124,7 @@ public class HomeActivity extends AppCompatActivity {
         Fragment fragment = null;
         FragmentManager fragmentManager = getSupportFragmentManager();
         Class fragmentClass;
-        switch(menuItem.getItemId()) {
+        switch (menuItem.getItemId()) {
             case R.id.home_menu:
                 fragmentClass = HomeFragment.class;
                 break;
@@ -176,7 +184,7 @@ public class HomeActivity extends AppCompatActivity {
     private ActionBarDrawerToggle setupDrawerToggle() {
         // NOTE: Make sure you pass in a valid toolbar reference.  ActionBarDrawToggle() does not require it
         // and will not render the hamburger icon without it.
-        return new ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.drawer_open,  R.string.drawer_close);
+        return new ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.drawer_open, R.string.drawer_close);
     }
 
     @Override
@@ -193,7 +201,7 @@ public class HomeActivity extends AppCompatActivity {
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
-    private Notification setNotification(String textTitle, String textContent){
+    private Notification setNotification(String textTitle, String textContent) {
         // Create an explicit intent for an Activity in your app
         Intent intent = new Intent(this, HomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -210,12 +218,11 @@ public class HomeActivity extends AppCompatActivity {
         return builder.build();
     }
 
-    private void setNotificationChannel(NotificationManager notificationManager){
+    private void setNotificationChannel(NotificationManager notificationManager) {
         CharSequence channelName = "SmartParking Channel";
         int importance = NotificationManager.IMPORTANCE_HIGH;
-        NotificationChannel notificationChannel = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            notificationChannel = new NotificationChannel(Constants.getChannelId(), channelName, importance);
+            NotificationChannel notificationChannel = new NotificationChannel(Constants.getChannelId(), channelName, importance);
             notificationChannel.enableLights(true);
             notificationChannel.setLightColor(Color.RED);
             notificationChannel.enableVibration(true);
@@ -224,12 +231,46 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private void sendNotification(int idNotification, String title, String message){
+    private void sendNotification(int idNotification, String title, String message) {
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(this.NOTIFICATION_SERVICE);
         setNotificationChannel(notificationManager);
         Notification notification = setNotification(title, message);
         notificationManager.notify(idNotification, notification);
+    }
+
+    private void registerParkingAreas() {
+        for(int i = 0; i < parkingLots.size(); i++) {
+            Location location = parkingLots.get(i);
+            setProximityAlert(location.getLatitude(),
+                    location.getLongitude(),
+                    i+1,
+                    i);
+        }
+    }
+
+    private void setProximityAlert(double lat, double lon, final long eventID, int requestCode) {
+
+        // 500 meter radius
+        float radius = 500f;
+
+        LocationManager locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
+
+        Intent intent = new Intent(Constants.getProximityIntentAction());
+        intent.putExtra(ProximityAlert.EVENT_ID_INTENT_EXTRA, eventID);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), requestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        locationManager.addProximityAlert(lat, lon, radius, -1, pendingIntent);
     }
 
 }
