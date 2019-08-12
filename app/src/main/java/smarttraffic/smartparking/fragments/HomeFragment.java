@@ -10,10 +10,7 @@ import android.view.ViewGroup;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
-import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.util.MapTileIndex;
 import org.osmdroid.views.MapView;
@@ -21,6 +18,12 @@ import org.osmdroid.views.MapView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import smarttraffic.smartparking.R;
+
+/**
+ * Created by Joaquin Olivera on august 19.
+ *
+ * @author joaquin
+ */
 
 public class HomeFragment extends Fragment {
 
@@ -50,10 +53,6 @@ public class HomeFragment extends Fragment {
 
         Configuration.getInstance().load(getActivity(), PreferenceManager.getDefaultSharedPreferences(getActivity()));
         //HEre our IP...
-
-//        mapView.setTileSource(new XYTileSource(
-//                "SMARTPARKING CartoDB", 1, 17, 256,
-//                "", new String[] {"http://192.168.100.49"}));
 
         mapView.setTileSource(new OnlineTileSourceBase("SMARTPARKING CartoDB", 10, 22,
                 256, ".png",

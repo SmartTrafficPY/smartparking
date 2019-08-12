@@ -1,10 +1,19 @@
 package smarttraffic.smartparking.activities;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -13,19 +22,21 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.MenuItem;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.fragments.AboutFragment;
 import smarttraffic.smartparking.fragments.ChangePassFragment;
 import smarttraffic.smartparking.fragments.HomeFragment;
 import smarttraffic.smartparking.fragments.LogOutFragment;
 import smarttraffic.smartparking.fragments.SettingsFragment;
+
+import static smarttraffic.smartparking.R.mipmap.smartparking_logo_round;
 
 /**
  * Created by Joaquin Olivera on july 19.
@@ -59,6 +70,10 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_layout);
+        ButterKnife.bind(this);
+
+        sendNotification(1,"SmartParking", "This is just a test to see the Notification");
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment initialFragment = null;
         try {
@@ -69,14 +84,12 @@ public class HomeActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         fragmentManager.beginTransaction().replace(R.id.content_frame, initialFragment).commit();
-        ButterKnife.bind(this);
         /**
          * Here we are dealing with the navigationMenu
          * **/
         setSupportActionBar(toolbar);
         setupDrawerContent(nvDrawer);
         drawerToggle = setupDrawerToggle();
-
     }
 
     @Override
@@ -178,6 +191,45 @@ public class HomeActivity extends AppCompatActivity {
         super.onConfigurationChanged(newConfig);
         // Pass any configuration change to the drawer toggles
         drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    private Notification setNotification(String textTitle, String textContent){
+        // Create an explicit intent for an Activity in your app
+        Intent intent = new Intent(this, HomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        //Create the builder for the notifications...
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, Constants.getChannelId())
+                .setSmallIcon(smartparking_logo_round)
+                .setContentTitle(textTitle)
+                .setContentText(textContent)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentIntent(pendingIntent)
+                .setDefaults(Notification.DEFAULT_ALL)
+                .setAutoCancel(true);
+        return builder.build();
+    }
+
+    private void setNotificationChannel(NotificationManager notificationManager){
+        CharSequence channelName = "SmartParking Channel";
+        int importance = NotificationManager.IMPORTANCE_HIGH;
+        NotificationChannel notificationChannel = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            notificationChannel = new NotificationChannel(Constants.getChannelId(), channelName, importance);
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+    }
+
+    private void sendNotification(int idNotification, String title, String message){
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(this.NOTIFICATION_SERVICE);
+        setNotificationChannel(notificationManager);
+        Notification notification = setNotification(title, message);
+        notificationManager.notify(idNotification, notification);
     }
 
 }
