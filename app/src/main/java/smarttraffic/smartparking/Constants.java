@@ -20,6 +20,14 @@ public class Constants {
     private static final String BASE_URL_HOME = "http://192.168.100.5:8000/api/smartparking/";
     private static final String CHANNEL_ID = "SMARTPARKING_CHANNEL_ID";
 
+
+    public static String getNotificationService() {
+        return NOTIFICATION_SERVICE;
+    }
+
+    private static final String NOTIFICATION_SERVICE = "notification";
+
+
     public static String getProximityIntentAction() {
         return PROXIMITY_INTENT_ACTION;
     }

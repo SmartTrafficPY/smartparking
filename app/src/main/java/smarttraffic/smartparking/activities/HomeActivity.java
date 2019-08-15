@@ -80,7 +80,11 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.home_layout);
         ButterKnife.bind(this);
 
-        sendNotification(1, "SmartParking", "This is just a test to see the Notification");
+//        sendNotification(1, "SmartParking", "This is just a test to see the Notification");
+        
+//        Add all the parking zones...
+        addParkingLots();
+        registerParkingAlerts();
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment initialFragment = null;
@@ -201,45 +205,17 @@ public class HomeActivity extends AppCompatActivity {
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
-    private Notification setNotification(String textTitle, String textContent) {
-        // Create an explicit intent for an Activity in your app
-        Intent intent = new Intent(this, HomeActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
-        //Create the builder for the notifications...
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, Constants.getChannelId())
-                .setSmallIcon(smartparking_logo_round)
-                .setContentTitle(textTitle)
-                .setContentText(textContent)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setContentIntent(pendingIntent)
-                .setDefaults(Notification.DEFAULT_ALL)
-                .setAutoCancel(true);
-        return builder.build();
+
+    private void addParkingLots() {
+        //After we will need to look for the server to get the info of all the Lots...
+        parkingLots = new ArrayList<Location>();
+        Location ucaCampus = new Location("dummyProvider");
+        ucaCampus.setLatitude(-25.323740);
+        ucaCampus.setLongitude(-57.638405);
+        parkingLots.add(ucaCampus);
     }
 
-    private void setNotificationChannel(NotificationManager notificationManager) {
-        CharSequence channelName = "SmartParking Channel";
-        int importance = NotificationManager.IMPORTANCE_HIGH;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel(Constants.getChannelId(), channelName, importance);
-            notificationChannel.enableLights(true);
-            notificationChannel.setLightColor(Color.RED);
-            notificationChannel.enableVibration(true);
-            notificationChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
-    }
-
-    private void sendNotification(int idNotification, String title, String message) {
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(this.NOTIFICATION_SERVICE);
-        setNotificationChannel(notificationManager);
-        Notification notification = setNotification(title, message);
-        notificationManager.notify(idNotification, notification);
-    }
-
-    private void registerParkingAreas() {
+    private void registerParkingAlerts() {
         for(int i = 0; i < parkingLots.size(); i++) {
             Location location = parkingLots.get(i);
             setProximityAlert(location.getLatitude(),
@@ -258,9 +234,12 @@ public class HomeActivity extends AppCompatActivity {
 
         Intent intent = new Intent(Constants.getProximityIntentAction());
         intent.putExtra(ProximityAlert.EVENT_ID_INTENT_EXTRA, eventID);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), requestCode, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), requestCode,
+                intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
