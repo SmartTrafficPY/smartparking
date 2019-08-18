@@ -107,8 +107,6 @@ public class InitActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         //Register the Receiver...
-        filter.addAction(InitService.TO_HOME);
-        filter.addAction(InitService.HAVE_TO_LOGIN);
         registerReceiver(initReceiver, filter);
     }
 
@@ -138,6 +136,16 @@ public class InitActivity extends AppCompatActivity {
         Intent initService = new Intent(InitActivity.this, InitService.class);
         startService(initService);
     }
+
+//    private void isUserLogged() {
+//        Intent initService = new Intent(InitActivity.this, InitService.class);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            startForegroundService(initService);
+//        } else {
+//            startService(initService);
+//        }
+//    }
+
 
 }
 

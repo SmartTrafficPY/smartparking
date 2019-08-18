@@ -1,39 +1,36 @@
 package smarttraffic.smartparking.activities;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
+import android.provider.Settings;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Toast;
+
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import smarttraffic.smartparking.Constants;
+import smarttraffic.smartparking.MyLocationListener;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.fragments.AboutFragment;
 import smarttraffic.smartparking.fragments.ChangePassFragment;
@@ -41,8 +38,6 @@ import smarttraffic.smartparking.fragments.HomeFragment;
 import smarttraffic.smartparking.fragments.LogOutFragment;
 import smarttraffic.smartparking.fragments.SettingsFragment;
 import smarttraffic.smartparking.receivers.ProximityAlert;
-
-import static smarttraffic.smartparking.R.mipmap.smartparking_logo_round;
 
 /**
  * Created by Joaquin Olivera on july 19.
@@ -52,15 +47,7 @@ import static smarttraffic.smartparking.R.mipmap.smartparking_logo_round;
 
 public class HomeActivity extends AppCompatActivity {
 
-    /**
-     * IF the user is log in, can enter here...else: Login first
-     * HERE should show the map with the info of parking spots status
-     * Father of:
-     * -About
-     * -Change Pass
-     * -Settings
-     * */
-
+    private static final long POINT_RADIUS = 50;
     private static final String LOG_TAG = "HomeActivity";
 
     @BindView(R.id.toolbar)
@@ -71,8 +58,11 @@ public class HomeActivity extends AppCompatActivity {
     NavigationView nvDrawer;
 
     private ActionBarDrawerToggle drawerToggle;
-
     private ArrayList<Location> parkingLots;
+
+    Location Ucampus = new Location("dummyprovider");
+    Location home = new Location("dummyprovider");
+    Location sanRafael = new Location("dummyprovider");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,11 +70,16 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.home_layout);
         ButterKnife.bind(this);
 
-//        sendNotification(1, "SmartParking", "This is just a test to see the Notification");
-        
-//        Add all the parking zones...
         addParkingLots();
-        registerParkingAlerts();
+
+        Intent intent = getIntent();
+        String intentStarter = intent.getStringExtra(Constants.getIntentFrom());
+        if(intentStarter == Constants.getFromProximityIntent()){
+            //started from proximity alert ...
+        }else{
+            registerParkingAlerts();
+            startGpsUpdateRequest();
+        }
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment initialFragment = null;
@@ -102,6 +97,29 @@ public class HomeActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         setupDrawerContent(nvDrawer);
         drawerToggle = setupDrawerToggle();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        startGpsUpdateRequest();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+//        unregisterReceiver(proximityAlert);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 1) {
+            switch (requestCode) {
+                case 1:
+                    break;
+            }
+        }
     }
 
     @Override
@@ -147,7 +165,6 @@ public class HomeActivity extends AppCompatActivity {
             default:
                 fragmentClass = HomeFragment.class;
         }
-
         try {
             fragment = (Fragment) fragmentClass.newInstance();
         } catch (Exception e) {
@@ -173,18 +190,6 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    // Show images in Toast prompt.
-    @SuppressLint("ResourceAsColor")
-    private void showToast(String message) {
-        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.CENTER, 0, 0);
-        LinearLayout toastContentView = (LinearLayout) toast.getView();
-        ImageView imageView = new ImageView(getApplicationContext());
-        imageView.setImageResource(R.mipmap.toast_smartparking);
-        toastContentView.addView(imageView, 0);
-        toast.show();
-    }
-
     private ActionBarDrawerToggle setupDrawerToggle() {
         // NOTE: Make sure you pass in a valid toolbar reference.  ActionBarDrawToggle() does not require it
         // and will not render the hamburger icon without it.
@@ -195,7 +200,7 @@ public class HomeActivity extends AppCompatActivity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
-        drawerToggle.syncState();
+//        drawerToggle.syncState();
     }
 
     @Override
@@ -205,14 +210,18 @@ public class HomeActivity extends AppCompatActivity {
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
-
     private void addParkingLots() {
         //After we will need to look for the server to get the info of all the Lots...
         parkingLots = new ArrayList<Location>();
-        Location ucaCampus = new Location("dummyProvider");
-        ucaCampus.setLatitude(-25.323740);
-        ucaCampus.setLongitude(-57.638405);
-        parkingLots.add(ucaCampus);
+        Ucampus.setLatitude(-25.325624);
+        Ucampus.setLongitude(-57.637866);
+        home.setLatitude(-25.306100);
+        home.setLongitude(-57.591436);
+        sanRafael.setLatitude(-25.307299);
+        sanRafael.setLongitude(-57.587078);
+        parkingLots.add(Ucampus);
+//        parkingLots.add(home);
+        parkingLots.add(sanRafael);
     }
 
     private void registerParkingAlerts() {
@@ -220,16 +229,13 @@ public class HomeActivity extends AppCompatActivity {
             Location location = parkingLots.get(i);
             setProximityAlert(location.getLatitude(),
                     location.getLongitude(),
-                    i+1,
+                    POINT_RADIUS,
+                    i+1, //NExt could be the parkingLot ID...
                     i);
         }
     }
 
-    private void setProximityAlert(double lat, double lon, final long eventID, int requestCode) {
-
-        // 500 meter radius
-        float radius = 500f;
-
+    private void setProximityAlert(double lat, double lon, long radius, final int eventID, int requestCode) {
         LocationManager locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
 
         Intent intent = new Intent(Constants.getProximityIntentAction());
@@ -250,6 +256,49 @@ public class HomeActivity extends AppCompatActivity {
             return;
         }
         locationManager.addProximityAlert(lat, lon, radius, -1, pendingIntent);
+
+        IntentFilter filter = new IntentFilter(Constants.getProximityIntentAction());
+        ProximityAlert proximityAlert = new ProximityAlert();
+        registerReceiver(proximityAlert, filter);
     }
+
+    private void startGpsUpdateRequest() {
+
+        LocationManager locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
+
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+            alertDialog.setTitle("Precaucion");
+            alertDialog.setMessage("Favor habilite el GPS desde las configuraciones");
+            alertDialog.setPositiveButton("Configuraciones", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                }
+            });
+            alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            alertDialog.show();
+        } else {
+            Log.v(LOG_TAG, "GPS Enabled");
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER,
+                    Constants.getLowFrequencyUpdates(),
+                    Constants.getDistanceChangeForUpdates(), new MyLocationListener(this));
+        }
+    }
+
 
 }

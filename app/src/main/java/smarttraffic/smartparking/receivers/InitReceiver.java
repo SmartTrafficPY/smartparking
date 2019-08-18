@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 
 import smarttraffic.smartparking.activities.HomeActivity;
-import smarttraffic.smartparking.activities.LoginActivity;
-import smarttraffic.smartparking.services.InitService;
 
 /**
  * Created by Joaquin Olivera on july 19.
@@ -20,14 +18,20 @@ public class InitReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if(intent.getAction().equals(InitService.TO_HOME)) {
-            Intent i = new Intent(context, HomeActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);
-        }else{
-            Intent i = new Intent(context, LoginActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);
-        }
+
+        Intent i = new Intent(context, HomeActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(i);
+
     }
+//        if(intent.getAction().equals(InitService.TO_HOME)) {
+//            Intent i = new Intent(context, HomeActivity.class);
+//            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            context.startActivity(i);
+//        }else{
+//            Intent i = new Intent(context, LoginActivity.class);
+//            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            context.startActivity(i);
+//        }
+//    }
 }
