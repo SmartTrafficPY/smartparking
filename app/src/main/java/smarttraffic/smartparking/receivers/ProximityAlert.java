@@ -35,8 +35,8 @@ public class ProximityAlert extends BroadcastReceiver{
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        final String key = LocationManager.KEY_PROXIMITY_ENTERING;
-        final Boolean entering = intent.getBooleanExtra(key, false);
+        final Boolean entering = intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING,
+                false);
         final int eventId = intent.getIntExtra(EVENT_ID_INTENT_EXTRA, 0);
         String parkingLot;
 

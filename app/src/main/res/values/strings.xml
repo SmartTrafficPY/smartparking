@@ -61,6 +61,22 @@
     <string name="cancel">Cancel</string>
     <string name="dialog_logout">Está seguro de querer cerrar sesión?</string>
     <string name="logout_smartparking">Salir de SmartParking?</string>
+    <string name="geofence_transition_invalid_type">Geofence: Tipo de transición invalida</string>
+    <string name="geofence_transition_notification_text">Transición de geovalla</string>
+    <string name="geofence_transition_entered">Entrada a predio de estacionamiento</string>
+    <string name="geofence_transition_exited">Salida de predio de estacionamiento</string>
+    <string name="unknown_geofence_transition">Transición desconocida</string>
+    <string name="unknown_geofence_error">Geofence: Error desconocido</string>
+    <string name="geofence_not_available">Geofence: No disponible</string>
+    <string name="geofence_too_many_geofences">Muchos predios registrados</string>
+    <string name="geofence_too_many_pending_intents">Muchos intents pendientes</string>
+    <string name="geofences_removed">Geofences eliminadas</string>
+    <string name="geofences_added">Geofences agregadas</string>
+    <string name="permission_rationale">Se necesita permiso de ubicación para la funcionar</string>
+    <string name="insufficient_permissions">Permisos insuficientes</string>
+    <string name="settings">Configuraciones</string>
+    <string name="permission_denied_explanation">Se denegó el permiso, pero es necesario para el núcleo funcionalidad</string>
+    <string name="geofence_transition_dwell">Geofence: transición de permanencia</string>
 
 
 </resources>

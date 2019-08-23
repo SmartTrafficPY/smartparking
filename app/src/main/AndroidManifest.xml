@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -25,8 +26,10 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/smartparkinglogo_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme.SmartParking"
-        >
+        android:theme="@style/AppTheme.SmartParking">
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
         <activity android:name=".activities.InitActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -93,10 +96,12 @@
             android:enabled="true"
             android:exported="false"></service>
         <service
-            android:name=".services.GpsTrackerService"
+            android:name=".services.ProximityAlertService"
             android:enabled="true"
             android:exported="false"></service>
-
+        <service
+            android:name=".LocationJobScheduler"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <receiver android:name=".receivers.InitReceiver"
             android:exported="true"
@@ -116,6 +121,16 @@
                 <action android:name="registrationIntent"/>
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name=".receivers.GeofenceBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true" />
+
+        <service
+            android:name=".services.GeofenceTransitionsJobIntentService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
     </application>
 

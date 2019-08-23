@@ -8,6 +8,7 @@ package smarttraffic.smartparking;
 
 public class Constants {
 
+
     /**
      * Add here all variables used at width in the project...
      * **/
@@ -15,6 +16,7 @@ public class Constants {
     public Constants() {
     }
 
+    public static final String GEOFENCES_ADDED_KEY = "GEOFENCES_ADDED_KEY";
     private static final long SECONDS_IN_MILLISECONDS = 1000 * 1;
     private static final long MINUTES_IN_MILLISECONDS = SECONDS_IN_MILLISECONDS * 60;
     private static final long HOURS_IN_MILLISECONDS = MINUTES_IN_MILLISECONDS * 60;
@@ -27,11 +29,29 @@ public class Constants {
     private static final String BROADCAST_LOCATION_INTENT = "BROADCAST_LOCATION_INTENT";
     private static final String FROM_PROXIMITY_INTENT = "FROM_PROXIMITY_INTENT";
     private static final String INTENT_FROM = "INTENT_FROM";
+    private static final String LATITUD = "LATITUD";
+    private static final String LONGITUD = "LONGITUD";
+    private static final String RADIOUS = "RADIOUS";
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1;
     private static final long DISTANCE_CHANGE_FOR_UPDATES = 100;
     private static final long HIGH_FREQUENCY_UPDATES = SECONDS_IN_MILLISECONDS * 1;
     private static final long LOW_FREQUENCY_UPDATES = MINUTES_IN_MILLISECONDS * 20;
+    private static final String PROX_ALERT_INTENT = "smarttraffic.smartparking.services.ProximityAlert";
 
+    public static String getLatitud() {
+        return LATITUD;
+    }
+
+    public static String getLongitud() {
+        return LONGITUD;
+    }
+
+    public static String getRadious() {
+        return RADIOUS;
+    }
+    public static String getProxAlertIntent() {
+        return PROX_ALERT_INTENT;
+    }
 
     public static String getFromProximityIntent() {
         return FROM_PROXIMITY_INTENT;

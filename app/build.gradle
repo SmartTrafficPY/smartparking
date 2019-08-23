@@ -38,4 +38,6 @@ dependencies {
     implementation 'org.osmdroid:osmdroid-geopackage:6.1.0'
     implementation 'org.jetbrains:annotations-java5:15.0'
     implementation 'org.jetbrains:annotations-java5:15.0'
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
+    implementation 'com.google.android.gms:play-services-maps:16.0.0'
 }
