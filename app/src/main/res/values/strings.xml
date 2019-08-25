@@ -63,8 +63,8 @@
     <string name="logout_smartparking">Salir de SmartParking?</string>
     <string name="geofence_transition_invalid_type">Geofence: Tipo de transición invalida</string>
     <string name="geofence_transition_notification_text">Transición de geovalla</string>
-    <string name="geofence_transition_entered">Entrada a predio de estacionamiento</string>
-    <string name="geofence_transition_exited">Salida de predio de estacionamiento</string>
+    <string name="geofence_transition_entered">Entrada a estacionamiento:</string>
+    <string name="geofence_transition_exited">Salida de estacionamiento:</string>
     <string name="unknown_geofence_transition">Transición desconocida</string>
     <string name="unknown_geofence_error">Geofence: Error desconocido</string>
     <string name="geofence_not_available">Geofence: No disponible</string>
@@ -80,6 +80,4 @@
     <string name="launch_activity">Empezar</string>
     <string name="remove_location_updates">Eliminar actualizaciones de ubicación</string>
     <string name="location_updated">Ubicacion actualizada</string>
-
-
 </resources>

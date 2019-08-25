@@ -95,18 +95,6 @@
             android:name=".services.InitService"
             android:enabled="true"
             android:exported="false"></service>
-        <service
-            android:name=".services.ProximityAlertService"
-            android:enabled="true"
-            android:exported="false"></service>
-        <service
-            android:name=".LocationJobScheduler"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
-
-        <service
-            android:name=".services.LocationUpdatesService"
-            android:enabled="true"
-            android:exported="true"/>
 
         <receiver android:name=".receivers.InitReceiver"
             android:exported="true"

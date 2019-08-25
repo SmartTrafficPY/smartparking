@@ -3,18 +3,12 @@ package smarttraffic.smartparking.activities;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.IntentSender;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.net.Uri;
-import android.os.IBinder;
 import android.os.Looper;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -35,7 +29,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -55,12 +48,11 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
 import smarttraffic.smartparking.BuildConfig;
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
@@ -72,7 +64,6 @@ import smarttraffic.smartparking.fragments.LogOutFragment;
 import smarttraffic.smartparking.fragments.SettingsFragment;
 import smarttraffic.smartparking.receivers.GeofenceBroadcastReceiver;
 import smarttraffic.smartparking.services.GeofenceTransitionsJobIntentService;
-import smarttraffic.smartparking.services.LocationUpdatesService;
 
 /**
  * Created by Joaquin Olivera on july 19.
@@ -146,9 +137,8 @@ public class HomeActivity extends AppCompatActivity {
         // LocationSettingsRequest objects.
         createLocationCallback();
         //High frecuency test...
-        Intent geofenceIntent = getIntent();
-        int transition = geofenceIntent.getIntExtra(GeofenceTransitionsJobIntentService.TRANSITION, -1);
-        switch(transition){
+        switch(getIntent().getIntExtra(GeofenceTransitionsJobIntentService.TRANSITION,
+                -1)){
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 Log.i(LOG_TAG, "Enter Transition");
                 break;
@@ -195,7 +185,6 @@ public class HomeActivity extends AppCompatActivity {
         if (!checkPermissions()) {
             requestPermissions();
         }
-
     }
 
     @Override
