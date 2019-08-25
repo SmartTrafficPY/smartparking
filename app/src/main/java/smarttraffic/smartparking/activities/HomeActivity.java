@@ -56,7 +56,6 @@ import butterknife.ButterKnife;
 import smarttraffic.smartparking.BuildConfig;
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
-import smarttraffic.smartparking.Utils;
 import smarttraffic.smartparking.fragments.AboutFragment;
 import smarttraffic.smartparking.fragments.ChangePassFragment;
 import smarttraffic.smartparking.fragments.HomeFragment;
@@ -154,12 +153,6 @@ public class HomeActivity extends AppCompatActivity {
         createLocationRequest(Constants.getSecondsInMilliseconds() * 2,
                 Constants.getSecondsInMilliseconds());
         buildLocationSettingsRequest();
-        // Check that the user hasn't revoked permissions by going to Settings.
-        if (Utils.requestingLocationUpdates(this)) {
-            if (!checkPermissions()) {
-                requestPermissions();
-            }
-        }
 
         /**
          * Here we are dealing with the navigationMenu
