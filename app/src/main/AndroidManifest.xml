@@ -103,6 +103,11 @@
             android:name=".LocationJobScheduler"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
+        <service
+            android:name=".services.LocationUpdatesService"
+            android:enabled="true"
+            android:exported="true"/>
+
         <receiver android:name=".receivers.InitReceiver"
             android:exported="true"
             android:enabled="true">

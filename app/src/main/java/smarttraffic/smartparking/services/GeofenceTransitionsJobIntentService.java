@@ -34,6 +34,8 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
 
     private static final String CHANNEL_ID = "channel_01";
 
+    public static final String TRANSITION = "TRANSITION";
+
     /**
      * Convenience method for enqueuing work in to this service.
      */
@@ -64,16 +66,24 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
                 geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ||
                 geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL) {
-
             // Get the geofences that were triggered. A single event can trigger multiple geofences.
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
             // Get the transition details as a String.
             String geofenceTransitionDetails = getGeofenceTransitionDetails(geofenceTransition,
                     triggeringGeofences);
+            if(geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER){
+                /**
+                 * We are gonna sense with more frecuency the Location...
+                 * **/
+            } else if(geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT){
+                /**
+                 * We are gonna sense with less frecuency the Location...
+                 * **/
+            }
 
             // Send notification and log the transition details.
-            sendNotification(geofenceTransitionDetails);
+            sendNotification(geofenceTransitionDetails, geofenceTransition);
             Log.i(LOG_TAG, geofenceTransitionDetails);
         } else {
             // Log the error.
@@ -108,7 +118,7 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
      * Posts a notification in the notification bar when a transition is detected.
      * If the user clicks the notification, control goes to the MainActivity.
      */
-    private void sendNotification(String notificationDetails) {
+    private void sendNotification(String notificationDetails, int transition) {
         // Get an instance of the Notification manager
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -126,6 +136,8 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
 
         // Create an explicit content Intent that starts the main Activity.
         Intent notificationIntent = new Intent(getApplicationContext(), HomeActivity.class);
+        notificationIntent.putExtra(TRANSITION, transition);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         // Construct a task stack.
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
@@ -138,7 +150,7 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
 
         // Get a PendingIntent containing the entire back stack.
         PendingIntent notificationPendingIntent =
-                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+                stackBuilder.getPendingIntent(0, 0);
 
         // Get a notification builder that's compatible with platform versions >= 4
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
@@ -150,9 +162,10 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(),
                         R.drawable.smart_parking))
                 .setColor(Color.RED)
+                .addAction(R.drawable.smart_parking, "Ir a la aplicación",notificationPendingIntent)
                 .setContentTitle(notificationDetails)
-                .setContentText(getString(R.string.geofence_transition_notification_text))
-                .setContentIntent(notificationPendingIntent);
+                .setContentText(getString(R.string.geofence_transition_notification_text));
+//                .setContentIntent(notificationPendingIntent);
 
         // Set the Channel ID for Android O.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
