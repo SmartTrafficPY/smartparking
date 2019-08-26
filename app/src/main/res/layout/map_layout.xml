@@ -3,21 +3,6 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/latitudOfUser"
-        android:text="Nothing yet"/>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/longitudOfUser"
-        android:text="Nothing yet"/>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/distanceTo"
-        android:text="Nothing yet"/>
     <org.osmdroid.views.MapView android:id="@+id/mapFragment"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />

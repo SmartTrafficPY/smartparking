@@ -20,8 +20,7 @@ public class Constants {
     private static final long SECONDS_IN_MILLISECONDS = 1000 * 1;
     private static final long MINUTES_IN_MILLISECONDS = SECONDS_IN_MILLISECONDS * 60;
     private static final long HOURS_IN_MILLISECONDS = MINUTES_IN_MILLISECONDS * 60;
-    //Then here will be the server IP
-    private static final String BASE_URL = "http://10.50.225.77:8000/api/smartparking/";
+    private static final String BASE_URL = "http://10.50.225.75:8000/api/smartparking/";
     private static final String BASE_URL_HOME = "http://192.168.100.5:8000/api/smartparking/";
     private static final String CHANNEL_ID = "SMARTPARKING_CHANNEL_ID";
     private static final String PROXIMITY_INTENT_ACTION = "SMARTPARKING_PROXIMITY_ALERT";
@@ -37,11 +36,15 @@ public class Constants {
     private static final long HIGH_FREQUENCY_UPDATES = SECONDS_IN_MILLISECONDS * 1;
     private static final long LOW_FREQUENCY_UPDATES = MINUTES_IN_MILLISECONDS * 20;
     private static final String PROX_ALERT_INTENT = "smarttraffic.smartparking.services.ProximityAlert";
+    private static final String TILE_SERVER_URL_HOME = "http://192.168.100.49:80/tile/";
+    private static final String TILE_SERVER_URL = "http://10.50.127.127:80/tile/";
+    public static final int REQUEST_CHECK_SETTINGS = 0x1;
+    public static final long POINT_RADIUS = 25;
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
-    public static final int REQUEST_CHECK_SETTINGS = 0x1;
-    public static final long POINT_RADIUS = 25;
+
+
     public static String getLatitud() {
         return LATITUD;
     }
@@ -108,6 +111,14 @@ public class Constants {
 
     public static String getChannelId() {
         return CHANNEL_ID;
+    }
+
+    public static String getTileServerUrlHome() {
+        return TILE_SERVER_URL_HOME;
+    }
+
+    public static String getTileServerUrl() {
+        return TILE_SERVER_URL;
     }
 
     public static String getBaseUrl() {

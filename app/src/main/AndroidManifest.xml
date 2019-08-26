@@ -26,7 +26,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/smartparkinglogo_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme.SmartParking">
+        android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar">
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

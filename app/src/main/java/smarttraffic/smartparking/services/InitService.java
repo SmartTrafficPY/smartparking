@@ -68,7 +68,7 @@ public class InitService extends IntentService {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(initClient)
-                .baseUrl(Constants.getBaseUrlHome())
+                .baseUrl(Constants.getBaseUrl())
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 

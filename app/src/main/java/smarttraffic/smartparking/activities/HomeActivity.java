@@ -82,31 +82,13 @@ public class HomeActivity extends AppCompatActivity {
     NavigationView nvDrawer;
 
     private ActionBarDrawerToggle drawerToggle;
+
     private ArrayList<Location> parkingLots;
-    /**
-     * Provides access to the Fused Location Provider API.
-     */
     private FusedLocationProviderClient mFusedLocationClient;
-    /**
-     * Provides access to the Location Settings API.
-     */
     private SettingsClient mSettingsClient;
-    /**
-     * Stores parameters for requests to the FusedLocationProviderApi.
-     */
     private LocationRequest mLocationRequest;
-    /**
-     * Stores the types of location services the client is interested in using. Used for checking
-     * settings to determine if the device has optimal location settings.
-     */
     private LocationSettingsRequest mLocationSettingsRequest;
-    /**
-     * Callback for Location events.
-     */
     private LocationCallback mLocationCallback;
-    /**
-     * Represents a geographical location.
-     */
     private Location mCurrentLocation;
 
     Location Ucampus = new Location("ucaprovider");
@@ -125,17 +107,15 @@ public class HomeActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         geofenceList = new ArrayList<>();
         geofencingClient = LocationServices.getGeofencingClient(this);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mSettingsClient = LocationServices.getSettingsClient(this);
 
         addParkingLots();
         populateGeofenceList();
         addGeofences();
-
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        mSettingsClient = LocationServices.getSettingsClient(this);
         // Kick off the process of building the LocationCallback, LocationRequest, and
         // LocationSettingsRequest objects.
         createLocationCallback();
-        //High frecuency test...
         switch(getIntent().getIntExtra(GeofenceTransitionsJobIntentService.TRANSITION,
                 -1)){
             case Geofence.GEOFENCE_TRANSITION_ENTER:
@@ -154,9 +134,6 @@ public class HomeActivity extends AppCompatActivity {
                 Constants.getSecondsInMilliseconds());
         buildLocationSettingsRequest();
 
-        /**
-         * Here we are dealing with the navigationMenu
-         * **/
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment initialFragment = null;
         try {
@@ -408,6 +385,7 @@ public class HomeActivity extends AppCompatActivity {
                 });
     }
 
+
     public void selectDrawerItem(MenuItem menuItem) {
         // Create a new fragment and specify the fragment to show based on nav item clicked
         Fragment fragment = null;
@@ -467,7 +445,7 @@ public class HomeActivity extends AppCompatActivity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
-//        drawerToggle.syncState();
+        drawerToggle.syncState();
     }
 
     @Override
