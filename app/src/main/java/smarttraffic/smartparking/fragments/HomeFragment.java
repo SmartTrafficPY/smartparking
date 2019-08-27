@@ -74,6 +74,8 @@ public class HomeFragment extends Fragment {
     List<GeoPoint> polygonsSpots;
     Polygon polygon = new Polygon();
     BroadcastReceiver broadcastReceiver;
+    BroadcastReceiver geofenceReceiver;
+
     Location gpsLocation = new Location(LocationManager.GPS_PROVIDER);
 
     public HomeFragment() {
@@ -93,9 +95,16 @@ public class HomeFragment extends Fragment {
                 if (intent.getAction().equals(Constants.getBroadcastLocationIntent())) {
                     gpsLocation.setLatitude(intent.getDoubleExtra(Constants.getLatitud(), 0));
                     gpsLocation.setLongitude(intent.getDoubleExtra(Constants.getLongitud(), 0));
-                }else if(intent.getAction().equals(Constants.getBroadcastGeofenceTriggerIntent())){
+                }
+            }
+        };
+
+        geofenceReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(Constants.getBroadcastGeofenceTriggerIntent())) {
                     ArrayList<String> geofencesTriggers = intent.getStringArrayListExtra(Constants.GEOFENCE_TRIGGER_ID);
-                    for(String geofenceId : geofencesTriggers){
+                    for (String geofenceId : geofencesTriggers) {
                         addParkingSpotsList(geofenceId);
                     }
                 }
@@ -206,6 +215,8 @@ public class HomeFragment extends Fragment {
         mapView.onResume();
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(broadcastReceiver,
                 new IntentFilter(Constants.getBroadcastLocationIntent()));
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(geofenceReceiver,
+                new IntentFilter(Constants.getBroadcastGeofenceTriggerIntent()));
         mLocationOverlay.enableFollowLocation();
         mLocationOverlay.enableMyLocation();
         mScaleBarOverlay.disableScaleBar();
@@ -216,6 +227,7 @@ public class HomeFragment extends Fragment {
         super.onPause();
         mapView.onPause();
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(broadcastReceiver);
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(geofenceReceiver);
         mCompassOverlay.disableCompass();
         mLocationOverlay.disableFollowLocation();
         mLocationOverlay.disableMyLocation();
