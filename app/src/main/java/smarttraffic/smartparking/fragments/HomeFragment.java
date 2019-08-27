@@ -4,11 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -17,12 +13,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.content.res.ResourcesCompat;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -41,11 +39,20 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
+import smarttraffic.smartparking.SmartParkingAPI;
+import smarttraffic.smartparking.dataModels.SmartParkingSpot;
 
 /**
  * Created by Joaquin Olivera on august 19.
@@ -55,6 +62,8 @@ import smarttraffic.smartparking.R;
 
 public class HomeFragment extends Fragment {
 
+    private static final String LOG_TAG = "HomeFragment";
+
     private MyLocationNewOverlay mLocationOverlay;
     private Marker userMarker;
     private CompassOverlay mCompassOverlay;
@@ -62,7 +71,8 @@ public class HomeFragment extends Fragment {
     private RotationGestureOverlay mRotationGestureOverlay;
     @BindView(R.id.mapFragment)
     MapView mapView;
-
+    List<GeoPoint> polygonsSpots;
+    Polygon polygon = new Polygon();
     BroadcastReceiver broadcastReceiver;
     Location gpsLocation = new Location(LocationManager.GPS_PROVIDER);
 
@@ -76,13 +86,18 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.map_layout, container, false);
         ButterKnife.bind(this, view);
-
+        //gets the location...
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(Constants.getBroadcastLocationIntent())) {
-                    gpsLocation.setLatitude(intent.getDoubleExtra("latitud", 0));
-                    gpsLocation.setLongitude(intent.getDoubleExtra("longitud", 0));
+                    gpsLocation.setLatitude(intent.getDoubleExtra(Constants.getLatitud(), 0));
+                    gpsLocation.setLongitude(intent.getDoubleExtra(Constants.getLongitud(), 0));
+                }else if(intent.getAction().equals(Constants.getBroadcastGeofenceTriggerIntent())){
+                    ArrayList<String> geofencesTriggers = intent.getStringArrayListExtra(Constants.GEOFENCE_TRIGGER_ID);
+                    for(String geofenceId : geofencesTriggers){
+                        addParkingSpotsList(geofenceId);
+                    }
                 }
             }
         };
@@ -111,65 +126,19 @@ public class HomeFragment extends Fragment {
         /**
          * MAP configurations and overlays...
          * **/
-
-        mapView.setTilesScaledToDpi(true);
-        mapView.setBuiltInZoomControls(true);
-        mapView.setMultiTouchControls(true);
-        mapView.setFlingEnabled(true);
         IMapController mapController = mapView.getController();
-        mapController.setZoom(17);
+
+        setGralMapConfiguration(mapController);
 
         //scale bar
-        final DisplayMetrics dm = getActivity().getResources().getDisplayMetrics();
-        mScaleBarOverlay = new ScaleBarOverlay(mapView);
-        mScaleBarOverlay.setCentred(true);
-        //play around with these values to get the location on screen in the right place for your application
-        mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
+        setScaleBar();
 
-        mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(getActivity()), mapView);
-        mLocationOverlay.enableMyLocation();
-        mLocationOverlay.enableFollowLocation();
-        mLocationOverlay.setOptionsMenuEnabled(true);
+        setLocationOverlay();
 
-//        userMarker = new Marker(mapView);
-////        userMarker.setDefaultIcon();
-//        userMarker.setIcon(getResources().getDrawable(R.drawable.marker_icon));
-//        userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-//        userMarker.setPosition(new GeoPoint(gpsLocation.getLatitude(),gpsLocation.getLongitude()));
-//        mapController.setCenter(new GeoPoint(gpsLocation.getLatitude(),gpsLocation.getLongitude()));
-
-        List<GeoPoint> geoPoints = new ArrayList<>();
-        geoListPopulated(geoPoints);
-        Polygon polygon = new Polygon();    //see note below
-        polygon.setFillColor(Color.parseColor("#FF0000"));
-        polygon.setStrokeColor(Color.parseColor("#00FF00"));
-        geoPoints.add(geoPoints.get(0));    //forces the loop to close
-        polygon.setPoints(geoPoints);
-        polygon.setTitle("A sample polygon");
-
-//polygons supports holes too, points should be in a counter-clockwise order
-        List<List<GeoPoint>> holes = new ArrayList<>();
-        holes.add(geoPoints);
-        polygon.setHoles(holes);
-//        mapView.getOverlayManager().add(polygon);
-
-
-        //add compass
-        mCompassOverlay = new CompassOverlay(getActivity(), new InternalCompassOrientationProvider(getActivity()), mapView);
-        mCompassOverlay.enableCompass();
-
-        //rotation gestures
-        mRotationGestureOverlay = new RotationGestureOverlay(getActivity(), mapView);
-        mRotationGestureOverlay.setEnabled(true);
+        setCompassGestureOverlays();
 
         //add all overlays
-        mapView.getOverlays().add(mRotationGestureOverlay);
-        mapView.getOverlays().add(mCompassOverlay);
-        mapView.getOverlays().add(mLocationOverlay);
-        mapView.getOverlays().add(mScaleBarOverlay);
-//        mapView.getOverlays().add(userMarker);
-        mapView.getOverlays().add(polygon);
-
+        addOverlays();
     }
 
     private void geoListPopulated(List<GeoPoint> geoPoints) {
@@ -178,7 +147,57 @@ public class HomeFragment extends Fragment {
         geoPoints.add(new GeoPoint(-25.30609232,-57.5917231));
         geoPoints.add(new GeoPoint(-25.30607715,-57.59174553));
         geoPoints.add(new GeoPoint(-25.30601257,-57.5917075));
+    }
 
+    private void addOverlays(){
+        mapView.getOverlays().add(mRotationGestureOverlay);
+        mapView.getOverlays().add(mCompassOverlay);
+        mapView.getOverlays().add(mLocationOverlay);
+        mapView.getOverlays().add(mScaleBarOverlay);
+//        mapView.getOverlays().add(userMarker);
+//        mapView.getOverlayManager().add(polygon);
+    }
+
+    private void setScaleBar(){
+        final DisplayMetrics dm = getActivity().getResources().getDisplayMetrics();
+        mScaleBarOverlay = new ScaleBarOverlay(mapView);
+        mScaleBarOverlay.setCentred(true);
+        //play around with these values to get the location on screen in the right place for your application
+        mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
+    }
+
+    private void userMarker(IMapController mapController){
+        userMarker = new Marker(mapView);
+        userMarker.setDefaultIcon();
+        userMarker.setIcon(getResources().getDrawable(R.drawable.marker_icon));
+        userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        userMarker.setPosition(new GeoPoint(gpsLocation.getLatitude(),gpsLocation.getLongitude()));
+        mapController.setCenter(new GeoPoint(gpsLocation.getLatitude(),gpsLocation.getLongitude()));
+    }
+
+    private void setLocationOverlay(){
+        mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(getActivity()), mapView);
+        mLocationOverlay.enableMyLocation();
+        mLocationOverlay.enableFollowLocation();
+        mLocationOverlay.setOptionsMenuEnabled(true);
+    }
+
+    private void setCompassGestureOverlays(){
+        //add compass
+        mCompassOverlay = new CompassOverlay(getActivity(), new InternalCompassOrientationProvider(getActivity()), mapView);
+        mCompassOverlay.enableCompass();
+
+        //rotation gestures
+        mRotationGestureOverlay = new RotationGestureOverlay(getActivity(), mapView);
+        mRotationGestureOverlay.setEnabled(true);
+    }
+
+    private void setGralMapConfiguration(IMapController mapController){
+        mapView.setTilesScaledToDpi(true);
+        mapView.setBuiltInZoomControls(true);
+        mapView.setMultiTouchControls(true);
+        mapView.setFlingEnabled(true);
+        mapController.setZoom(17);
     }
 
     @Override
@@ -211,5 +230,68 @@ public class HomeFragment extends Fragment {
         mScaleBarOverlay=null;
         mRotationGestureOverlay=null;
 
+    }
+
+    private void addParkingSpotsList(String geofenceTriggerId) {
+        polygonsSpots = new ArrayList<>();
+
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+
+        final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(okHttpClient)
+                .baseUrl("http://192.168.100.5:8000/smartparking/")
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
+        Call<List<SmartParkingSpot>> call = smartParkingAPI.getAllSpotsInLot(geofenceTriggerId);
+
+        call.enqueue(new Callback<List<SmartParkingSpot>>() {
+            @Override
+            public void onResponse(Call<List<SmartParkingSpot>> call, Response<List<SmartParkingSpot>> response) {
+                switch (response.code()) {
+                    case 200:
+                        for(SmartParkingSpot spot : response.body()){
+                            drawPolygon(spotToListOfGeoPoints(spot));
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            @Override
+            public void onFailure(Call<List<SmartParkingSpot>> call, Throwable t) {
+                t.printStackTrace();
+                Log.e(LOG_TAG,t.toString());
+            }
+        });
+    }
+
+    private List<GeoPoint> spotToListOfGeoPoints(SmartParkingSpot spot){
+        List<GeoPoint> polygon = new ArrayList<>();
+        polygon.add(new GeoPoint(spot.getP1_latitud(),spot.getP1_longitud()));
+        polygon.add(new GeoPoint(spot.getP2_latitud(),spot.getP2_longitud()));
+        polygon.add(new GeoPoint(spot.getP3_latitud(),spot.getP3_longitud()));
+        polygon.add(new GeoPoint(spot.getP4_latitud(),spot.getP4_longitud()));
+        polygon.add(new GeoPoint(spot.getP5_latitud(),spot.getP5_longitud()));
+        return polygon;
+    }
+
+    private void drawPolygon(List<GeoPoint> geoPoints){
+        Polygon polygon = new Polygon();    //see note below
+        polygon.setFillColor(Color.parseColor("#FF0000"));
+        polygon.setStrokeColor(Color.parseColor("#00FF00"));
+        geoPoints.add(geoPoints.get(0));    //forces the loop to close
+        polygon.setPoints(geoPoints);
+        mapView.getOverlayManager().add(polygon);
+//        polygon.setTitle("A sample polygon");
     }
 }

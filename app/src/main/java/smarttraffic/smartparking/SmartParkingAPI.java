@@ -79,8 +79,8 @@ public interface SmartParkingAPI {
      * Here are the call to get all the Spots and Lots information...
      * **/
 
-    @GET("spots_of/{lotId}/")
-    Call<List<SmartParkingSpot>> getAllSpotsInLot(@Path("lotId") Integer lotId);
+    @GET("spots_of/{lotName}/")
+    Call<List<SmartParkingSpot>> getAllSpotsInLot(@Path("lotName") String lotName);
 
     @GET("lots/")
     Call<List<SmartParkingLot>> getAllLots();

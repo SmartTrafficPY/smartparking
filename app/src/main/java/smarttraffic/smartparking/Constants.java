@@ -16,6 +16,8 @@ public class Constants {
     public Constants() {
     }
 
+    private static final String BROADCAST_GEOFENCE_TRIGGER_INTENT = "BROADCAST_GEOFENCE_TRIGGER_INTENT";
+    public static final String GEOFENCE_TRIGGER_ID = "geofenceTriggerId";
     public static final String GEOFENCES_ADDED_KEY = "GEOFENCES_ADDED_KEY";
     private static final long SECONDS_IN_MILLISECONDS = 1000 * 1;
     private static final long MINUTES_IN_MILLISECONDS = SECONDS_IN_MILLISECONDS * 60;
@@ -44,7 +46,9 @@ public class Constants {
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
 
-
+    public static String getBroadcastGeofenceTriggerIntent(){
+        return BROADCAST_GEOFENCE_TRIGGER_INTENT;
+    }
     public static String getLatitud() {
         return LATITUD;
     }

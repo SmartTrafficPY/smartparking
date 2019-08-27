@@ -128,9 +128,12 @@ public class HomeActivity extends AppCompatActivity {
                 -1)){
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 Log.i(LOG_TAG, "Enter Transition");
+                //get Higher frecuency of location updates...
+//                broadcastGeofenceTrigger(getIntent().getStringArrayListExtra(Constants.GEOFENCE_TRIGGER_ID));
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 Log.i(LOG_TAG, "Exit Transition");
+                //stop asking for the user location updates...
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 Log.i(LOG_TAG, "Dwell Transition");
@@ -232,17 +235,6 @@ public class HomeActivity extends AppCompatActivity {
                 Log.e(LOG_TAG,t.toString());
             }
         });
-
-//        //After we will need to look for the server to get the info of all the Lots...
-//        Ucampus.setLatitude(-25.325624);
-//        Ucampus.setLongitude(-57.637866);
-//        home.setLatitude(-25.306095);
-//        home.setLongitude(-57.591585);
-//        sanRafael.setLatitude(-25.307299);
-//        sanRafael.setLongitude(-57.587078);
-//        parkingLots.add(Ucampus);
-//        parkingLots.add(home);
-//        parkingLots.add(sanRafael);
     }
 
     /**
@@ -438,7 +430,6 @@ public class HomeActivity extends AppCompatActivity {
                 });
     }
 
-
     public void selectDrawerItem(MenuItem menuItem) {
         // Create a new fragment and specify the fragment to show based on nav item clicked
         Fragment fragment = null;
@@ -522,10 +513,16 @@ public class HomeActivity extends AppCompatActivity {
 
     private void broadcastLocation(Location location) {
         Intent intent = new Intent(Constants.getBroadcastLocationIntent());
-        intent.putExtra("latitud", location.getLatitude());
-        intent.putExtra("longitud", location.getLongitude());
+        intent.putExtra(Constants.getLatitud(), location.getLatitude());
+        intent.putExtra(Constants.getLongitud(), location.getLongitude());
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
+
+//    private void broadcastGeofenceTrigger(ArrayList<String> geofenceTriggerIdList) {
+//        Intent intent = new Intent(Constants.getBroadcastGeofenceTriggerIntent());
+//        intent.putExtra(Constants.GEOFENCE_TRIGGER_ID, geofenceTriggerId);
+//        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+//    }
 
     /**
      * Requests location updates from the FusedLocationApi. Note: we don't call this unless location
