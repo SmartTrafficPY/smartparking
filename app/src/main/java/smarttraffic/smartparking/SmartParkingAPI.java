@@ -1,5 +1,7 @@
 package smarttraffic.smartparking;
 
+import java.util.List;
+
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -14,14 +16,16 @@ import smarttraffic.smartparking.dataModels.Passwords;
 import smarttraffic.smartparking.dataModels.ProfileUser;
 import smarttraffic.smartparking.dataModels.ProfileRegistry;
 import smarttraffic.smartparking.dataModels.ResetPassword;
+import smarttraffic.smartparking.dataModels.SmartParkingLot;
+import smarttraffic.smartparking.dataModels.SmartParkingSpot;
 
 public interface SmartParkingAPI {
-
 
     /**
      * Login, Logout user session and a Service to know if user is or not Logged
      * and get the CSRF token...
      * **/
+
     @Multipart
     @POST("loggin/")
     Call<ProfileUser> logginUser(@Part("username") RequestBody username,
@@ -70,5 +74,15 @@ public interface SmartParkingAPI {
 
     @POST("isReseteable/")
     Call<ResponseBody> canResetPass(@Body ResetPassword resetPassword);
+
+    /**
+     * Here are the call to get all the Spots and Lots information...
+     * **/
+
+    @GET("spots_of/{lotId}/")
+    Call<List<SmartParkingSpot>> getAllSpotsInLot(@Path("lotId") Integer lotId);
+
+    @GET("lots/")
+    Call<List<SmartParkingLot>> getAllLots();
 
 }

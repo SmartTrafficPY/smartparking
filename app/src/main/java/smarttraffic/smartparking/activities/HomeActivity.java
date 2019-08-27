@@ -47,15 +47,30 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import okhttp3.OkHttpClient;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import smarttraffic.smartparking.BuildConfig;
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
+import smarttraffic.smartparking.SmartParkingAPI;
+import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
+import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
+import smarttraffic.smartparking.dataModels.SmartParkingLot;
 import smarttraffic.smartparking.fragments.AboutFragment;
 import smarttraffic.smartparking.fragments.ChangePassFragment;
 import smarttraffic.smartparking.fragments.HomeFragment;
@@ -91,10 +106,6 @@ public class HomeActivity extends AppCompatActivity {
     private LocationCallback mLocationCallback;
     private Location mCurrentLocation;
 
-    Location Ucampus = new Location("ucaprovider");
-    Location home = new Location("homeprovider");
-    Location sanRafael = new Location("churchprovider");
-
     private GeofencingClient geofencingClient;
     private ArrayList<Geofence> geofenceList;
     private PendingIntent mGeofencePendingIntent;
@@ -110,11 +121,8 @@ public class HomeActivity extends AppCompatActivity {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mSettingsClient = LocationServices.getSettingsClient(this);
 
-        addParkingLots();
-        populateGeofenceList();
-        addGeofences();
-        // Kick off the process of building the LocationCallback, LocationRequest, and
-        // LocationSettingsRequest objects.
+        addParkingLotsGeofences();
+
         createLocationCallback();
         switch(getIntent().getIntExtra(GeofenceTransitionsJobIntentService.TRANSITION,
                 -1)){
@@ -178,18 +186,63 @@ public class HomeActivity extends AppCompatActivity {
         stopLocationUpdates();
     }
 
-    private void addParkingLots() {
-        //After we will need to look for the server to get the info of all the Lots...
-        parkingLots = new ArrayList<Location>();
-        Ucampus.setLatitude(-25.325624);
-        Ucampus.setLongitude(-57.637866);
-        home.setLatitude(-25.306095);
-        home.setLongitude(-57.591585);
-        sanRafael.setLatitude(-25.307299);
-        sanRafael.setLongitude(-57.587078);
-        parkingLots.add(Ucampus);
-        parkingLots.add(home);
-        parkingLots.add(sanRafael);
+    private void addParkingLotsGeofences() {
+        parkingLots = new ArrayList<>();
+
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+
+        final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(okHttpClient)
+                .baseUrl("http://192.168.100.5:8000/smartparking/")
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+        SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
+        Call<List<SmartParkingLot>> call = smartParkingAPI.getAllLots();
+
+        call.enqueue(new Callback<List<SmartParkingLot>>() {
+            @Override
+            public void onResponse(Call<List<SmartParkingLot>> call, Response<List<SmartParkingLot>> response) {
+                switch (response.code()) {
+                    case 200:
+                        List<SmartParkingLot> lots = response.body();
+                        for(SmartParkingLot lot : lots){
+                            Location location = new Location(lot.getName());
+                            location.setLatitude(lot.getLatitud_center());
+                            location.setLongitude(lot.getLongitud_center());
+                            parkingLots.add(location);
+                        }
+                        populateGeofenceList();
+                        addGeofences();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            @Override
+            public void onFailure(Call<List<SmartParkingLot>> call, Throwable t) {
+                t.printStackTrace();
+                Log.e(LOG_TAG,t.toString());
+            }
+        });
+
+//        //After we will need to look for the server to get the info of all the Lots...
+//        Ucampus.setLatitude(-25.325624);
+//        Ucampus.setLongitude(-57.637866);
+//        home.setLatitude(-25.306095);
+//        home.setLongitude(-57.591585);
+//        sanRafael.setLatitude(-25.307299);
+//        sanRafael.setLongitude(-57.587078);
+//        parkingLots.add(Ucampus);
+//        parkingLots.add(home);
+//        parkingLots.add(sanRafael);
     }
 
     /**
