@@ -3,13 +3,18 @@ package smarttraffic.smartparking.activities;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -31,6 +36,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
@@ -77,6 +83,7 @@ import smarttraffic.smartparking.fragments.HomeFragment;
 import smarttraffic.smartparking.fragments.LogOutFragment;
 import smarttraffic.smartparking.fragments.SettingsFragment;
 import smarttraffic.smartparking.receivers.GeofenceBroadcastReceiver;
+import smarttraffic.smartparking.services.DetectedActivitiesService;
 import smarttraffic.smartparking.services.GeofenceTransitionsJobIntentService;
 
 /**
@@ -85,7 +92,8 @@ import smarttraffic.smartparking.services.GeofenceTransitionsJobIntentService;
  * @author joaquin
  */
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String LOG_TAG = "HomeActivity";
 
@@ -100,12 +108,15 @@ public class HomeActivity extends AppCompatActivity {
 
     private ArrayList<Location> parkingLots;
     private FusedLocationProviderClient mFusedLocationClient;
+    private ActivityRecognitionClient mActivityRecognitionClient;
+
     private SettingsClient mSettingsClient;
     private LocationRequest mLocationRequest;
     private LocationSettingsRequest mLocationSettingsRequest;
     private LocationCallback mLocationCallback;
     private Location mCurrentLocation;
 
+    private BroadcastReceiver broadcastReceiver;
     private GeofencingClient geofencingClient;
     private ArrayList<Geofence> geofenceList;
     private PendingIntent mGeofencePendingIntent;
@@ -122,8 +133,20 @@ public class HomeActivity extends AppCompatActivity {
         mSettingsClient = LocationServices.getSettingsClient(this);
 
         addParkingLotsGeofences();
-
         createLocationCallback();
+
+        mActivityRecognitionClient = new ActivityRecognitionClient(this);
+        requestActivityUpdates();
+
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(Constants.BROADCAST_TRANSITION_ACTIVITY_INTENT)) {
+                    String transitionType = intent.getStringExtra(Constants.ACTIVITY_TYPE_TRANSITION);
+                    int confidence = intent.getIntExtra(Constants.ACTIVITY_TYPE_TRANSITION, -1);
+                }
+            }
+        };
         switch(getIntent().getIntExtra(GeofenceTransitionsJobIntentService.TRANSITION,
                 -1)){
             case Geofence.GEOFENCE_TRANSITION_ENTER:
@@ -171,11 +194,15 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        removeActivityUpdates();
+        stopLocationUpdates();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver,
+                new IntentFilter(Constants.getBroadcastLocationIntent()));
         if (checkPermissions()) {
             startLocationUpdates(mLocationRequest);
         } else if (!checkPermissions()) {
@@ -186,7 +213,9 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(broadcastReceiver);
         stopLocationUpdates();
+        removeActivityUpdates();
     }
 
     private void addParkingLotsGeofences() {
@@ -204,7 +233,7 @@ public class HomeActivity extends AppCompatActivity {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl("http://192.168.100.5:8000/smartparking/")
+                .baseUrl(Constants.BASE_URL_HOME2)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
@@ -518,11 +547,6 @@ public class HomeActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-//    private void broadcastGeofenceTrigger(ArrayList<String> geofenceTriggerIdList) {
-//        Intent intent = new Intent(Constants.getBroadcastGeofenceTriggerIntent());
-//        intent.putExtra(Constants.GEOFENCE_TRIGGER_ID, geofenceTriggerId);
-//        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-//    }
 
     /**
      * Requests location updates from the FusedLocationApi. Note: we don't call this unless location
@@ -611,5 +635,105 @@ public class HomeActivity extends AppCompatActivity {
         builder.addLocationRequest(mLocationRequest);
         mLocationSettingsRequest = builder.build();
     }
+    /**
+     * Registers for activity recognition updates using
+     * {@link ActivityRecognitionClient#requestActivityUpdates(long, PendingIntent)}.
+     * Registers success and failure callbacks.
+     */
+    public void requestActivityUpdates() {
+        Task<Void> task = mActivityRecognitionClient.requestActivityUpdates(
+                Constants.DETECTION_INTERVAL_IN_MILLISECONDS,
+                getActivityDetectionPendingIntent());
 
+        task.addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                Toast.makeText(HomeActivity.this,
+                        R.string.activity_updates_enabled,
+                        Toast.LENGTH_SHORT).show();
+                setUpdatesRequestedState(true);
+            }
+        });
+        task.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(LOG_TAG, getString(R.string.activity_updates_not_enabled));
+                Toast.makeText(HomeActivity.this,
+                        getString(R.string.activity_updates_not_enabled),
+                        Toast.LENGTH_SHORT)
+                        .show();
+                setUpdatesRequestedState(false);
+            }
+        });
+    }
+
+    /**
+     * Removes activity recognition updates using
+     * {@link ActivityRecognitionClient#removeActivityUpdates(PendingIntent)}. Registers success and
+     * failure callbacks.
+     */
+    public void removeActivityUpdates() {
+        @SuppressLint("MissingPermission")
+        Task<Void> task = mActivityRecognitionClient.removeActivityUpdates(
+                getActivityDetectionPendingIntent());
+        task.addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void result) {
+                Toast.makeText(HomeActivity.this,
+                        getString(R.string.activity_updates_removed),
+                        Toast.LENGTH_SHORT)
+                        .show();
+                setUpdatesRequestedState(false);
+                // Reset the display.
+            }
+        });
+
+        task.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.w(LOG_TAG, "Failed to enable activity recognition.");
+                Toast.makeText(HomeActivity.this,
+                        getString(R.string.activity_updates_not_removed),
+                        Toast.LENGTH_SHORT).show();
+                setUpdatesRequestedState(true);
+            }
+        });
+    }
+
+    /**
+     * Gets a PendingIntent to be sent for each activity detection.
+     */
+    private PendingIntent getActivityDetectionPendingIntent() {
+        Intent intent = new Intent(this, DetectedActivitiesService.class);
+        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
+        // requestActivityUpdates() and removeActivityUpdates().
+        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    /**
+     * Sets the boolean in SharedPreferences that tracks whether we are requesting activity
+     * updates.
+     */
+    private void setUpdatesRequestedState(boolean requesting) {
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .edit()
+                .putBoolean(Constants.KEY_ACTIVITY_UPDATES_REQUESTED, requesting)
+                .apply();
+    }
+
+    /**
+     * Retrieves the boolean from SharedPreferences that tracks whether we are requesting activity
+     * updates.
+     */
+    private boolean getUpdatesRequestedState() {
+        return PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(Constants.KEY_ACTIVITY_UPDATES_REQUESTED, false);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if (s.equals(Constants.KEY_DETECTED_ACTIVITIES)) {
+            //activity detected needed...
+        }
+    }
 }

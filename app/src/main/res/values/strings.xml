@@ -80,4 +80,16 @@
     <string name="launch_activity">Empezar</string>
     <string name="remove_location_updates">Eliminar actualizaciones de ubicación</string>
     <string name="location_updated">Ubicacion actualizada</string>
+    <string name="in_vehicle">En vehículo</string>
+    <string name="on_bicycle">Bicicleta</string>
+    <string name="on_foot">A pie</string>
+    <string name="running">Corriendo</string>
+    <string name="still">Quieto</string>
+    <string name="tilting">Inclinación</string>
+    <string name="walking">Caminando</string>
+    <string name="unidentifiable_activity">Actividad no identificada</string>
+    <string name="activity_updates_enabled">Actualizaciones de actividad habilitadas</string>
+    <string name="activity_updates_not_enabled">Actualizaciones de actividades NO habilitadas</string>
+    <string name="activity_updates_removed">Actualizaciones de actividades eliminadas</string>
+    <string name="activity_updates_not_removed">Actualizaciones de actividades NO eliminadas</string>
 </resources>

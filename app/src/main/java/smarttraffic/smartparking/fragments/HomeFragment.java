@@ -259,7 +259,7 @@ public class HomeFragment extends Fragment {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl("http://192.168.100.5:8000/smartparking/")
+                .baseUrl(Constants.BASE_URL_HOME2)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 

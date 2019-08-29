@@ -17,13 +17,20 @@ public class Constants {
     }
 
     private static final String BROADCAST_GEOFENCE_TRIGGER_INTENT = "BROADCAST_GEOFENCE_TRIGGER_INTENT";
+    public static final String BROADCAST_TRANSITION_ACTIVITY_INTENT = "BROADCAST_TRANSITION_ACTIVITY_INTENT";
     public static final String GEOFENCE_TRIGGER_ID = "geofenceTriggerId";
+    public static final String KEY_DETECTED_ACTIVITIES = "KEY_DETECTED_ACTIVITIES";
+    public static final String KEY_ACTIVITY_UPDATES_REQUESTED = "KEY_ACTIVITY_UPDATES_REQUESTED";
     public static final String GEOFENCES_ADDED_KEY = "GEOFENCES_ADDED_KEY";
     private static final long SECONDS_IN_MILLISECONDS = 1000 * 1;
+    public static final String ACTIVITY_TYPE_TRANSITION = "ACTIVITY_TYPE_TRANSITION";
+    public static final String ACTIVITY_CONFIDENCE_TRANSITION = "ACTIVITY_CONFIDENCE_TRANSITION";
+    public static final long DETECTION_INTERVAL_IN_MILLISECONDS =  SECONDS_IN_MILLISECONDS; // 30 seconds
     private static final long MINUTES_IN_MILLISECONDS = SECONDS_IN_MILLISECONDS * 60;
     private static final long HOURS_IN_MILLISECONDS = MINUTES_IN_MILLISECONDS * 60;
     private static final String BASE_URL = "http://10.50.225.75:8000/api/smartparking/";
     private static final String BASE_URL_HOME = "http://192.168.100.5:8000/api/smartparking/";
+    public static final String BASE_URL_HOME2 = "http://192.168.100.5:8000/smartparking/";
     private static final String CHANNEL_ID = "SMARTPARKING_CHANNEL_ID";
     private static final String PROXIMITY_INTENT_ACTION = "SMARTPARKING_PROXIMITY_ALERT";
     private static final String NOTIFICATION_SERVICE = "notification";
