@@ -92,4 +92,6 @@
     <string name="activity_updates_not_enabled">Actualizaciones de actividades NO habilitadas</string>
     <string name="activity_updates_removed">Actualizaciones de actividades eliminadas</string>
     <string name="activity_updates_not_removed">Actualizaciones de actividades NO eliminadas</string>
+    <string name="are_you_parking">¿Estás estacionando el vehículo?</string>
+    <string name="are_you_vacating_a_place">¿Estás desocupando un lugar?</string>
 </resources>

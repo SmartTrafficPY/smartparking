@@ -1,6 +1,10 @@
 package smarttraffic.smartparking.dataModels;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Joaquin on 08/2019.
@@ -44,6 +48,16 @@ public class SmartParkingSpot {
                 ", created=" + created +
                 ", updated=" + updated +
                 '}';
+    }
+
+    public List<LatLng> toLatLngList(){
+        List<LatLng> resultList = new ArrayList<LatLng>() ;
+        resultList.add(new LatLng(p1_latitud,p1_longitud));
+        resultList.add(new LatLng(p2_latitud,p2_longitud));
+        resultList.add(new LatLng(p3_latitud,p3_longitud));
+        resultList.add(new LatLng(p4_latitud,p4_longitud));
+        resultList.add(new LatLng(p5_latitud,p5_longitud));
+        return resultList;
     }
 
     public Integer getId() {

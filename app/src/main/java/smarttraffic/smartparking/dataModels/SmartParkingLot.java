@@ -1,5 +1,9 @@
 package smarttraffic.smartparking.dataModels;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -8,15 +12,31 @@ import java.util.Date;
  * smarttraffic.smartparking.dataModels
  */
 
-public class SmartParkingLot {
+public class SmartParkingLot implements Serializable {
 
+    @SerializedName("id")
+    @Expose
     private Integer id;
+    @SerializedName("radio")
+    @Expose
     private float radio;
+    @SerializedName("name")
+    @Expose
     private String name;
+    @SerializedName("latitud_center")
+    @Expose
     private float latitud_center;
+    @SerializedName("longitud_center")
+    @Expose
     private float longitud_center;
+    @SerializedName("spots_in")
+    @Expose
     private Integer spots_in;
+    @SerializedName("created")
+    @Expose
     private Date created;
+    @SerializedName("updated")
+    @Expose
     private Date updated;
 
     @Override

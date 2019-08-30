@@ -49,20 +49,13 @@ public class DetectedActivitiesService extends IntentService {
                 getApplicationContext(),
                 result.getMostProbableActivity().getType()) + " " + result.getMostProbableActivity().getConfidence() + "%");
         broadcastActivityTransition(result);
-//        for (DetectedActivity da: detectedActivities) {
-//            Log.i(LOG_TAG, Utils.getActivityString(
-//                    getApplicationContext(),
-//                    da.getType()) + " " + da.getConfidence() + "%"
-//            );
-//        }
+
     }
 
     private void broadcastActivityTransition(ActivityRecognitionResult result) {
         Intent intent = new Intent(Constants.BROADCAST_TRANSITION_ACTIVITY_INTENT);
-        intent.putExtra(Constants.ACTIVITY_TYPE_TRANSITION,
-                Utils.getActivityString(getApplicationContext(), result.getMostProbableActivity().getType()));
+        intent.putExtra(Constants.ACTIVITY_TYPE_TRANSITION, result.getMostProbableActivity().getType());
         intent.putExtra(Constants.ACTIVITY_CONFIDENCE_TRANSITION, result.getMostProbableActivity().getConfidence());
-//        intent.putExtra(Constants.GEOFENCE_TRIGGER_ID, geofence.getRequestId());
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }

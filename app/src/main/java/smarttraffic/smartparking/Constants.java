@@ -8,7 +8,6 @@ package smarttraffic.smartparking;
 
 public class Constants {
 
-
     /**
      * Add here all variables used at width in the project...
      * **/
@@ -16,6 +15,8 @@ public class Constants {
     public Constants() {
     }
 
+    public static final int NOT_IN_PARKINGSPOT = -1;
+    private static final String USER_ID = "USER_ID";
     private static final String BROADCAST_GEOFENCE_TRIGGER_INTENT = "BROADCAST_GEOFENCE_TRIGGER_INTENT";
     public static final String BROADCAST_TRANSITION_ACTIVITY_INTENT = "BROADCAST_TRANSITION_ACTIVITY_INTENT";
     public static final String GEOFENCE_TRIGGER_ID = "geofenceTriggerId";
@@ -52,6 +53,10 @@ public class Constants {
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
+
+    public static String getUserId() {
+        return USER_ID;
+    }
 
     public static String getBroadcastGeofenceTriggerIntent(){
         return BROADCAST_GEOFENCE_TRIGGER_INTENT;

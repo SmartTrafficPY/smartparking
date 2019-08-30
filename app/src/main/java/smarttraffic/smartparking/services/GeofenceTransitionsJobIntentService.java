@@ -61,24 +61,19 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
             Log.e(LOG_TAG, errorMessage);
             return;
         }
-
         // Get the transition type.
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
-
         // Test that the reported transition was of interest.
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
                 geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ||
                 geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL) {
             // Get the geofences that were triggered. A single event can trigger multiple geofences.
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
-            if(geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER){
-                broadcastGeofenceTrigger(triggeringGeofences);
-            }
             // Get the transition details as a String.
             String geofenceTransitionDetails = getGeofenceTransitionDetails(geofenceTransition,
                     triggeringGeofences);
             // Send notification and log the transition details.
-            sendNotification(geofenceTransitionDetails, geofenceTransition);
+            sendNotification(geofenceTransitionDetails, triggeringGeofences, geofenceTransition);
             Log.i(LOG_TAG, geofenceTransitionDetails);
         } else {
             // Log the error.
@@ -113,7 +108,9 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
      * Posts a notification in the notification bar when a transition is detected.
      * If the user clicks the notification, control goes to the MainActivity.
      */
-    private void sendNotification(String notificationDetails, int transition) {
+    private void sendNotification(String notificationDetails, List<Geofence> geofenceList,int transition) {
+        ArrayList<String> fencesTriggersIdList = new ArrayList<>();
+
         // Get an instance of the Notification manager
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -123,22 +120,26 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
             CharSequence name = getString(R.string.app_name);
             // Create the channel for the notification
             NotificationChannel mChannel =
-                    new NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_DEFAULT);
-
+                    new NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_HIGH);
             // Set the Notification Channel for the Notification Manager.
             mNotificationManager.createNotificationChannel(mChannel);
         }
-
         // Get a notification builder that's compatible with platform versions >= 4
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-
-        // Create an explicit content Intent that starts the main Activity.
+        // Create an explicit content Intent that starts the Activity.
         Intent notificationIntent = new Intent(getApplicationContext(), HomeActivity.class);
         notificationIntent.putExtra(TRANSITION, transition);
+        for(Geofence geofence : geofenceList){
+            fencesTriggersIdList.add(geofence.getRequestId());
+        }
+        notificationIntent.putStringArrayListExtra(Constants.GEOFENCE_TRIGGER_ID,
+                fencesTriggersIdList);
+//        notificationIntent.putStringArrayListExtra(Constants.GEOFENCE_TRIGGER_ID, );
+
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         // Construct a task stack.
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        // Add the main Activity to the task stack as the parent.
+        // Add the Activity to the task stack as the parent.
         stackBuilder.addParentStack(HomeActivity.class);
         // Push the content Intent onto the stack.
         stackBuilder.addNextIntent(notificationIntent);
@@ -188,17 +189,6 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
             default:
                 return getString(R.string.unknown_geofence_transition);
         }
-    }
-
-    private void broadcastGeofenceTrigger(List<Geofence> geofenceList) {
-        List<String> fencesTriggersIdList = new ArrayList<>();
-        Intent intent = new Intent(Constants.getBroadcastGeofenceTriggerIntent());
-        for(Geofence geofence : geofenceList){
-            fencesTriggersIdList.add(geofence.getRequestId());
-        }
-        intent.putStringArrayListExtra(Constants.GEOFENCE_TRIGGER_ID, (ArrayList<String>) fencesTriggersIdList);
-//        intent.putExtra(Constants.GEOFENCE_TRIGGER_ID, geofence.getRequestId());
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
 }
