@@ -1,7 +1,10 @@
 package smarttraffic.smartparking.dataModels;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,22 +14,52 @@ import java.util.List;
  * <p>
  * smarttraffic.smartparking.dataModels
  */
-public class SmartParkingSpot {
+public class SmartParkingSpot implements Serializable {
 
+    @SerializedName("id")
+    @Expose
     private Integer id;
+    @SerializedName("in_lot")
+    @Expose
     private Integer in_lot;
+    @SerializedName("p1_latitud")
+    @Expose
     private double p1_latitud;
+    @SerializedName("p1_longitud")
+    @Expose
     private double p1_longitud;
+    @SerializedName("p2_latitud")
+    @Expose
     private double p2_latitud;
+    @SerializedName("p2_longitud")
+    @Expose
     private double p2_longitud;
+    @SerializedName("p3_latitud")
+    @Expose
     private double p3_latitud;
+    @SerializedName("p3_longitud")
+    @Expose
     private double p3_longitud;
+    @SerializedName("p4_latitud")
+    @Expose
     private double p4_latitud;
+    @SerializedName("p4_longitud")
+    @Expose
     private double p4_longitud;
+    @SerializedName("p5_latitud")
+    @Expose
     private double p5_latitud;
+    @SerializedName("p5_longitud")
+    @Expose
     private double p5_longitud;
+    @SerializedName("status")
+    @Expose
     private String status;
+    @SerializedName("created")
+    @Expose
     private Date created;
+    @SerializedName("updated")
+    @Expose
     private Date updated;
 
     @Override

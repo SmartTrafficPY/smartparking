@@ -8,6 +8,7 @@ package smarttraffic.smartparking;
 
 public class Constants {
 
+
     /**
      * Add here all variables used at width in the project...
      * **/
@@ -20,6 +21,8 @@ public class Constants {
     private static final String BROADCAST_GEOFENCE_TRIGGER_INTENT = "BROADCAST_GEOFENCE_TRIGGER_INTENT";
     public static final String BROADCAST_TRANSITION_ACTIVITY_INTENT = "BROADCAST_TRANSITION_ACTIVITY_INTENT";
     public static final String GEOFENCE_TRIGGER_ID = "geofenceTriggerId";
+    public static final String GEOFENCE_TRANSITION_TYPE = "GEOFENCE_TRANSITION_TYPE";
+
     public static final String KEY_DETECTED_ACTIVITIES = "KEY_DETECTED_ACTIVITIES";
     public static final String KEY_ACTIVITY_UPDATES_REQUESTED = "KEY_ACTIVITY_UPDATES_REQUESTED";
     public static final String GEOFENCES_ADDED_KEY = "GEOFENCES_ADDED_KEY";

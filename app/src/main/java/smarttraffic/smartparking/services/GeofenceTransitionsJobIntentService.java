@@ -7,15 +7,19 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.JobIntentService;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -24,6 +28,8 @@ import com.google.android.gms.location.GeofencingEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.GeofenceErrorMessages;
@@ -73,9 +79,6 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
                 geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL) {
             // Get the geofences that were triggered. A single event can trigger multiple geofences.
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
-//            if(geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER){
-//                broadcastGeofenceTrigger(triggeringGeofences);
-//            }
             // Get the transition details as a String.
             String geofenceTransitionDetails = getGeofenceTransitionDetails(geofenceTransition,
                     triggeringGeofences);
@@ -115,9 +118,7 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
      * Posts a notification in the notification bar when a transition is detected.
      * If the user clicks the notification, control goes to the MainActivity.
      */
-    private void sendNotification(String notificationDetails, List<Geofence> geofenceList,
-                                  int transition) {
-
+    private void sendNotification(String notificationDetails, List<Geofence> geofenceList, int transition) {
         ArrayList<String> fencesTriggersIdList = new ArrayList<>();
         // Get an instance of the Notification manager
         NotificationManager mNotificationManager =
@@ -133,11 +134,9 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
         notificationIntent.putStringArrayListExtra(GEOFENCE_TRIGGED,
                 fencesTriggersIdList);
         notificationIntent.putExtra(TRANSITION, transition);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this,
-                CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.notification_smartparking)
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(),
                         R.drawable.smart_parking))
@@ -157,7 +156,6 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
         if(transition == Geofence.GEOFENCE_TRANSITION_ENTER){
             PendingIntent pendingIntent = PendingIntent.getActivity(this,
                     0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
             builder.addAction(R.drawable.smart_parking, "Ir a la aplicación",
                     pendingIntent);
         }
@@ -204,4 +202,5 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
             notificationManager.createNotificationChannel(channel);
         }
     }
+
 }

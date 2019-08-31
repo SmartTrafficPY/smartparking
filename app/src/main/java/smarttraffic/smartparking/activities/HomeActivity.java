@@ -62,6 +62,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.maps.android.PolyUtil;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -72,7 +73,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import okhttp3.OkHttpClient;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -82,9 +82,7 @@ import smarttraffic.smartparking.BuildConfig;
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.SmartParkingAPI;
-import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
-import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
-import smarttraffic.smartparking.dataModels.ProfileUser;
+import smarttraffic.smartparking.StatesEnumerations;
 import smarttraffic.smartparking.dataModels.SmartParkingLot;
 import smarttraffic.smartparking.dataModels.SmartParkingSpot;
 import smarttraffic.smartparking.fragments.AboutFragment;
@@ -126,8 +124,8 @@ public class HomeActivity extends AppCompatActivity
     private LocationSettingsRequest mLocationSettingsRequest;
     private LocationCallback mLocationCallback;
     private Location mCurrentLocation;
-    private ArrayList<SmartParkingSpot> spots;
-    private ArrayList<String> geofencesTrigger;
+    private ArrayList<SmartParkingSpot> spots = new ArrayList<>();
+    private ArrayList<String> geofencesTrigger = new ArrayList<>();
     private BroadcastReceiver broadcastReceiver;
     private GeofencingClient geofencingClient;
     private PendingIntent mGeofencePendingIntent;
@@ -138,9 +136,6 @@ public class HomeActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_layout);
         ButterKnife.bind(this);
-        spots = new ArrayList<>();
-        geofencesTrigger = new ArrayList<>();
-
         createLocationRequest(Constants.getSecondsInMilliseconds() * 2,
                 Constants.getSecondsInMilliseconds());
         buildLocationSettingsRequest();
@@ -149,15 +144,18 @@ public class HomeActivity extends AppCompatActivity
         geofencingClient = LocationServices.getGeofencingClient(this);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mActivityRecognitionClient = new ActivityRecognitionClient(this);
+
         if(getIntent().getExtras() == null){
             addParkingLotsGeofences();
         }
+
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(Constants.BROADCAST_TRANSITION_ACTIVITY_INTENT)) {
                     transitionType = intent.getIntExtra(Constants.ACTIVITY_TYPE_TRANSITION, -1);
-                    confidence = intent.getIntExtra(Constants.ACTIVITY_TYPE_TRANSITION, -1);
+                    confidence = intent.getIntExtra(Constants.ACTIVITY_CONFIDENCE_TRANSITION, -1);
+                    Log.i(LOG_TAG, "Transition type: " + transitionType + "confidence " + confidence + "%");
                 }
             }
         };
@@ -170,6 +168,7 @@ public class HomeActivity extends AppCompatActivity
         try {
             initialFragment = (Fragment) HomeFragment.class.newInstance();
             Bundle data = new Bundle();
+            data.putSerializable("SmartParkingSpotList",  (Serializable) spots);
             data.putStringArrayList(Constants.GEOFENCE_TRIGGER_ID, geofencesTrigger);
             initialFragment.setArguments(data);
         } catch (IllegalAccessException e) {
@@ -181,7 +180,6 @@ public class HomeActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         setupDrawerContent(nvDrawer);
         drawerToggle = setupDrawerToggle();
-
     }
 
     private void getTransitionsFromGeofences() {
@@ -208,10 +206,8 @@ public class HomeActivity extends AppCompatActivity
                 } else if (!checkPermissions()) {
                     requestPermissions();
                 }
-                //get this work every time to Time...(cronservice?)
                 handler.postDelayed(cronJob, delay);
                 requestActivityUpdates();
-                broadcastGeofenceTrigger(geofencesTrigger);
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 Log.i(LOG_TAG, "Exit Transition");
@@ -279,6 +275,7 @@ public class HomeActivity extends AppCompatActivity
         if (!checkPermissions()) {
             requestPermissions();
         }
+        getTransitionsFromGeofences();
     }
     @Override
     protected void onStop() {
@@ -292,6 +289,7 @@ public class HomeActivity extends AppCompatActivity
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver,
                 new IntentFilter(Constants.getBroadcastLocationIntent()));
     }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -593,7 +591,7 @@ public class HomeActivity extends AppCompatActivity
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
-        drawerToggle.syncState();
+//        drawerToggle.syncState();
     }
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -613,11 +611,6 @@ public class HomeActivity extends AppCompatActivity
                 });
     }
 
-    private void broadcastGeofenceTrigger(ArrayList<String> geofenceNameList) {
-        Intent intent = new Intent(Constants.getBroadcastGeofenceTriggerIntent());
-        intent.putStringArrayListExtra(Constants.GEOFENCE_TRIGGER_ID, geofenceNameList);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
     /**
      * Requests location updates from the FusedLocationApi. Note: we don't call this unless location
      * runtime permission has been granted.
@@ -683,10 +676,15 @@ public class HomeActivity extends AppCompatActivity
      *      THEN: show dialog for secure the action...**/
     private void checkForUserLocation(Location mCurrentLocation) {
         int spotId = isPointInsideParkingSpot(spots, mCurrentLocation);
-        if(transitionType == DetectedActivity.STILL && spotId != Constants.NOT_IN_PARKINGSPOT){
+        if(spotId != Constants.NOT_IN_PARKINGSPOT && transitionType == DetectedActivity.STILL){
             SmartParkingSpot spot = getSpotFromId(spots, spotId);
-            if(spot.getStatus() == "F"){
+            if(spot.getStatus() == StatesEnumerations.FREE.getEstado() ||
+                    spot.getStatus() == StatesEnumerations.UNKNOWN.getEstado()){
                 confirmationOfActionDialog(true);
+            }else{
+//                if(spot.getUserChanged() == actualUser){
+//                    confirmationOfActionDialog(false);
+//                }
             }
         }
     }

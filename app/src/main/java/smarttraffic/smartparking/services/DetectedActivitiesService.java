@@ -44,12 +44,10 @@ public class DetectedActivitiesService extends IntentService {
                 .apply();
 
         // Log each activity.
-        Log.i(LOG_TAG, "activities detected");
         Log.i(LOG_TAG, Utils.getActivityString(
                 getApplicationContext(),
                 result.getMostProbableActivity().getType()) + " " + result.getMostProbableActivity().getConfidence() + "%");
         broadcastActivityTransition(result);
-
     }
 
     private void broadcastActivityTransition(ActivityRecognitionResult result) {

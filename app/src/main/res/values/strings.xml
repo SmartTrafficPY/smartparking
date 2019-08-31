@@ -96,4 +96,5 @@
     <string name="are_you_vacating_a_place">¿Estás desocupando un lugar?</string>
     <string name="channel_name">SmartParking Channel</string>
     <string name="channel_description">SmartParking Notifications</string>
+    <string name="go_to_app">Ir a la aplicación</string>
 </resources>

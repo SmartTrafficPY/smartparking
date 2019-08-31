@@ -1,5 +1,8 @@
 package smarttraffic.smartparking.fragments;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -45,6 +48,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.SmartParkingAPI;
+import smarttraffic.smartparking.StatesEnumerations;
 import smarttraffic.smartparking.dataModels.SmartParkingSpot;
 
 /**
@@ -56,21 +60,6 @@ import smarttraffic.smartparking.dataModels.SmartParkingSpot;
 public class HomeFragment extends Fragment {
 
     private static final String LOG_TAG = "HomeFragment";
-    public enum Status {
-        FREE("F"),
-        UNKNOWN("U"),
-        OCCUPIED("O");
-
-        private String estado;
-
-        public String getEstado() {
-            return estado;
-        }
-
-        Status(String f) {
-            this.estado = f;
-        }
-    }
     private MyLocationNewOverlay mLocationOverlay;
     private Marker userMarker;
     private CompassOverlay mCompassOverlay;
@@ -81,10 +70,10 @@ public class HomeFragment extends Fragment {
     List<GeoPoint> polygonsSpots;
     Polygon polygon = new Polygon();
     ArrayList<String> geofencesTrigger;
+
     public HomeFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -94,11 +83,15 @@ public class HomeFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         if(getArguments() != null){
+//            ArrayList<SmartParkingSpot> mlist =
+//                    (ArrayList<SmartParkingSpot>) getArguments().getSerializable("SmartParkingSpotList");
+//            if(mlist != null && !mlist.isEmpty()){
+//                Log.i(LOG_TAG, mlist.get(0).getStatus());
+//            }
             geofencesTrigger = getArguments().getStringArrayList(
                     Constants.GEOFENCE_TRIGGER_ID);
             if(geofencesTrigger != null){
                 for (String geofenceId : geofencesTrigger) {
-                    Log.i(LOG_TAG, "get that" + geofenceId + "is trigger");
                     addParkingSpotsList(geofenceId);
                 }
             }
@@ -157,7 +150,7 @@ public class HomeFragment extends Fragment {
         mapView.getOverlays().add(mLocationOverlay);
         mapView.getOverlays().add(mScaleBarOverlay);
 //        mapView.getOverlays().add(userMarker);
-//        mapView.getOverlayManager().add(polygon);
+        mapView.getOverlayManager().add(polygon);
     }
 
     private void setScaleBar(){
@@ -291,9 +284,9 @@ public class HomeFragment extends Fragment {
     private void drawPolygon(List<GeoPoint> geoPoints, String status){
         Polygon polygon = new Polygon();
         String color = "#C0C0C0";
-        if(status == Status.FREE.getEstado()){
+        if(status.equals(StatesEnumerations.FREE.getEstado())){
             color = "#00FF00";
-        }else if(status == Status.OCCUPIED.getEstado()){
+        }else if(status.equals(StatesEnumerations.OCCUPIED.getEstado())){
             color = "#FF0000";
         }
         polygon.setFillColor(Color.parseColor(color));
@@ -301,6 +294,5 @@ public class HomeFragment extends Fragment {
         geoPoints.add(geoPoints.get(0));    //forces the loop to close
         polygon.setPoints(geoPoints);
         mapView.getOverlayManager().add(polygon);
-//        polygon.setTitle("A sample polygon");
     }
 }
