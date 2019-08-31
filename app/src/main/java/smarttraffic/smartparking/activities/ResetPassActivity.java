@@ -40,7 +40,6 @@ import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
 import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
-import smarttraffic.smartparking.dataModels.ResetPassword;
 
 /**
  * Created by Joaquin Olivera on july 19.
@@ -144,52 +143,6 @@ public class ResetPassActivity extends AppCompatActivity {
         /**
          * @params: username, onRadioButtonClicked(), birthDate
          * **/
-
-        Gson gson = new GsonBuilder()
-                .setLenient()
-                .create();
-
-        final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.SECONDS)
-                .writeTimeout(20, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .addInterceptor(new ReceivedCookiesInterceptor(this))
-                .addInterceptor(new AddCookiesInterceptor(this))
-                .build();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .client(okHttpClient)
-                .baseUrl(Constants.getBaseUrl())
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
-
-        SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
-        Call<ResponseBody> call = smartParkingAPI.canResetPass(new ResetPassword(
-                username.getText().toString(),
-                birthDate.getText().toString(),
-                onRadioButtonClicked()));
-
-        call.enqueue(new Callback<ResponseBody>() {
-
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                switch (response.code()) {
-                    case 202:
-                        //TODO: call to show the pass?...
-                        break;
-                    default:
-                        showToast(FAIL_RESET_MESSAGE);
-                        break;
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                t.printStackTrace();
-                Log.e(LOG_TAG,t.toString());
-            }
-        });
-
     }
 
 

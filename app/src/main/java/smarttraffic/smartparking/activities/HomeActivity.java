@@ -85,11 +85,6 @@ import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.StatesEnumerations;
 import smarttraffic.smartparking.dataModels.SmartParkingLot;
 import smarttraffic.smartparking.dataModels.SmartParkingSpot;
-import smarttraffic.smartparking.fragments.AboutFragment;
-import smarttraffic.smartparking.fragments.ChangePassFragment;
-import smarttraffic.smartparking.fragments.HomeFragment;
-import smarttraffic.smartparking.fragments.LogOutFragment;
-import smarttraffic.smartparking.fragments.SettingsFragment;
 import smarttraffic.smartparking.receivers.GeofenceBroadcastReceiver;
 import smarttraffic.smartparking.services.DetectedActivitiesService;
 import smarttraffic.smartparking.services.GeofenceTransitionsJobIntentService;
@@ -109,10 +104,6 @@ public class HomeActivity extends AppCompatActivity
     Toolbar toolbar;
     @BindView(R.id.drawer_layout)
     DrawerLayout mDrawer;
-    @BindView(R.id.navview)
-    NavigationView nvDrawer;
-
-    private ActionBarDrawerToggle drawerToggle;
 
     private FusedLocationProviderClient mFusedLocationClient;
     private ActivityRecognitionClient mActivityRecognitionClient;
@@ -162,24 +153,6 @@ public class HomeActivity extends AppCompatActivity
 
         createLocationCallback();
         getTransitionsFromGeofences();
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        Fragment initialFragment = null;
-        try {
-            initialFragment = (Fragment) HomeFragment.class.newInstance();
-            Bundle data = new Bundle();
-            data.putSerializable("SmartParkingSpotList",  (Serializable) spots);
-            data.putStringArrayList(Constants.GEOFENCE_TRIGGER_ID, geofencesTrigger);
-            initialFragment.setArguments(data);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        }
-        fragmentManager.beginTransaction().replace(R.id.content_frame, initialFragment).commit();
-        setSupportActionBar(toolbar);
-        setupDrawerContent(nvDrawer);
-        drawerToggle = setupDrawerToggle();
     }
 
     private void getTransitionsFromGeofences() {
@@ -512,93 +485,7 @@ public class HomeActivity extends AppCompatActivity
             }
         }
     }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (drawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
-    private void setupDrawerContent(NavigationView navigationView) {
-        navigationView.setNavigationItemSelectedListener(
-                new NavigationView.OnNavigationItemSelectedListener() {
-                    @Override
-                    public boolean onNavigationItemSelected(MenuItem menuItem) {
-                        selectDrawerItem(menuItem);
-                        return true;
-                    }
-                });
-    }
-
-    public void selectDrawerItem(MenuItem menuItem) {
-        // Create a new fragment and specify the fragment to show based on nav item clicked
-        Fragment fragment = null;
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        Class fragmentClass;
-        switch (menuItem.getItemId()) {
-            case R.id.home_menu:
-                fragmentClass = HomeFragment.class;
-                break;
-            case R.id.menu_settings:
-                fragmentClass = SettingsFragment.class;
-                break;
-            case R.id.menu_changepass:
-                fragmentClass = ChangePassFragment.class;
-                break;
-            case R.id.menu_logout:
-                fragmentClass = LogOutFragment.class;
-                break;
-            case R.id.menu_about:
-                fragmentClass = AboutFragment.class;
-                break;
-            default:
-                fragmentClass = HomeFragment.class;
-        }
-        try {
-            fragment = (Fragment) fragmentClass.newInstance();
-            Bundle data = new Bundle();
-            data.putStringArrayList(Constants.GEOFENCE_TRIGGER_ID, geofencesTrigger);
-            fragment.setArguments(data);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Insert the fragment by replacing any existing fragment
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-        // Highlight the selected item has been done by NavigationView
-        menuItem.setChecked(true);
-        // Set action bar title
-        setTitle(menuItem.getTitle());
-        // Close the navigation drawer
-        mDrawer.closeDrawers();
-    }
-    @Override
-    public void onBackPressed() {
-        if (mDrawer.isDrawerOpen(GravityCompat.START)) {
-            mDrawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
-    private ActionBarDrawerToggle setupDrawerToggle() {
-        // NOTE: Make sure you pass in a valid toolbar reference.  ActionBarDrawToggle() does not require it
-        // and will not render the hamburger icon without it.
-        return new ActionBarDrawerToggle(this, mDrawer, toolbar, R.string.drawer_open, R.string.drawer_close);
-    }
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-//        drawerToggle.syncState();
-    }
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        // Pass any configuration change to the drawer toggles
-        drawerToggle.onConfigurationChanged(newConfig);
-    }
     /**
      * Removes location updates from the FusedLocationApi.
      */
