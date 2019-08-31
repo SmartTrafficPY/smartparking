@@ -2,6 +2,7 @@ package smarttraffic.smartparking.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -139,15 +140,18 @@ public class HomeActivity extends AppCompatActivity
         ButterKnife.bind(this);
         spots = new ArrayList<>();
         geofencesTrigger = new ArrayList<>();
+
+        createLocationRequest(Constants.getSecondsInMilliseconds() * 2,
+                Constants.getSecondsInMilliseconds());
+        buildLocationSettingsRequest();
+
+        mSettingsClient = LocationServices.getSettingsClient(this);
         geofencingClient = LocationServices.getGeofencingClient(this);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        mSettingsClient = LocationServices.getSettingsClient(this);
-
-        addParkingLotsGeofences();
-        createLocationCallback();
-
         mActivityRecognitionClient = new ActivityRecognitionClient(this);
-
+        if(getIntent().getExtras() == null){
+            addParkingLotsGeofences();
+        }
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -158,12 +162,16 @@ public class HomeActivity extends AppCompatActivity
             }
         };
 
-        buildLocationSettingsRequest();
+        createLocationCallback();
+        getTransitionsFromGeofences();
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment initialFragment = null;
         try {
             initialFragment = (Fragment) HomeFragment.class.newInstance();
+            Bundle data = new Bundle();
+            data.putStringArrayList(Constants.GEOFENCE_TRIGGER_ID, geofencesTrigger);
+            initialFragment.setArguments(data);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {
@@ -173,10 +181,15 @@ public class HomeActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         setupDrawerContent(nvDrawer);
         drawerToggle = setupDrawerToggle();
+
     }
 
     private void getTransitionsFromGeofences() {
-        Intent intentFromGeofenceService = getIntent();
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        Intent intent = getIntent();
+        geofencesTrigger = intent.getStringArrayListExtra(
+                GeofenceTransitionsJobIntentService.GEOFENCE_TRIGGED);
         final Handler handler = new Handler();
         final long delay = Constants.getMinutesInMilliseconds();
         Runnable cronJob = new Runnable(){
@@ -185,19 +198,20 @@ public class HomeActivity extends AppCompatActivity
                 handler.postDelayed(this, delay);
             }
         };
-        switch(intentFromGeofenceService.getIntExtra(GeofenceTransitionsJobIntentService.TRANSITION,
+        switch(intent.getIntExtra(GeofenceTransitionsJobIntentService.TRANSITION,
                 -1)){
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 Log.i(LOG_TAG, "Enter Transition");
-                geofencesTrigger = intentFromGeofenceService.getStringArrayListExtra(
-                        Constants.GEOFENCE_TRIGGER_ID);
-                broadcastGeofenceTrigger(geofencesTrigger);
+                mNotificationManager.cancel(0);
+                if (checkPermissions()) {
+                    startLocationUpdates(mLocationRequest);
+                } else if (!checkPermissions()) {
+                    requestPermissions();
+                }
                 //get this work every time to Time...(cronservice?)
                 handler.postDelayed(cronJob, delay);
-                getSpotsFromGeofence(geofencesTrigger);
                 requestActivityUpdates();
-                createLocationRequest(Constants.getSecondsInMilliseconds() * 2,
-                        Constants.getSecondsInMilliseconds());
+                broadcastGeofenceTrigger(geofencesTrigger);
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 Log.i(LOG_TAG, "Exit Transition");
@@ -277,12 +291,6 @@ public class HomeActivity extends AppCompatActivity
         super.onResume();
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver,
                 new IntentFilter(Constants.getBroadcastLocationIntent()));
-        getTransitionsFromGeofences();
-        if (checkPermissions()) {
-            startLocationUpdates(mLocationRequest);
-        } else if (!checkPermissions()) {
-            requestPermissions();
-        }
     }
     @Override
     protected void onPause() {
@@ -324,6 +332,8 @@ public class HomeActivity extends AppCompatActivity
                                     lot.getRadio(),
                                     lot.getName()));
                         }
+                        Toast.makeText(HomeActivity.this, "Se han agregado todos los geofences",
+                                Toast.LENGTH_SHORT).show();
                         addGeofences(geofenceList);
                         break;
                     default:
@@ -549,6 +559,9 @@ public class HomeActivity extends AppCompatActivity
         }
         try {
             fragment = (Fragment) fragmentClass.newInstance();
+            Bundle data = new Bundle();
+            data.putStringArrayList(Constants.GEOFENCE_TRIGGER_ID, geofencesTrigger);
+            fragment.setArguments(data);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -570,6 +583,7 @@ public class HomeActivity extends AppCompatActivity
             super.onBackPressed();
         }
     }
+
     private ActionBarDrawerToggle setupDrawerToggle() {
         // NOTE: Make sure you pass in a valid toolbar reference.  ActionBarDrawToggle() does not require it
         // and will not render the hamburger icon without it.
@@ -598,23 +612,10 @@ public class HomeActivity extends AppCompatActivity
                     }
                 });
     }
-    /**
-     * Check it but thing will not be need it any
-     * more**/
-    private void broadcastLocation(Location location) {
-        Intent intent = new Intent(Constants.getBroadcastLocationIntent());
-        intent.putExtra(Constants.getLatitud(), location.getLatitude());
-        intent.putExtra(Constants.getLongitud(), location.getLongitude());
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
 
-    private void broadcastGeofenceTrigger(ArrayList<String> geofenceList) {
-        List<String> fencesTriggersIdList = new ArrayList<>();
+    private void broadcastGeofenceTrigger(ArrayList<String> geofenceNameList) {
         Intent intent = new Intent(Constants.getBroadcastGeofenceTriggerIntent());
-        for(String geofenceId : geofenceList){
-            fencesTriggersIdList.add(geofenceId);
-        }
-        intent.putStringArrayListExtra(Constants.GEOFENCE_TRIGGER_ID, (ArrayList<String>) fencesTriggersIdList);
+        intent.putStringArrayListExtra(Constants.GEOFENCE_TRIGGER_ID, geofenceNameList);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
     /**
@@ -642,8 +643,6 @@ public class HomeActivity extends AppCompatActivity
                                 Log.i(LOG_TAG, "Location settings are not satisfied. Attempting to upgrade " +
                                         "location settings ");
                                 try {
-                                    // Show the dialog by calling startResolutionForResult(), and check the
-                                    // result in onActivityResult().
                                     ResolvableApiException rae = (ResolvableApiException) e;
                                     rae.startResolutionForResult(HomeActivity.this, Constants.REQUEST_CHECK_SETTINGS);
                                 } catch (IntentSender.SendIntentException sie) {
@@ -668,7 +667,6 @@ public class HomeActivity extends AppCompatActivity
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
                 mCurrentLocation = locationResult.getLastLocation();
-                broadcastLocation(mCurrentLocation);
                 checkForUserLocation(mCurrentLocation);
             }
         };

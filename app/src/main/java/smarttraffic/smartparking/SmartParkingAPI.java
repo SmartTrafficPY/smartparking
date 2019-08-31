@@ -85,4 +85,7 @@ public interface SmartParkingAPI {
     @GET("lots/")
     Call<List<SmartParkingLot>> getAllLots();
 
+    @PUT("spots/{lotId}")
+    Call<SmartParkingSpot> updateSpot(@Body SmartParkingSpot updated, Integer lotId);
+
 }

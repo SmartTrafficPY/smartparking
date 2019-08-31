@@ -94,4 +94,6 @@
     <string name="activity_updates_not_removed">Actualizaciones de actividades NO eliminadas</string>
     <string name="are_you_parking">¿Estás estacionando el vehículo?</string>
     <string name="are_you_vacating_a_place">¿Estás desocupando un lugar?</string>
+    <string name="channel_name">SmartParking Channel</string>
+    <string name="channel_description">SmartParking Notifications</string>
 </resources>

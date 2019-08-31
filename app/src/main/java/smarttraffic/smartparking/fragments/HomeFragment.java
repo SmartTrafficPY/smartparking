@@ -1,18 +1,11 @@
 package smarttraffic.smartparking.fragments;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Color;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -63,7 +56,21 @@ import smarttraffic.smartparking.dataModels.SmartParkingSpot;
 public class HomeFragment extends Fragment {
 
     private static final String LOG_TAG = "HomeFragment";
+    public enum Status {
+        FREE("F"),
+        UNKNOWN("U"),
+        OCCUPIED("O");
 
+        private String estado;
+
+        public String getEstado() {
+            return estado;
+        }
+
+        Status(String f) {
+            this.estado = f;
+        }
+    }
     private MyLocationNewOverlay mLocationOverlay;
     private Marker userMarker;
     private CompassOverlay mCompassOverlay;
@@ -73,14 +80,11 @@ public class HomeFragment extends Fragment {
     MapView mapView;
     List<GeoPoint> polygonsSpots;
     Polygon polygon = new Polygon();
-    BroadcastReceiver broadcastReceiver;
-    BroadcastReceiver geofenceReceiver;
-
-    Location gpsLocation = new Location(LocationManager.GPS_PROVIDER);
-
+    ArrayList<String> geofencesTrigger;
     public HomeFragment() {
         // Required empty public constructor
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -88,28 +92,17 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.map_layout, container, false);
         ButterKnife.bind(this, view);
-        //gets the location...
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(Constants.getBroadcastLocationIntent())) {
-                    gpsLocation.setLatitude(intent.getDoubleExtra(Constants.getLatitud(), 0));
-                    gpsLocation.setLongitude(intent.getDoubleExtra(Constants.getLongitud(), 0));
-                }
-            }
-        };
 
-        geofenceReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(Constants.getBroadcastGeofenceTriggerIntent())) {
-                    ArrayList<String> geofencesTriggers = intent.getStringArrayListExtra(Constants.GEOFENCE_TRIGGER_ID);
-                    for (String geofenceId : geofencesTriggers) {
-                        addParkingSpotsList(geofenceId);
-                    }
+        if(getArguments() != null){
+            geofencesTrigger = getArguments().getStringArrayList(
+                    Constants.GEOFENCE_TRIGGER_ID);
+            if(geofencesTrigger != null){
+                for (String geofenceId : geofencesTrigger) {
+                    Log.i(LOG_TAG, "get that" + geofenceId + "is trigger");
+                    addParkingSpotsList(geofenceId);
                 }
             }
-        };
+        }
 
         Configuration.getInstance().load(getActivity(), PreferenceManager.getDefaultSharedPreferences(getActivity()));
 
@@ -180,8 +173,8 @@ public class HomeFragment extends Fragment {
         userMarker.setDefaultIcon();
         userMarker.setIcon(getResources().getDrawable(R.drawable.marker_icon));
         userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        userMarker.setPosition(new GeoPoint(gpsLocation.getLatitude(),gpsLocation.getLongitude()));
-        mapController.setCenter(new GeoPoint(gpsLocation.getLatitude(),gpsLocation.getLongitude()));
+//        userMarker.setPosition(new GeoPoint(gpsLocation.getLatitude(),gpsLocation.getLongitude()));
+//        mapController.setCenter(new GeoPoint(gpsLocation.getLatitude(),gpsLocation.getLongitude()));
     }
 
     private void setLocationOverlay(){
@@ -213,21 +206,20 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mapView.onResume();
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(broadcastReceiver,
-                new IntentFilter(Constants.getBroadcastLocationIntent()));
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(geofenceReceiver,
-                new IntentFilter(Constants.getBroadcastGeofenceTriggerIntent()));
         mLocationOverlay.enableFollowLocation();
         mLocationOverlay.enableMyLocation();
         mScaleBarOverlay.disableScaleBar();
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
         mapView.onPause();
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(broadcastReceiver);
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(geofenceReceiver);
         mCompassOverlay.disableCompass();
         mLocationOverlay.disableFollowLocation();
         mLocationOverlay.disableMyLocation();
@@ -241,7 +233,6 @@ public class HomeFragment extends Fragment {
         mCompassOverlay=null;
         mScaleBarOverlay=null;
         mRotationGestureOverlay=null;
-
     }
 
     private void addParkingSpotsList(String geofenceTriggerId) {
@@ -272,7 +263,7 @@ public class HomeFragment extends Fragment {
                 switch (response.code()) {
                     case 200:
                         for(SmartParkingSpot spot : response.body()){
-                            drawPolygon(spotToListOfGeoPoints(spot));
+                            drawPolygon(spotToListOfGeoPoints(spot), spot.getStatus());
                         }
                         break;
                     default:
@@ -297,10 +288,16 @@ public class HomeFragment extends Fragment {
         return polygon;
     }
 
-    private void drawPolygon(List<GeoPoint> geoPoints){
-        Polygon polygon = new Polygon();    //see note below
-        polygon.setFillColor(Color.parseColor("#FF0000"));
-        polygon.setStrokeColor(Color.parseColor("#00FF00"));
+    private void drawPolygon(List<GeoPoint> geoPoints, String status){
+        Polygon polygon = new Polygon();
+        String color = "#C0C0C0";
+        if(status == Status.FREE.getEstado()){
+            color = "#00FF00";
+        }else if(status == Status.OCCUPIED.getEstado()){
+            color = "#FF0000";
+        }
+        polygon.setFillColor(Color.parseColor(color));
+        polygon.setStrokeColor(Color.parseColor(color));
         geoPoints.add(geoPoints.get(0));    //forces the loop to close
         polygon.setPoints(geoPoints);
         mapView.getOverlayManager().add(polygon);
