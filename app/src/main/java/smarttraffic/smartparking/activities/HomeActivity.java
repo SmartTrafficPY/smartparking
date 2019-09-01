@@ -12,7 +12,7 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
@@ -20,21 +20,14 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -62,7 +55,23 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.maps.android.PolyUtil;
 
-import java.io.Serializable;
+import org.osmdroid.api.IMapController;
+import org.osmdroid.config.Configuration;
+import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.util.MapTileIndex;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.ItemizedIconOverlay;
+import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
+import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.Polygon;
+import org.osmdroid.views.overlay.ScaleBarOverlay;
+import org.osmdroid.views.overlay.compass.CompassOverlay;
+import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
+import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -100,10 +109,8 @@ public class HomeActivity extends AppCompatActivity
 
     private static final String LOG_TAG = "HomeActivity";
 
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
-    @BindView(R.id.drawer_layout)
-    DrawerLayout mDrawer;
+    @BindView(R.id.mapFragment)
+    MapView mapView;
 
     private FusedLocationProviderClient mFusedLocationClient;
     private ActivityRecognitionClient mActivityRecognitionClient;
@@ -121,12 +128,34 @@ public class HomeActivity extends AppCompatActivity
     private GeofencingClient geofencingClient;
     private PendingIntent mGeofencePendingIntent;
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
+    //MAP...
+    private MyLocationNewOverlay mLocationOverlay;
+    private CompassOverlay mCompassOverlay;
+    private ScaleBarOverlay mScaleBarOverlay;
+    private RotationGestureOverlay mRotationGestureOverlay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_layout);
         ButterKnife.bind(this);
+        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(
+                this));
+        mapView.setTileSource(new OnlineTileSourceBase("SMARTPARKING CartoDB",
+                10, 22, 256, ".png",
+                new String[]{Constants.getTileServerUrl()}) {
+            @Override
+            public String getTileURLString(long pMapTileIndex) {
+                return getBaseUrl()
+                        + MapTileIndex.getZoom(pMapTileIndex)
+                        + "/" + MapTileIndex.getX(pMapTileIndex)
+                        + "/" + MapTileIndex.getY(pMapTileIndex)
+                        + mImageFilenameEnding;
+            }
+        });
+
+        setMapView();
+
         createLocationRequest(Constants.getSecondsInMilliseconds() * 2,
                 Constants.getSecondsInMilliseconds());
         buildLocationSettingsRequest();
@@ -146,16 +175,120 @@ public class HomeActivity extends AppCompatActivity
                 if (intent.getAction().equals(Constants.BROADCAST_TRANSITION_ACTIVITY_INTENT)) {
                     transitionType = intent.getIntExtra(Constants.ACTIVITY_TYPE_TRANSITION, -1);
                     confidence = intent.getIntExtra(Constants.ACTIVITY_CONFIDENCE_TRANSITION, -1);
-                    Log.i(LOG_TAG, "Transition type: " + transitionType + "confidence " + confidence + "%");
+                    Log.i(LOG_TAG, "Transition type: " + transitionType + " confidence " + confidence + "%");
                 }
             }
         };
 
         createLocationCallback();
-        getTransitionsFromGeofences();
     }
 
-    private void getTransitionsFromGeofences() {
+    private void setMapView(){
+        IMapController mapController = mapView.getController();
+
+        setGralMapConfiguration(mapController);
+        //scale bar
+        setScaleBar();
+
+        setLocationOverlay();
+
+        setCompassGestureOverlays();
+//        setMarkersOnMap();
+        //add all overlays
+        addOverlays();
+    }
+
+    private void setMarkersOnMap() {
+//        ArrayList<SmartParkingSpot> spots
+        ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
+        OverlayItem overlayItem = new OverlayItem("Title1", "Description",
+                new GeoPoint(-25.30604186,-57.59168641));
+//        overlayItem.setMarker(getDrawable(R.drawable.about_menu));
+        items.add(overlayItem);
+        //the overlay
+        ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(items,
+                new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
+                    @Override
+                    public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
+                        //do something
+                        return true;
+                    }
+                    @Override
+                    public boolean onItemLongPress(final int index, final OverlayItem item) {
+                        return false;
+                    }
+                }, this);
+        mOverlay.setFocusItemsOnTap(true);
+
+        mapView.getOverlays().add(mOverlay);
+    }
+
+    private void addOverlays(){
+        mapView.getOverlays().add(mRotationGestureOverlay);
+        mapView.getOverlays().add(mCompassOverlay);
+        mapView.getOverlays().add(mLocationOverlay);
+        mapView.getOverlays().add(mScaleBarOverlay);
+    }
+
+    private void setGralMapConfiguration(IMapController mapController){
+        mapView.setTilesScaledToDpi(true);
+        mapView.setBuiltInZoomControls(true);
+        mapView.setMultiTouchControls(true);
+        mapView.setFlingEnabled(true);
+        mapController.setZoom(17);
+    }
+
+    private void setScaleBar(){
+        final DisplayMetrics dm = this.getResources().getDisplayMetrics();
+        mScaleBarOverlay = new ScaleBarOverlay(mapView);
+        mScaleBarOverlay.setCentred(true);
+        //play around with these values to get the location on screen in the right place for your application
+        mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
+    }
+
+    private void setLocationOverlay(){
+        mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this), mapView);
+        mLocationOverlay.enableMyLocation();
+        mLocationOverlay.enableFollowLocation();
+        mLocationOverlay.setOptionsMenuEnabled(true);
+    }
+
+    private void setCompassGestureOverlays(){
+        //add compass
+        mCompassOverlay = new CompassOverlay(this, new InternalCompassOrientationProvider(this), mapView);
+        mCompassOverlay.enableCompass();
+
+        //rotation gestures
+        mRotationGestureOverlay = new RotationGestureOverlay(this, mapView);
+        mRotationGestureOverlay.setEnabled(true);
+    }
+
+    private void drawPolygon(List<GeoPoint> geoPoints, String status){
+        Polygon polygon = new Polygon();
+        String color = "#C0C0C0";
+        if(status.equals(StatesEnumerations.FREE.getEstado())){
+            color = "#00FF00";
+        }else if(status.equals(StatesEnumerations.OCCUPIED.getEstado())){
+            color = "#FF0000";
+        }
+        polygon.setFillColor(Color.parseColor(color));
+        polygon.setStrokeColor(Color.parseColor(color));
+        geoPoints.add(geoPoints.get(0));    //forces the loop to close
+        polygon.setPoints(geoPoints);
+        mapView.getOverlayManager().add(polygon);
+    }
+
+    private List<GeoPoint> spotToListOfGeoPoints(SmartParkingSpot spot){
+        List<GeoPoint> polygon = new ArrayList<>();
+        polygon.add(new GeoPoint(spot.getP1_latitud(),spot.getP1_longitud()));
+        polygon.add(new GeoPoint(spot.getP2_latitud(),spot.getP2_longitud()));
+        polygon.add(new GeoPoint(spot.getP3_latitud(),spot.getP3_longitud()));
+        polygon.add(new GeoPoint(spot.getP4_latitud(),spot.getP4_longitud()));
+        polygon.add(new GeoPoint(spot.getP5_latitud(),spot.getP5_longitud()));
+        return polygon;
+    }
+
+    private void fromNotificationCall() {
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         Intent intent = getIntent();
@@ -166,6 +299,9 @@ public class HomeActivity extends AppCompatActivity
         Runnable cronJob = new Runnable(){
             public void run(){
                 getSpotsFromGeofence(geofencesTrigger);
+                for(SmartParkingSpot spot : spots){
+                    drawPolygon(spotToListOfGeoPoints(spot), spot.getStatus());
+                }
                 handler.postDelayed(this, delay);
             }
         };
@@ -242,33 +378,38 @@ public class HomeActivity extends AppCompatActivity
             }
         });
     }
+
     @Override
     public void onStart() {
         super.onStart();
         if (!checkPermissions()) {
             requestPermissions();
         }
-        getTransitionsFromGeofences();
     }
+
     @Override
     protected void onStop() {
         super.onStop();
         removeActivityUpdates();
         stopLocationUpdates();
     }
+
     @Override
     protected void onResume() {
         super.onResume();
-        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(broadcastReceiver,
-                new IntentFilter(Constants.getBroadcastLocationIntent()));
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,
+                new IntentFilter(Constants.BROADCAST_TRANSITION_ACTIVITY_INTENT));
+        mapView.onResume();
+        fromNotificationCall();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(broadcastReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
         stopLocationUpdates();
         removeActivityUpdates();
+        mapView.onPause();
     }
 
     private void addParkingLotsGeofences() {
@@ -497,7 +638,6 @@ public class HomeActivity extends AppCompatActivity
                     }
                 });
     }
-
     /**
      * Requests location updates from the FusedLocationApi. Note: we don't call this unless location
      * runtime permission has been granted.

@@ -8,13 +8,21 @@
     tools:context=".activities.HomeActivity">
 
     <!-- This LinearLayout represents the contents of the screen  -->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-        <org.osmdroid.views.MapView android:id="@+id/mapFragment"
+        <org.osmdroid.views.MapView
+            android:id="@+id/mapFragment"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
-    </LinearLayout>
+            android:layout_height="fill_parent"/>
+
+        <Button android:id="@+id/buttonTest"
+            android:layout_width="fill_parent"
+            android:text="Cache Manager"
+            android:layout_height="wrap_content">
+        </Button>
+
+    </RelativeLayout>
 
 </android.support.v4.widget.DrawerLayout>
