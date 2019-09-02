@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import smarttraffic.smartparking.activities.HomeActivity;
+import smarttraffic.smartparking.activities.InitActivity;
 
 /**
  * Created by Joaquin Olivera on july 19.

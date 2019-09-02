@@ -116,7 +116,8 @@ public class HomeActivity extends AppCompatActivity
     private ActivityRecognitionClient mActivityRecognitionClient;
 
     private SettingsClient mSettingsClient;
-    int transitionType;
+    int activityTransition;
+    int geofenceTransition;
     int confidence;
     private LocationRequest mLocationRequest;
     private LocationSettingsRequest mLocationSettingsRequest;
@@ -125,6 +126,7 @@ public class HomeActivity extends AppCompatActivity
     private ArrayList<SmartParkingSpot> spots = new ArrayList<>();
     private ArrayList<String> geofencesTrigger = new ArrayList<>();
     private BroadcastReceiver broadcastReceiver;
+    private BroadcastReceiver geofenceReceiver;
     private GeofencingClient geofencingClient;
     private PendingIntent mGeofencePendingIntent;
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
@@ -165,17 +167,45 @@ public class HomeActivity extends AppCompatActivity
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mActivityRecognitionClient = new ActivityRecognitionClient(this);
 
-        if(getIntent().getExtras() == null){
+        if (getIntent().getExtras() == null) {
             addParkingLotsGeofences();
         }
+
+        Log.i(LOG_TAG,"On Create");
 
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(Constants.BROADCAST_TRANSITION_ACTIVITY_INTENT)) {
-                    transitionType = intent.getIntExtra(Constants.ACTIVITY_TYPE_TRANSITION, -1);
+                    activityTransition = intent.getIntExtra(Constants.ACTIVITY_TYPE_TRANSITION, -1);
                     confidence = intent.getIntExtra(Constants.ACTIVITY_CONFIDENCE_TRANSITION, -1);
-                    Log.i(LOG_TAG, "Transition type: " + transitionType + " confidence " + confidence + "%");
+                }
+            }
+        };
+
+        geofenceReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(Constants.getBroadcastGeofenceTriggerIntent())) {
+                    geofencesTrigger = intent.getStringArrayListExtra(
+                            GeofenceTransitionsJobIntentService.GEOFENCE_TRIGGED);
+                    geofenceTransition = intent.getIntExtra(
+                            GeofenceTransitionsJobIntentService.TRANSITION,
+                            -1);
+                        switch (geofenceTransition){
+                            case Geofence.GEOFENCE_TRANSITION_ENTER:
+                                Log.i(LOG_TAG, "Enter geofence: " + geofencesTrigger.get(0));
+                                break;
+                            case Geofence.GEOFENCE_TRANSITION_DWELL:
+                                Log.i(LOG_TAG, "Dwell geofence: " + geofencesTrigger.get(0));
+                                break;
+                            case Geofence.GEOFENCE_TRANSITION_EXIT:
+                                Log.i(LOG_TAG, "Exit geofence: " + geofencesTrigger.get(0));
+                                break;
+                            default:
+                                Log.i(LOG_TAG, "Receive Transition" + geofencesTrigger.get(0));
+                        }
+                    managerOfTransitions();
                 }
             }
         };
@@ -183,7 +213,7 @@ public class HomeActivity extends AppCompatActivity
         createLocationCallback();
     }
 
-    private void setMapView(){
+    private void setMapView() {
         IMapController mapController = mapView.getController();
 
         setGralMapConfiguration(mapController);
@@ -202,7 +232,7 @@ public class HomeActivity extends AppCompatActivity
 //        ArrayList<SmartParkingSpot> spots
         ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
         OverlayItem overlayItem = new OverlayItem("Title1", "Description",
-                new GeoPoint(-25.30604186,-57.59168641));
+                new GeoPoint(-25.30604186, -57.59168641));
 //        overlayItem.setMarker(getDrawable(R.drawable.about_menu));
         items.add(overlayItem);
         //the overlay
@@ -213,6 +243,7 @@ public class HomeActivity extends AppCompatActivity
                         //do something
                         return true;
                     }
+
                     @Override
                     public boolean onItemLongPress(final int index, final OverlayItem item) {
                         return false;
@@ -223,14 +254,14 @@ public class HomeActivity extends AppCompatActivity
         mapView.getOverlays().add(mOverlay);
     }
 
-    private void addOverlays(){
+    private void addOverlays() {
         mapView.getOverlays().add(mRotationGestureOverlay);
         mapView.getOverlays().add(mCompassOverlay);
         mapView.getOverlays().add(mLocationOverlay);
         mapView.getOverlays().add(mScaleBarOverlay);
     }
 
-    private void setGralMapConfiguration(IMapController mapController){
+    private void setGralMapConfiguration(IMapController mapController) {
         mapView.setTilesScaledToDpi(true);
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
@@ -238,7 +269,7 @@ public class HomeActivity extends AppCompatActivity
         mapController.setZoom(17);
     }
 
-    private void setScaleBar(){
+    private void setScaleBar() {
         final DisplayMetrics dm = this.getResources().getDisplayMetrics();
         mScaleBarOverlay = new ScaleBarOverlay(mapView);
         mScaleBarOverlay.setCentred(true);
@@ -246,14 +277,14 @@ public class HomeActivity extends AppCompatActivity
         mScaleBarOverlay.setScaleBarOffset(dm.widthPixels / 2, 10);
     }
 
-    private void setLocationOverlay(){
+    private void setLocationOverlay() {
         mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this), mapView);
         mLocationOverlay.enableMyLocation();
         mLocationOverlay.enableFollowLocation();
         mLocationOverlay.setOptionsMenuEnabled(true);
     }
 
-    private void setCompassGestureOverlays(){
+    private void setCompassGestureOverlays() {
         //add compass
         mCompassOverlay = new CompassOverlay(this, new InternalCompassOrientationProvider(this), mapView);
         mCompassOverlay.enableCompass();
@@ -263,12 +294,12 @@ public class HomeActivity extends AppCompatActivity
         mRotationGestureOverlay.setEnabled(true);
     }
 
-    private void drawPolygon(List<GeoPoint> geoPoints, String status){
+    private void drawPolygon(List<GeoPoint> geoPoints, String status) {
         Polygon polygon = new Polygon();
         String color = "#C0C0C0";
-        if(status.equals(StatesEnumerations.FREE.getEstado())){
+        if (status.equals(StatesEnumerations.FREE.getEstado())) {
             color = "#00FF00";
-        }else if(status.equals(StatesEnumerations.OCCUPIED.getEstado())){
+        } else if (status.equals(StatesEnumerations.OCCUPIED.getEstado())) {
             color = "#FF0000";
         }
         polygon.setFillColor(Color.parseColor(color));
@@ -278,38 +309,29 @@ public class HomeActivity extends AppCompatActivity
         mapView.getOverlayManager().add(polygon);
     }
 
-    private List<GeoPoint> spotToListOfGeoPoints(SmartParkingSpot spot){
+    private List<GeoPoint> spotToListOfGeoPoints(SmartParkingSpot spot) {
         List<GeoPoint> polygon = new ArrayList<>();
-        polygon.add(new GeoPoint(spot.getP1_latitud(),spot.getP1_longitud()));
-        polygon.add(new GeoPoint(spot.getP2_latitud(),spot.getP2_longitud()));
-        polygon.add(new GeoPoint(spot.getP3_latitud(),spot.getP3_longitud()));
-        polygon.add(new GeoPoint(spot.getP4_latitud(),spot.getP4_longitud()));
-        polygon.add(new GeoPoint(spot.getP5_latitud(),spot.getP5_longitud()));
+        polygon.add(new GeoPoint(spot.getP1_latitud(), spot.getP1_longitud()));
+        polygon.add(new GeoPoint(spot.getP2_latitud(), spot.getP2_longitud()));
+        polygon.add(new GeoPoint(spot.getP3_latitud(), spot.getP3_longitud()));
+        polygon.add(new GeoPoint(spot.getP4_latitud(), spot.getP4_longitud()));
+        polygon.add(new GeoPoint(spot.getP5_latitud(), spot.getP5_longitud()));
         return polygon;
     }
 
-    private void fromNotificationCall() {
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        Intent intent = getIntent();
-        geofencesTrigger = intent.getStringArrayListExtra(
-                GeofenceTransitionsJobIntentService.GEOFENCE_TRIGGED);
+    private void managerOfTransitions() {
+        getSpotsFromGeofence(geofencesTrigger);
         final Handler handler = new Handler();
         final long delay = Constants.getMinutesInMilliseconds();
-        Runnable cronJob = new Runnable(){
-            public void run(){
+        Runnable cronJob = new Runnable() {
+            public void run() {
                 getSpotsFromGeofence(geofencesTrigger);
-                for(SmartParkingSpot spot : spots){
-                    drawPolygon(spotToListOfGeoPoints(spot), spot.getStatus());
-                }
                 handler.postDelayed(this, delay);
             }
         };
-        switch(intent.getIntExtra(GeofenceTransitionsJobIntentService.TRANSITION,
-                -1)){
+        switch (geofenceTransition) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 Log.i(LOG_TAG, "Enter Transition");
-                mNotificationManager.cancel(0);
                 if (checkPermissions()) {
                     startLocationUpdates(mLocationRequest);
                 } else if (!checkPermissions()) {
@@ -333,8 +355,10 @@ public class HomeActivity extends AppCompatActivity
     }
 
     private void getSpotsFromGeofence(ArrayList<String> geofencesTrigger) {
-        for(String geofenceTrigger : geofencesTrigger){
-            getAllSpotFrom(geofenceTrigger);
+        if(geofencesTrigger != null){
+            for (String geofenceTrigger : geofencesTrigger) {
+                getAllSpotFrom(geofenceTrigger);
+            }
         }
     }
 
@@ -364,6 +388,11 @@ public class HomeActivity extends AppCompatActivity
                 switch (response.code()) {
                     case 200:
                         spots = (ArrayList<SmartParkingSpot>) response.body();
+                        if(spots != null){
+                            for (SmartParkingSpot spot : spots) {
+                                drawPolygon(spotToListOfGeoPoints(spot), spot.getStatus());
+                            }
+                        }
                         break;
                     default:
                         Toast.makeText(HomeActivity.this, "Por alguna razón no fue posible la conexión",
@@ -371,10 +400,11 @@ public class HomeActivity extends AppCompatActivity
                         break;
                 }
             }
+
             @Override
             public void onFailure(Call<List<SmartParkingSpot>> call, Throwable t) {
                 t.printStackTrace();
-                Log.e(LOG_TAG,t.toString());
+                Log.e(LOG_TAG, t.toString());
             }
         });
     }
@@ -382,6 +412,7 @@ public class HomeActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
+        Log.i(LOG_TAG,"On Start");
         if (!checkPermissions()) {
             requestPermissions();
         }
@@ -397,16 +428,25 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        Log.i(LOG_TAG,"On Resume");
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,
                 new IntentFilter(Constants.BROADCAST_TRANSITION_ACTIVITY_INTENT));
+        LocalBroadcastManager.getInstance(this).registerReceiver(geofenceReceiver,
+                new IntentFilter(Constants.getBroadcastGeofenceTriggerIntent()));
+//        managerOfTransitions();
         mapView.onResume();
-        fromNotificationCall();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(geofenceReceiver);
         stopLocationUpdates();
         removeActivityUpdates();
         mapView.onPause();
@@ -438,7 +478,7 @@ public class HomeActivity extends AppCompatActivity
                     case 200:
                         List<SmartParkingLot> lots = response.body();
                         ArrayList<Geofence> geofenceList = new ArrayList<>();
-                        for(SmartParkingLot lot : lots){
+                        for (SmartParkingLot lot : lots) {
                             geofenceList.add(generateGeofence(lot.getLatitud_center(),
                                     lot.getLongitud_center(),
                                     lot.getRadio(),
@@ -450,18 +490,20 @@ public class HomeActivity extends AppCompatActivity
                         break;
                     default:
                         Toast.makeText(HomeActivity.this, "Por problemas de conexion no " +
-                                "se han conseguido los predios del sistema",
+                                        "se han conseguido los predios del sistema",
                                 Toast.LENGTH_SHORT).show();
                         break;
                 }
             }
+
             @Override
             public void onFailure(Call<List<SmartParkingLot>> call, Throwable t) {
                 t.printStackTrace();
-                Log.e(LOG_TAG,t.toString());
+                Log.e(LOG_TAG, t.toString());
             }
         });
     }
+
     /**
      * This sample hard codes geofence data. A real app might dynamically create geofences based on
      * the user's location.
@@ -480,6 +522,7 @@ public class HomeActivity extends AppCompatActivity
                 .build();
         return geofence;
     }
+
     /**
      * Return the current state of the permissions needed.
      */
@@ -517,6 +560,7 @@ public class HomeActivity extends AppCompatActivity
                     REQUEST_PERMISSIONS_REQUEST_CODE);
         }
     }
+
     /**
      * Shows a {@link Snackbar} using {@code text}.
      *
@@ -528,6 +572,7 @@ public class HomeActivity extends AppCompatActivity
             Snackbar.make(container, text, Snackbar.LENGTH_LONG).show();
         }
     }
+
     /**
      * Shows a {@link Snackbar}.
      *
@@ -543,6 +588,7 @@ public class HomeActivity extends AppCompatActivity
                 Snackbar.LENGTH_INDEFINITE)
                 .setAction(getString(actionStringId), listener).show();
     }
+
     /**
      * Adds geofences. This method should be called after the user has granted the location
      * permission.
@@ -555,6 +601,7 @@ public class HomeActivity extends AppCompatActivity
         }
         geofencingClient.addGeofences(getGeofencingRequest(geofenceArrayList), getGeofencePendingIntent());
     }
+
     /**
      * Removes geofences. This method should be called after the user has granted the location
      * permission.
@@ -565,9 +612,9 @@ public class HomeActivity extends AppCompatActivity
             showSnackbar(getString(R.string.insufficient_permissions));
             return;
         }
-
         geofencingClient.removeGeofences(getGeofencePendingIntent());
     }
+
     /**
      * Gets a PendingIntent to send with the request to add or remove Geofences. Location Services
      * issues the Intent inside this PendingIntent whenever a geofence transition occurs for the
@@ -586,6 +633,7 @@ public class HomeActivity extends AppCompatActivity
         mGeofencePendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         return mGeofencePendingIntent;
     }
+
     /**
      * Builds and returns a GeofencingRequest. Specifies the list of geofences to be monitored.
      * Also specifies how the geofence notifications are initially triggered.
@@ -596,6 +644,15 @@ public class HomeActivity extends AppCompatActivity
         builder.addGeofences(geofenceList);
         return builder.build();
     }
+
+    private GeofencingRequest getGeofenceRequest(SmartParkingSpot spot) {
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        builder.addGeofence(generateGeofence(spot.getP1_latitud(), spot.getP1_longitud(),
+                15, "ParkinSpot" + spot.getId()));
+        return builder.build();
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
@@ -638,6 +695,7 @@ public class HomeActivity extends AppCompatActivity
                     }
                 });
     }
+
     /**
      * Requests location updates from the FusedLocationApi. Note: we don't call this unless location
      * runtime permission has been granted.
@@ -678,6 +736,7 @@ public class HomeActivity extends AppCompatActivity
                     }
                 });
     }
+
     /**
      * Creates a callback for receiving location events.
      */
@@ -691,9 +750,10 @@ public class HomeActivity extends AppCompatActivity
             }
         };
     }
+
     /**
-      - Is User in a spot?
-      - Is the user STILL in that spot?
+     - Is User in a spot?
+     - Is the user STILL in that spot?
      * THEN, THE USER COULD BE:
      * PARKING:
      *      - Is the spot free?
@@ -703,12 +763,18 @@ public class HomeActivity extends AppCompatActivity
      *      THEN: show dialog for secure the action...**/
     private void checkForUserLocation(Location mCurrentLocation) {
         int spotId = isPointInsideParkingSpot(spots, mCurrentLocation);
-        if(spotId != Constants.NOT_IN_PARKINGSPOT && transitionType == DetectedActivity.STILL){
+        if (spotId != Constants.NOT_IN_PARKINGSPOT && (activityTransition == DetectedActivity.STILL ||
+                activityTransition == DetectedActivity.IN_VEHICLE)) {
             SmartParkingSpot spot = getSpotFromId(spots, spotId);
-            if(spot.getStatus() == StatesEnumerations.FREE.getEstado() ||
-                    spot.getStatus() == StatesEnumerations.UNKNOWN.getEstado()){
-                confirmationOfActionDialog(true);
-            }else{
+            Toast.makeText(this,"You are in a Spot", Toast.LENGTH_LONG).show();
+
+            if (spot.getStatus().equals(StatesEnumerations.FREE.getEstado()) ||
+                    spot.getStatus().equals(StatesEnumerations.UNKNOWN.getEstado())) {
+                Toast.makeText(this, "Sending Confirmation Dialog", Toast.LENGTH_LONG).show();
+
+                confirmationOfActionDialog(spot, true);
+            } else {
+                confirmationOfActionDialog(spot, false);
 //                if(spot.getUserChanged() == actualUser){
 //                    confirmationOfActionDialog(false);
 //                }
@@ -716,10 +782,10 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
-    private SmartParkingSpot getSpotFromId(ArrayList<SmartParkingSpot> spots, int spotId){
+    private SmartParkingSpot getSpotFromId(ArrayList<SmartParkingSpot> spots, int spotId) {
         SmartParkingSpot result = new SmartParkingSpot();
-        for(SmartParkingSpot spot : spots){
-            if(spot.getId() == spotId){
+        for (SmartParkingSpot spot : spots) {
+            if (spot.getId() == spotId) {
                 result = spot;
             }
 //            if(userId == spot.getUserChanged()){
@@ -728,18 +794,21 @@ public class HomeActivity extends AppCompatActivity
         }
         return result;
     }
+
     /**
      * Show a dialog tha could be:
      * OCCUPYING a spot OR FREEING ONE
      * **/
-    private void confirmationOfActionDialog(boolean isParking){
-        AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
-        if(isParking){
+    @SuppressWarnings("MissingPermission")
+    private void confirmationOfActionDialog(final SmartParkingSpot spotIn, boolean isParking) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        if (isParking) {
             builder.setMessage(R.string.are_you_parking)
                     .setPositiveButton(R.string.button_accept, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // call REST service to UPDATE STATE to OCCUPIED by userId
-                            // addGeofence(HERE)...
+//                            geofencingClient.addGeofences(getGeofenceRequest(spotIn),
+//                                    getGeofencePendingIntent());
                         }
                     })
                     .setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
@@ -752,7 +821,9 @@ public class HomeActivity extends AppCompatActivity
                 .setPositiveButton(R.string.button_accept, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // call REST service to UPDATE STATE to FREE
-                        // removeGeofence(HERE)...
+//                        List<String> geofencesToRemove = new ArrayList<>();
+//                        geofencesToRemove.add("ParkinSpot" + spotIn.getId());
+//                        geofencingClient.removeGeofences(geofencesToRemove);
                     }
                 })
                 .setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
@@ -901,4 +972,16 @@ public class HomeActivity extends AppCompatActivity
             //activity detected needed...
         }
     }
+
+//    public void saveListOfLots(Context context, ArrayList<SmartParkingLot> lots){
+//        SharedPreferences sharedPreferences = context.getSharedPreferences(
+//                Constants.GEOFENCE_LOTS_SHARED_PREFERENCES, Context.MODE_PRIVATE);
+//    }
+//
+//    public ArrayList<String> copyListOfLots(Context context){
+//        ArrayList<String> geofences
+//        SharedPreferences sharedPreferences = context.getSharedPreferences(
+//                Constants.GEOFENCE_LOTS_SHARED_PREFERENCES, Context.MODE_PRIVATE);
+//        return ArrayList<String> g;
+//    }
 }

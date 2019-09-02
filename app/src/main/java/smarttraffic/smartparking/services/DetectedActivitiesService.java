@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.Utils;
+import smarttraffic.smartparking.activities.HomeActivity;
 
 public class DetectedActivitiesService extends IntentService {
 
