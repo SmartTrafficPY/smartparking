@@ -23,9 +23,6 @@ import smarttraffic.smartparking.services.LoginService;
 
 public class LoginReceiver extends BroadcastReceiver {
 
-    @BindView(R.id.forgotPassword)
-    TextView forgotPassword;
-
     private static final String LOG_TAG = "LoginReceiver";
 
     private String sex;

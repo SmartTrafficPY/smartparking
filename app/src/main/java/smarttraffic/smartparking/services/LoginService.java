@@ -11,6 +11,7 @@ import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 
@@ -23,8 +24,11 @@ import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
 import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
+import smarttraffic.smartparking.dataModels.Credentials;
 import smarttraffic.smartparking.dataModels.ProfileUser;
+import smarttraffic.smartparking.dataModels.UserToken;
 import smarttraffic.smartparking.receivers.LoginReceiver;
+import smarttraffic.smartparking.tokenInterceptors.AddSmartParkingTokenInterceptor;
 
 /**
  * Created by Joaquin Olivera on july 19.
@@ -55,9 +59,9 @@ public class LoginService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String pass = intent.getStringExtra("password");
-        String user = intent.getStringExtra("username");
-
+        Credentials userCredentials = new Credentials();
+        userCredentials.setUsername(intent.getStringExtra("username"));
+        userCredentials.setPassword(intent.getStringExtra("password"));
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -66,38 +70,36 @@ public class LoginService extends IntentService {
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .writeTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
-                .addInterceptor(new ReceivedCookiesInterceptor(this))
-                .addInterceptor(new AddCookiesInterceptor(this))
+                .addInterceptor(new AddSmartParkingTokenInterceptor())
                 .build();
 
-        SharedPreferences sharedPreferences = this.getSharedPreferences(ULI, Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
+                Constants.TOKEN_CLIENTS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl(Constants.getBaseUrl())
+                .baseUrl(Constants.BASE_URL_HOME2)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
-        RequestBody username = (RequestBody) RequestBody.create(MediaType.parse("form-data"), user);
-        RequestBody password = (RequestBody) RequestBody.create(MediaType.parse("form-data"), pass);
-        Call<ProfileUser> call = smartParkingAPI.logginUser(username, password);
+        Call<UserToken> call = smartParkingAPI.getUserToken(userCredentials);
         Intent loginIntent = new Intent("loginIntent");
         loginIntent.setClass(this, LoginReceiver.class);
 
         try{
-            Response<ProfileUser> result = call.execute();
+            Response<UserToken> result = call.execute();
             if (result.code() == 200){
                 loginIntent.setAction(LOGIN_ACTION);
-                editor.putInt(IULI, result.body().getId()).apply();
+                editor.putString(Constants.USER_TOKEN, result.body().getToken()).apply();
                 editor.commit();
-            }else if (result.code() == 404){
-                loginIntent.putExtra(PROBLEM, CANNOT_LOGIN);
+            }else if (result.code() == 400){
+                loginIntent.putExtra(PROBLEM, result.errorBody().string());
                 loginIntent.setAction(BAD_LOGIN_ACTION);
             }
             else {
-                loginIntent.putExtra(PROBLEM, SERVER_PROBLEM);
+                loginIntent.putExtra(PROBLEM, result.errorBody().string());
                 loginIntent.setAction(SERVER_PROBLEM);
             }
         } catch (IOException e) {

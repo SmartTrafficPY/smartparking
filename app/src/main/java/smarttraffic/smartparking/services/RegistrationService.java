@@ -10,6 +10,7 @@ import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -23,6 +24,7 @@ import smarttraffic.smartparking.dataModels.ProfileRegistry;
 import smarttraffic.smartparking.dataModels.ProfileUser;
 import smarttraffic.smartparking.dataModels.SmartParkingProfile;
 import smarttraffic.smartparking.receivers.RegistrationReceiver;
+import smarttraffic.smartparking.tokenInterceptors.AddSmartParkingTokenInterceptor;
 
 /**
  * Created by Joaquin Olivera on july 19.
@@ -36,8 +38,8 @@ public class RegistrationService extends IntentService {
     private static final String CANNOT_CONNECT_SERVER = "No se pudo conectar con el servidor," +
             " favor revisar conexion!";
 
-    public static final String REGISTRATION_ACTION = "Registro correcto";
-    public static final String BAD_REGISTRATION_ACTION = "Registro no realizado";
+    public static final String REGISTRATION_OK = "Registro correcto";
+    public static final String BAD_REGISTRATION = "Registro no realizado";
 
     public RegistrationService() {
         super("RegistrationService");
@@ -58,13 +60,13 @@ public class RegistrationService extends IntentService {
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .writeTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
-                .addInterceptor(new ReceivedCookiesInterceptor(this))
-                .addInterceptor(new AddCookiesInterceptor(this))
+                //add the token header "Authorization"
+                .addInterceptor(new AddSmartParkingTokenInterceptor())
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl(Constants.getBaseUrl())
+                .baseUrl(Constants.BASE_URL_HOME2)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
@@ -75,15 +77,16 @@ public class RegistrationService extends IntentService {
 
         try {
             Response<ProfileUser> result = call.execute();
+            Headers headers = result.headers();
             if(result.code() == 201){
-                registrationIntent.setAction(REGISTRATION_ACTION);
+                registrationIntent.setAction(REGISTRATION_OK);
             }else{
                 registrationIntent.putExtra("exists", "Profile already exists");
-                registrationIntent.setAction(BAD_REGISTRATION_ACTION);
+                registrationIntent.setAction(BAD_REGISTRATION);
             }
         } catch (IOException e) {
             registrationIntent.putExtra(PROBLEM, CANNOT_CONNECT_SERVER);
-            registrationIntent.setAction(BAD_REGISTRATION_ACTION);
+            registrationIntent.setAction(BAD_REGISTRATION);
             e.printStackTrace();
         }
         sendBroadcast(registrationIntent);
@@ -92,6 +95,7 @@ public class RegistrationService extends IntentService {
     private void setRegistrationExtras(Bundle extras, ProfileRegistry profileRegistry){
         profileRegistry.setUsername(extras.getString("username"));
         profileRegistry.setPassword(extras.getString("password"));
+        profileRegistry.getSmartParkingProfile().setBirth_date(extras.getString("birth_date"));
         profileRegistry.getSmartParkingProfile().setSex(extras.getString("sex"));
     }
 }

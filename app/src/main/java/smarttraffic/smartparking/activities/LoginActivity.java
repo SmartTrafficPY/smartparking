@@ -42,8 +42,6 @@ public class LoginActivity extends AppCompatActivity {
     Button loginButton;
     @BindView(R.id.linkSignUp)
     TextView goSignUp;
-    @BindView(R.id.forgotPassword)
-    TextView forgotPassword;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,8 +53,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(checkCredentialsInput()){
-                    login();
-                    // function that makes the login process...
+                    makeLoginHappen();
+                    // function that makes the makeLoginHappen process...
                 }
             }
         });
@@ -65,14 +63,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, RegistryActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        forgotPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, ResetPassActivity.class);
                 startActivity(intent);
             }
         });
@@ -90,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void login() {
+    private void makeLoginHappen() {
         Log.d(LOG_TAG, "User trying to make the login");
 
         loginButton.setEnabled(false);
@@ -99,8 +89,8 @@ public class LoginActivity extends AppCompatActivity {
                 R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Verificando...");
-        progressDialog.show();
         sendLoginRequest();
+        progressDialog.show();
 
         new android.os.Handler().postDelayed(
                 new Runnable() {
@@ -109,7 +99,13 @@ public class LoginActivity extends AppCompatActivity {
                         loginButton.setEnabled(true);
                         progressDialog.dismiss();
                     }
-                }, 3000);
+                }, 2000);
+        eraseCredentials();
+    }
+
+    private void eraseCredentials() {
+        usernameText.setText("");
+        passwordText.setText("");
     }
 
     private void sendLoginRequest() {
@@ -138,14 +134,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private boolean checkCredentialsInput(){
         if(usernameText.getText().toString() != null){
-            if(passwordText.getText().toString().length() > 5){
-                return true;
-            }else{
-                showToast("La CONTRASEÑA debe tener al menos 6 caracteres!");
-                return false;
-            }
+            return true;
         }else{
-            showToast("El ALIAS no puede estar vacio!");
+            showToast("El USERNAME no puede estar vacio!");
             return false;
         }
     }

@@ -10,7 +10,6 @@ public class Constants {
 
 
 
-
     /**
      * Add here all variables used at width in the project...
      * **/
@@ -18,6 +17,9 @@ public class Constants {
     public Constants() {
     }
 
+    public static final String USER_TOKEN = "USER_TOKEN";
+    public static final String CLIENT_NOT_LOGIN = "CLIENT_NOT_LOGIN";
+    public static final String TOKEN_CLIENTS = "TOKEN_CLIENTS";
     public static final int NOT_IN_PARKINGSPOT = -1;
     public static final String GEOFENCE_LOTS_SHARED_PREFERENCES = "GEOFENCE_LOTS_SHARED_PREFERENCES";
     private static final String USER_ID = "USER_ID";

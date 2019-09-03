@@ -8,40 +8,29 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
+import smarttraffic.smartparking.dataModels.Credentials;
 import smarttraffic.smartparking.dataModels.ProfileUser;
 import smarttraffic.smartparking.dataModels.ProfileRegistry;
 import smarttraffic.smartparking.dataModels.SmartParkingLot;
 import smarttraffic.smartparking.dataModels.SmartParkingSpot;
+import smarttraffic.smartparking.dataModels.UserToken;
 
 public interface SmartParkingAPI {
 
-    @Multipart
-    @POST("loggin/")
-    Call<ProfileUser> logginUser(@Part("username") RequestBody username,
-                                 @Part("password") RequestBody password);
-
-    @GET("isUserLogged/")
-    Call<ResponseBody> isUserLogged();
-
-    @GET("logout/")
-    Call<ResponseBody> logoutUser();
-
-    @PUT("users/{identifier}/")
-    Call<ResponseBody> updateUserProfile(@Path("identifier") Integer userId, @Body ProfileRegistry newProfile);
-
-
-    @GET("users/")
-    Call<ProfileUser> usersList();
-
-    @GET("users/{identifier}/")
-    Call<ProfileUser> userProfile(@Path("identifier") Integer identifier);
+    @POST("auth-token/")
+    Call<UserToken> getUserToken(@Body Credentials userCredentials);
 
     @POST("users/")
     Call<ProfileUser> signUpUser(@Body ProfileRegistry profileRegistry);
+
+    @PATCH("users/{identifier}/")
+    Call<ProfileUser> updateUserProfile(@Path("identifier") Integer userId,
+                                        @Body ProfileRegistry newProfile);
 
     @GET("spots_of/{lotName}/")
     Call<List<SmartParkingSpot>> getAllSpotsInLot(@Path("lotName") String lotName);

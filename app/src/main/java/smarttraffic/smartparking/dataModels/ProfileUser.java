@@ -1,19 +1,16 @@
 package smarttraffic.smartparking.dataModels;
 
 /**
- * Created by Joaquin Olivera on july 19.
- *
- * @author joaquin
+ * Created by Joaquin on 09/2019.
+ * <p>
+ * smarttraffic.smartparking.dataModels
  */
 
 public class ProfileUser {
 
-    private Integer id;
+    private String url;
     private String username;
-    private String first_name;
-    private String last_name;
-    private String email;
-    private SmartParkingProfile smartParkingProfile;
+    private SmartParkingProfile smartparkingprofile;
 
     public ProfileUser() {
     }
@@ -21,21 +18,18 @@ public class ProfileUser {
     @Override
     public String toString() {
         return "ProfileUser{" +
-                "id=" + id +
+                "url='" + url + '\'' +
                 ", username='" + username + '\'' +
-                ", first_name='" + first_name + '\'' +
-                ", last_name='" + last_name + '\'' +
-                ", email='" + email + '\'' +
-                ", smartParkingProfile=" + smartParkingProfile +
+                ", smartParkingProfile=" + smartparkingprofile +
                 '}';
     }
 
-    public Integer getId() {
-        return id;
+    public String getUrl() {
+        return url;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getUsername() {
@@ -46,35 +40,11 @@ public class ProfileUser {
         this.username = username;
     }
 
-    public String getFirst_name() {
-        return first_name;
-    }
-
-    public void setFirst_name(String first_name) {
-        this.first_name = first_name;
-    }
-
-    public String getLast_name() {
-        return last_name;
-    }
-
-    public void setLast_name(String last_name) {
-        this.last_name = last_name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public SmartParkingProfile getSmartParkingProfile() {
-        return smartParkingProfile;
+        return smartparkingprofile;
     }
 
     public void setSmartParkingProfile(SmartParkingProfile smartParkingProfile) {
-        this.smartParkingProfile = smartParkingProfile;
+        this.smartparkingprofile = smartParkingProfile;
     }
 }

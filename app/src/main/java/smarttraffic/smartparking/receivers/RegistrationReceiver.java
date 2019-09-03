@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -36,13 +35,13 @@ public class RegistrationReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        if(intent.getAction().equals(RegistrationService.REGISTRATION_ACTION)) {
-            showToast(RegistrationService.REGISTRATION_ACTION, context);
+        if(intent.getAction().equals(RegistrationService.REGISTRATION_OK)) {
+            showToast(RegistrationService.REGISTRATION_OK, context);
             Intent i = new Intent(context, LoginActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(i);
         }
-        else if(intent.getAction().equals(RegistrationService.BAD_REGISTRATION_ACTION)) {
+        else if(intent.getAction().equals(RegistrationService.BAD_REGISTRATION)) {
             setErrorMessage(intent.getStringExtra(RegistrationService.PROBLEM));
             showToast(getErrorMessage(),context);
         }

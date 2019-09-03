@@ -76,7 +76,7 @@
             android:value="smarttraffic.smartparking.activities.LoginActivity" />
         </activity>
         <activity
-            android:name="smarttraffic.smartparking.activities.ChangePassActivity"
+            android:name="smarttraffic.smartparking.activities.ChangePasswordActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.SmartParking"
             android:windowSoftInputMode="stateHidden">
@@ -94,18 +94,10 @@
             android:enabled="true"
             android:exported="false"></service>
         <service
-            android:name=".services.InitService"
-            android:enabled="true"
-            android:exported="false"></service>
-        <service
             android:name=".services.DetectedActivitiesService"
             android:enabled="true"
             android:exported="false"></service>
 
-        <receiver android:name=".receivers.InitReceiver"
-            android:exported="true"
-            android:enabled="true">
-        </receiver>
         <receiver android:name=".receivers.LoginReceiver"
             android:exported="true"
             android:enabled="true">

@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -29,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Calendar;
+import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -54,7 +54,7 @@ public class RegistryActivity extends AppCompatActivity {
     private static final String GUION = "-";
 
     @BindView(R.id.usernameSignUp)
-    EditText usernameInput;
+    TextView usernameInput;
     @BindView(R.id.passwordSignUp)
     EditText passwordInput;
     @BindView(R.id.birthDate)
@@ -73,11 +73,17 @@ public class RegistryActivity extends AppCompatActivity {
     TextView textInTermsAndCond;
     @BindView(R.id.signUpButton)
     Button signInButton;
+    @BindView(R.id.goToLogin)
+    Button goToLogin;
     @BindView(R.id.passModeButton)
     ImageButton passwordModeButton;
+    @BindView(R.id.setRandomUser)
+    ImageButton randomUser;
 
     public final Calendar calendar = Calendar.getInstance();
-
+    private final int MAX_LENGTH = 10;
+    public static Random RANDOM = new Random();
+    public static final String DATA = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     final int actuallMonth = calendar.get(Calendar.MONTH);
     final int actuallDay = calendar.get(Calendar.DAY_OF_MONTH);
     final int actuallYear = calendar.get(Calendar.YEAR);
@@ -100,8 +106,8 @@ public class RegistryActivity extends AppCompatActivity {
 //        });
 
         IntentFilter filter = new IntentFilter();
-        filter.addAction(RegistrationService.REGISTRATION_ACTION);
-        filter.addAction(RegistrationService.BAD_REGISTRATION_ACTION);
+        filter.addAction(RegistrationService.REGISTRATION_OK);
+        filter.addAction(RegistrationService.BAD_REGISTRATION);
         RegistrationReceiver registrationReceiver = new RegistrationReceiver();
         registerReceiver(registrationReceiver, filter);
 
@@ -112,14 +118,18 @@ public class RegistryActivity extends AppCompatActivity {
                 getDatePickedUp();
             }
         });
-
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 createRegister();
             }
         });
-
+        goToLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToLoginActivity();
+            }
+        });
         passwordModeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -140,6 +150,18 @@ public class RegistryActivity extends AppCompatActivity {
                 }
             }
         });
+        usernameInput.setText(randomString());
+        randomUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                usernameInput.setText(randomString());
+            }
+        });
+    }
+
+    private void goToLoginActivity() {
+        Intent intent = new Intent(RegistryActivity.this, LoginActivity.class);
+        startActivity(intent);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -183,25 +205,20 @@ public class RegistryActivity extends AppCompatActivity {
 
     private boolean dataIsCorrectlyComplete() {
         if(termsAndConditions.isChecked()){
-            if(usernameInput.getText().toString().length() > 5){
-                if(!passwordInput.getText().toString().isEmpty()){
-                    if(maleRadButton.isChecked() || femaleRadButton.isChecked()){
-                        if(!birthDate.getText().toString().isEmpty()){
-                            return true;
-                        }else{
-                            showToast("Favor ponga su EDAD(en años)!");
-                            return false;
-                        }
+            if(passwordInput.getText().toString().length() > 5){
+                if(maleRadButton.isChecked() || femaleRadButton.isChecked()){
+                    if(!birthDate.getText().toString().isEmpty()){
+                        return true;
                     }else{
-                        showToast("Es necesario elegir alguna opcion de SEXO!");
+                        showToast("Favor ponga su EDAD(en años)!");
                         return false;
                     }
                 }else{
-                    showToast("La CONTRASEÑA no puede estar vacia!");
+                    showToast("Es necesario elegir alguna opcion de SEXO!");
                     return false;
                 }
             }else{
-                showToast("El ALIAS debe tener al menos 6 caracteres!");
+                showToast("La CONTRASEÑA debe tener al menos 6 caracteres!");
                 return false;
             }
         }else{
@@ -214,7 +231,7 @@ public class RegistryActivity extends AppCompatActivity {
         Intent registryIntent = new Intent(RegistryActivity.this, RegistrationService.class);
         registryIntent.putExtra("username", usernameInput.getText().toString());
         registryIntent.putExtra("password", passwordInput.getText().toString());
-        registryIntent.putExtra("age", birthDate.getText().toString());
+        registryIntent.putExtra("birth_date", birthDate.getText().toString());
         if(onRadioButtonClicked() != null){
             registryIntent.putExtra("sex", onRadioButtonClicked());
         }
@@ -240,6 +257,15 @@ public class RegistryActivity extends AppCompatActivity {
         imageView.setImageResource(R.mipmap.smartparking_logo_round);
         toastContentView.addView(imageView, 0);
         toast.show();
+    }
+
+    private String randomString() {
+        StringBuilder sb = new StringBuilder(MAX_LENGTH);
+
+        for (int i = 0; i < MAX_LENGTH; i++) {
+            sb.append(DATA.charAt(RANDOM.nextInt(DATA.length())));
+        }
+        return sb.toString();
     }
 
 }

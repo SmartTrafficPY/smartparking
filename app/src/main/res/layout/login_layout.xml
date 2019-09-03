@@ -52,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="Alias"
+            android:hint="Username"
             android:textColorHint="@color/divider"
             android:inputType="textPersonName" />
 
@@ -65,14 +65,14 @@
             android:textColorHint="@color/divider"
             android:inputType="textPassword" />
 
-        <TextView
-            android:id="@+id/forgotPassword"
-            android:focusable="false"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textIsSelectable="true"
-            android:textColor="@color/smartparking_red"
-            android:text="@string/forgotPassword" />
+        <!--<TextView-->
+            <!--android:id="@+id/forgotPassword"-->
+            <!--android:focusable="false"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textIsSelectable="true"-->
+            <!--android:textColor="@color/smartparking_red"-->
+            <!--android:text="@string/forgotPassword" />-->
 
 
         <Button
@@ -82,7 +82,7 @@
             android:textColor="@color/icons"
             android:layout_marginTop="25dp"
             android:shadowColor="@color/cardview_shadow_end_color"
-            android:background="@color/ic_launcher_background"
+            android:background="@color/colorPrimary"
             android:text="@string/loginButton" />
 
         <android.support.design.widget.TextInputLayout
