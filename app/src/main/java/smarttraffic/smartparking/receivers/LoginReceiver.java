@@ -90,7 +90,7 @@ public class LoginReceiver extends BroadcastReceiver {
         toast.setGravity(Gravity.CENTER, 0, 0);
         LinearLayout toastContentView = (LinearLayout) toast.getView();
         ImageView imageView = new ImageView(context);
-        imageView.setImageResource(R.mipmap.toast_smartparking);
+        imageView.setImageResource(R.mipmap.smartparking_logo_round);
         toastContentView.addView(imageView, 0);
         toast.show();
     }

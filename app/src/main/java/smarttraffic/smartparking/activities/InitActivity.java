@@ -116,7 +116,7 @@ public class InitActivity extends AppCompatActivity {
         toast.setGravity(Gravity.CENTER, 0, 0);
         LinearLayout toastContentView = (LinearLayout) toast.getView();
         ImageView imageView = new ImageView(getApplicationContext());
-        imageView.setImageResource(R.mipmap.toast_smartparking_round);
+        imageView.setImageResource(R.mipmap.smartparking_logo_round);
         toastContentView.addView(imageView, 0);
         toast.show();
     }

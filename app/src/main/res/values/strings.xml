@@ -62,7 +62,7 @@
     <string name="dialog_logout">Está seguro de querer cerrar sesión?</string>
     <string name="logout_smartparking">Salir de SmartParking?</string>
     <string name="geofence_transition_invalid_type">Geofence: Tipo de transición invalida</string>
-    <string name="geofence_transition_notification_text">Transición de geovalla</string>
+    <string name="geofence_transition_notification_text">Transición SmartParking</string>
     <string name="geofence_transition_entered">Entrada a estacionamiento</string>
     <string name="geofence_transition_exited">Salida de estacionamiento</string>
     <string name="unknown_geofence_transition">Transición desconocida</string>

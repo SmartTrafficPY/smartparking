@@ -10,5 +10,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:contentDescription="@string/init_text"
-        app:srcCompat="@mipmap/smartparkinglogo_round" />
+        app:srcCompat="@mipmap/smart_parking_logo_round" />
 </LinearLayout>

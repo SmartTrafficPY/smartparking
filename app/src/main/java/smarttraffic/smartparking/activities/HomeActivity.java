@@ -119,6 +119,7 @@ public class HomeActivity extends AppCompatActivity
     int activityTransition;
     int geofenceTransition;
     int confidence;
+    boolean dialogSendAllready = false;
     private LocationRequest mLocationRequest;
     private LocationSettingsRequest mLocationSettingsRequest;
     private LocationCallback mLocationCallback;
@@ -159,7 +160,7 @@ public class HomeActivity extends AppCompatActivity
         setMapView();
 
         createLocationRequest(Constants.getSecondsInMilliseconds() * 2,
-                Constants.getSecondsInMilliseconds());
+                Constants.getSecondsInMilliseconds() );
         buildLocationSettingsRequest();
 
         mSettingsClient = LocationServices.getSettingsClient(this);
@@ -192,19 +193,6 @@ public class HomeActivity extends AppCompatActivity
                     geofenceTransition = intent.getIntExtra(
                             GeofenceTransitionsJobIntentService.TRANSITION,
                             -1);
-                        switch (geofenceTransition){
-                            case Geofence.GEOFENCE_TRANSITION_ENTER:
-                                Log.i(LOG_TAG, "Enter geofence: " + geofencesTrigger.get(0));
-                                break;
-                            case Geofence.GEOFENCE_TRANSITION_DWELL:
-                                Log.i(LOG_TAG, "Dwell geofence: " + geofencesTrigger.get(0));
-                                break;
-                            case Geofence.GEOFENCE_TRANSITION_EXIT:
-                                Log.i(LOG_TAG, "Exit geofence: " + geofencesTrigger.get(0));
-                                break;
-                            default:
-                                Log.i(LOG_TAG, "Receive Transition" + geofencesTrigger.get(0));
-                        }
                     managerOfTransitions();
                 }
             }
@@ -766,19 +754,17 @@ public class HomeActivity extends AppCompatActivity
         if (spotId != Constants.NOT_IN_PARKINGSPOT && (activityTransition == DetectedActivity.STILL ||
                 activityTransition == DetectedActivity.IN_VEHICLE)) {
             SmartParkingSpot spot = getSpotFromId(spots, spotId);
-            Toast.makeText(this,"You are in a Spot", Toast.LENGTH_LONG).show();
-
             if (spot.getStatus().equals(StatesEnumerations.FREE.getEstado()) ||
                     spot.getStatus().equals(StatesEnumerations.UNKNOWN.getEstado())) {
-                Toast.makeText(this, "Sending Confirmation Dialog", Toast.LENGTH_LONG).show();
-
-                confirmationOfActionDialog(spot, true);
+                if(!dialogSendAllready){
+                    confirmationOfActionDialog(spot, true);
+                }
             } else {
-                confirmationOfActionDialog(spot, false);
-//                if(spot.getUserChanged() == actualUser){
-//                    confirmationOfActionDialog(false);
-//                }
+                if(!dialogSendAllready){
+                    confirmationOfActionDialog(spot, false);
+                }
             }
+            dialogSendAllready = true;
         }
     }
 

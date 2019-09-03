@@ -143,18 +143,11 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(),
                         R.drawable.smart_parking))
                 .setTimeoutAfter(Constants.getMinutesInMilliseconds())
-                .setColor(Color.RED)
+                .setColor(Color.GREEN)
                 .setContentTitle(notificationDetails)
                 .setContentText(getString(R.string.geofence_transition_notification_text))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true);
-
-        builder.setSmallIcon(R.drawable.notification_smartparking)
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(),
-                        R.drawable.smart_parking))
-                .setColor(Color.RED)
-                .setContentTitle(notificationDetails)
-                .setContentText(getString(R.string.geofence_transition_notification_text));
 
         if(transition == Geofence.GEOFENCE_TRANSITION_ENTER){
             PendingIntent pendingIntent = PendingIntent.getActivity(this,
