@@ -11,21 +11,16 @@ import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.Headers;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 
-import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.SmartParkingAPI;
-import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
-import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
 import smarttraffic.smartparking.dataModels.Credentials;
-import smarttraffic.smartparking.dataModels.ProfileUser;
 import smarttraffic.smartparking.dataModels.UserToken;
 import smarttraffic.smartparking.receivers.LoginReceiver;
 import smarttraffic.smartparking.tokenInterceptors.AddSmartParkingTokenInterceptor;
@@ -74,7 +69,7 @@ public class LoginService extends IntentService {
                 .build();
 
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
-                Constants.TOKEN_CLIENTS, Context.MODE_PRIVATE);
+                Constants.CLIENTE_DATA, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -93,9 +88,14 @@ public class LoginService extends IntentService {
             if (result.code() == 200){
                 loginIntent.setAction(LOGIN_ACTION);
                 editor.putString(Constants.USER_TOKEN, result.body().getToken()).apply();
+                editor.putString(Constants.USER_PASSWORD,
+                        intent.getStringExtra("password")).apply();
+                editor.putInt(Constants.USER_ID, getIdFromUrl(result.body().getUrl())).apply();
                 editor.commit();
             }else if (result.code() == 400){
-                loginIntent.putExtra(PROBLEM, result.errorBody().string());
+                ResponseBody error = result.errorBody();
+                loginIntent.putExtra(PROBLEM, "No se puede iniciar sesión " +
+                        "con las credenciales proporcionadas");
                 loginIntent.setAction(BAD_LOGIN_ACTION);
             }
             else {
@@ -108,5 +108,10 @@ public class LoginService extends IntentService {
             e.printStackTrace();
         }
         sendBroadcast(loginIntent);
+    }
+
+    private int getIdFromUrl(String url) {
+        String[] parts = url.split("/");
+        return Integer.parseInt(parts[parts.length - 1]);
     }
 }

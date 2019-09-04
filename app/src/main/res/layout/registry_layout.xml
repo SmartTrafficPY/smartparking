@@ -46,10 +46,9 @@
                     android:layout_height="wrap_content"
                     android:ems="10"
                     android:fontFamily="sans-serif-light"
-                    android:editable="false"
                     android:hint="username"
                     android:textColorHint="@color/divider"
-                    android:inputType="none" />
+                    android:inputType="textPersonName"/>
 
                 <ImageButton
                     android:id="@+id/setRandomUser"

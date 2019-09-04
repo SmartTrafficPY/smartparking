@@ -2,7 +2,6 @@ package smarttraffic.smartparking.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -28,8 +27,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+import android.support.v7.widget.Toolbar;
 
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -104,13 +106,14 @@ import smarttraffic.smartparking.services.GeofenceTransitionsJobIntentService;
  * @author joaquin
  */
 
-public class HomeActivity extends AppCompatActivity
-        implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class HomeActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = "HomeActivity";
 
     @BindView(R.id.mapFragment)
     MapView mapView;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
     private FusedLocationProviderClient mFusedLocationClient;
     private ActivityRecognitionClient mActivityRecognitionClient;
@@ -197,7 +200,7 @@ public class HomeActivity extends AppCompatActivity
                 }
             }
         };
-
+        setSupportActionBar(toolbar);
         createLocationCallback();
     }
 
@@ -944,30 +947,49 @@ public class HomeActivity extends AppCompatActivity
                 .putBoolean(Constants.KEY_ACTIVITY_UPDATES_REQUESTED, requesting)
                 .apply();
     }
-    /**
-     * Retrieves the boolean from SharedPreferences that tracks whether we are requesting activity
-     * updates.
-     */
-    private boolean getUpdatesRequestedState() {
-        return PreferenceManager.getDefaultSharedPreferences(this)
-                .getBoolean(Constants.KEY_ACTIVITY_UPDATES_REQUESTED, false);
-    }
+
+
     @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        if (s.equals(Constants.KEY_DETECTED_ACTIVITIES)) {
-            //activity detected needed...
-        }
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
-//    public void saveListOfLots(Context context, ArrayList<SmartParkingLot> lots){
-//        SharedPreferences sharedPreferences = context.getSharedPreferences(
-//                Constants.GEOFENCE_LOTS_SHARED_PREFERENCES, Context.MODE_PRIVATE);
-//    }
-//
-//    public ArrayList<String> copyListOfLots(Context context){
-//        ArrayList<String> geofences
-//        SharedPreferences sharedPreferences = context.getSharedPreferences(
-//                Constants.GEOFENCE_LOTS_SHARED_PREFERENCES, Context.MODE_PRIVATE);
-//        return ArrayList<String> g;
-//    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
+                Constants.CLIENTE_DATA, Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = sharedPreferences.edit();
+        int id = item.getItemId();
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.menu_changepass) {
+            Intent changePassIntent = new Intent(HomeActivity.this, ChangePasswordActivity.class);
+            startActivity(changePassIntent);
+            return true;
+        }else if(id == R.id.menu_logout){
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage(R.string.are_you_sure_logout)
+                    .setPositiveButton(R.string.button_accept, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            editor.putString(Constants.USER_TOKEN, Constants.CLIENT_NOT_LOGIN).apply();
+                            editor.commit();
+                            Intent logoutIntent = new Intent(HomeActivity.this, LoginActivity.class);
+                            logoutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(logoutIntent);
+                        }
+                    })
+                    .setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // User cancelled the dialog
+                        }
+                    });
+            // Create the AlertDialog object and return it
+            builder.create().show();
+
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }

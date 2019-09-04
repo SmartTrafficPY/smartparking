@@ -51,8 +51,8 @@
     <string name="seccion_change_pass">Cambio de contraseña</string>
     <string name="back_home">Home</string>
     <string name="other_optiones">Otros...</string>
-    <string name="opcion_log_out">Log out</string>
-    <string name="opcion_about_smartparking">About SmartParking</string>
+    <string name="opcion_log_out">Cerrar sesión</string>
+    <string name="opcion_about_smartparking">Acerca de SmartParking</string>
     <string name="fragment1">f1</string>
     <string name="fragment2">f2</string>
     <string name="fragment3">f3</string>
@@ -98,4 +98,5 @@
     <string name="channel_name">SmartParking Channel</string>
     <string name="channel_description">SmartParking Notifications</string>
     <string name="go_to_app">Ir a la aplicación</string>
+    <string name="are_you_sure_logout">¿Seguro que quieres cerrar sesión?</string>
 </resources>

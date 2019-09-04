@@ -33,7 +33,7 @@ public class InitActivity extends AppCompatActivity {
         setContentView(R.layout.init_layout);
 
         final SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
-                Constants.TOKEN_CLIENTS, Context.MODE_PRIVATE);
+                Constants.CLIENTE_DATA, Context.MODE_PRIVATE);
 
         final ProgressDialog progressDialog = new ProgressDialog(InitActivity.this,
                 R.style.AppTheme_Dark_Dialog);

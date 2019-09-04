@@ -28,4 +28,8 @@
         <item name="colorAccent">@color/primary_text</item>
     </style>
 
+    <style name="HeaderBar">
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+
 </resources>

@@ -150,7 +150,6 @@ public class RegistryActivity extends AppCompatActivity {
                 }
             }
         });
-        usernameInput.setText(randomString());
         randomUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

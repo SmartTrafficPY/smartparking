@@ -13,6 +13,7 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
+import smarttraffic.smartparking.activities.ChangePasswordActivity;
 import smarttraffic.smartparking.dataModels.Credentials;
 import smarttraffic.smartparking.dataModels.ProfileUser;
 import smarttraffic.smartparking.dataModels.ProfileRegistry;
@@ -30,7 +31,7 @@ public interface SmartParkingAPI {
 
     @PATCH("users/{identifier}/")
     Call<ProfileUser> updateUserProfile(@Path("identifier") Integer userId,
-                                        @Body ProfileRegistry newProfile);
+                                        @Body ChangePasswordActivity.Password newProfile);
 
     @GET("spots_of/{lotName}/")
     Call<List<SmartParkingSpot>> getAllSpotsInLot(@Path("lotName") String lotName);

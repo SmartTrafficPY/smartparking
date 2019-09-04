@@ -27,7 +27,7 @@ public class AddUserTokenInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         SharedPreferences sharedPreferences = context.getSharedPreferences(
-                Constants.TOKEN_CLIENTS, Context.MODE_PRIVATE);
+                Constants.CLIENTE_DATA, Context.MODE_PRIVATE);
         String userToken = sharedPreferences.getString(Constants.USER_TOKEN,
                 Constants.CLIENT_NOT_LOGIN);
 

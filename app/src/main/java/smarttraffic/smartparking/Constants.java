@@ -7,22 +7,19 @@ package smarttraffic.smartparking;
  */
 
 public class Constants {
-
-
-
     /**
      * Add here all variables used at width in the project...
      * **/
-
     public Constants() {
     }
 
+    public static final String USER_PASSWORD = "USER_PASSWORD";
     public static final String USER_TOKEN = "USER_TOKEN";
     public static final String CLIENT_NOT_LOGIN = "CLIENT_NOT_LOGIN";
-    public static final String TOKEN_CLIENTS = "TOKEN_CLIENTS";
+    public static final String CLIENTE_DATA = "CLIENTE_DATA";
+    public static final String USER_ID = "USER_ID";
     public static final int NOT_IN_PARKINGSPOT = -1;
     public static final String GEOFENCE_LOTS_SHARED_PREFERENCES = "GEOFENCE_LOTS_SHARED_PREFERENCES";
-    private static final String USER_ID = "USER_ID";
     private static final String BROADCAST_GEOFENCE_TRIGGER_INTENT = "BROADCAST_GEOFENCE_TRIGGER_INTENT";
     public static final String BROADCAST_TRANSITION_ACTIVITY_INTENT = "BROADCAST_TRANSITION_ACTIVITY_INTENT";
     public static final String GEOFENCE_TRIGGER_ID = "geofenceTriggerId";
