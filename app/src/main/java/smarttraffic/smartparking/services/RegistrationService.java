@@ -18,13 +18,11 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.SmartParkingAPI;
-import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
-import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
 import smarttraffic.smartparking.dataModels.ProfileRegistry;
 import smarttraffic.smartparking.dataModels.ProfileUser;
 import smarttraffic.smartparking.dataModels.SmartParkingProfile;
 import smarttraffic.smartparking.receivers.RegistrationReceiver;
-import smarttraffic.smartparking.tokenInterceptors.AddSmartParkingTokenInterceptor;
+import smarttraffic.smartparking.Interceptors.AddSmartParkingTokenInterceptor;
 
 /**
  * Created by Joaquin Olivera on july 19.

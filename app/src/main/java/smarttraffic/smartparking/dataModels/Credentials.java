@@ -5,6 +5,7 @@ package smarttraffic.smartparking.dataModels;
  * <p>
  * smarttraffic.smartparking.dataModels
  */
+
 public class Credentials {
 
     private String username;

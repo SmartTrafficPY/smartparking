@@ -2,16 +2,26 @@ package smarttraffic.smartparking;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.preference.PreferenceManager;
 
 import com.google.android.gms.location.DetectedActivity;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Callback;
+import smarttraffic.smartparking.dataModels.Lots.Lot;
+import smarttraffic.smartparking.dataModels.Lots.LotList;
 
 public class Utils {
+
+    public static final String LOTS_SYSTEM = "Lots in the System";
 
     private Utils() {}
 
@@ -56,4 +66,22 @@ public class Utils {
         }
         return detectedActivities;
     }
+
+    public static void saveLotInSharedPreferences(Context context, List<Lot> lots) {
+        SharedPreferences prefs = context.getSharedPreferences(LOTS_SYSTEM,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        for(Lot lot : lots){
+            editor.putInt(lot.getProperties().getName(),lot.getProperties().getIdFromUrl());
+            editor.apply();
+        }
+    }
+
+    public static int getLotInSharedPreferences(Context context, String lotName) {
+        SharedPreferences prefs = context.getSharedPreferences(LOTS_SYSTEM,
+                Context.MODE_PRIVATE);
+        int id = prefs.getInt(lotName, -1);
+        return id;
+    }
+
 }

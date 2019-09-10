@@ -37,4 +37,9 @@ public class UserToken {
     public void setUrl(String url) {
         this.url = url;
     }
+
+    public int getIdFromUrl() {
+        String[] parts = this.url.split("/");
+        return Integer.parseInt(parts[parts.length - 1]);
+    }
 }

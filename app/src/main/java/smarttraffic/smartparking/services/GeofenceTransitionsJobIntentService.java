@@ -139,10 +139,10 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.notification_smartparking)
+                .setSmallIcon(R.drawable.notifications_smart_parking)
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(),
-                        R.drawable.smart_parking))
-                .setTimeoutAfter(Constants.getMinutesInMilliseconds())
+                        R.drawable.notify_smart_parking))
+                .setTimeoutAfter(Constants.getMinutesInMilliseconds() * 5)
                 .setColor(Color.GREEN)
                 .setContentTitle(notificationDetails)
                 .setContentText(getString(R.string.geofence_transition_notification_text))
@@ -152,7 +152,7 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
         if(transition == Geofence.GEOFENCE_TRANSITION_ENTER){
             PendingIntent pendingIntent = PendingIntent.getActivity(this,
                     0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.addAction(R.drawable.smart_parking, "Ir a la aplicación",
+            builder.addAction(R.drawable.notifications_smart_parking, "Ir a la aplicación",
                     pendingIntent);
         }
         // Set the Channel ID for Android O.

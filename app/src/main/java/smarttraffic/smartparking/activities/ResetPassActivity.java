@@ -20,26 +20,11 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import okhttp3.OkHttpClient;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
-import smarttraffic.smartparking.SmartParkingAPI;
-import smarttraffic.smartparking.cookiesInterceptor.AddCookiesInterceptor;
-import smarttraffic.smartparking.cookiesInterceptor.ReceivedCookiesInterceptor;
 
 /**
  * Created by Joaquin Olivera on july 19.

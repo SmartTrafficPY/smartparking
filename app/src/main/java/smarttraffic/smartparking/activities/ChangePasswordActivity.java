@@ -35,7 +35,7 @@ import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.dataModels.ProfileUser;
-import smarttraffic.smartparking.tokenInterceptors.AddUserTokenInterceptor;
+import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
 
 /**
  * Created by Joaquin Olivera on july 19.
@@ -202,7 +202,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
         toast.setGravity(Gravity.CENTER, 0, 0);
         LinearLayout toastContentView = (LinearLayout) toast.getView();
         ImageView imageView = new ImageView(this);
-        imageView.setImageResource(R.mipmap.toast_smartparking_round);
+        imageView.setImageResource(R.mipmap.smartparking_logo_round);
         toastContentView.addView(imageView, 0);
         toast.show();
     }

@@ -23,7 +23,7 @@ import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.dataModels.Credentials;
 import smarttraffic.smartparking.dataModels.UserToken;
 import smarttraffic.smartparking.receivers.LoginReceiver;
-import smarttraffic.smartparking.tokenInterceptors.AddSmartParkingTokenInterceptor;
+import smarttraffic.smartparking.Interceptors.AddSmartParkingTokenInterceptor;
 
 /**
  * Created by Joaquin Olivera on july 19.
@@ -90,7 +90,7 @@ public class LoginService extends IntentService {
                 editor.putString(Constants.USER_TOKEN, result.body().getToken()).apply();
                 editor.putString(Constants.USER_PASSWORD,
                         intent.getStringExtra("password")).apply();
-                editor.putInt(Constants.USER_ID, getIdFromUrl(result.body().getUrl())).apply();
+                editor.putInt(Constants.USER_ID, result.body().getIdFromUrl()).apply();
                 editor.commit();
             }else if (result.code() == 400){
                 ResponseBody error = result.errorBody();

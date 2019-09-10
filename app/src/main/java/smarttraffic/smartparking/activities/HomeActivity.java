@@ -74,7 +74,10 @@ import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -91,11 +94,22 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import smarttraffic.smartparking.BuildConfig;
 import smarttraffic.smartparking.Constants;
+import smarttraffic.smartparking.Interceptors.AddGeoJsonInterceptor;
+import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
+import smarttraffic.smartparking.Interceptors.ReceivedTimeStampInterceptor;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.SmartParkingAPI;
 import smarttraffic.smartparking.StatesEnumerations;
-import smarttraffic.smartparking.dataModels.SmartParkingLot;
-import smarttraffic.smartparking.dataModels.SmartParkingSpot;
+import smarttraffic.smartparking.Utils;
+import smarttraffic.smartparking.dataModels.Lots.Lot;
+import smarttraffic.smartparking.dataModels.Lots.LotList;
+import smarttraffic.smartparking.dataModels.Lots.LotProperties;
+import smarttraffic.smartparking.dataModels.NearbyLocation;
+import smarttraffic.smartparking.dataModels.NearbyPoint;
+import smarttraffic.smartparking.dataModels.Point;
+import smarttraffic.smartparking.dataModels.Spots.Spot;
+import smarttraffic.smartparking.dataModels.Spots.SpotList;
+import smarttraffic.smartparking.dataModels.Spots.SpotProperties;
 import smarttraffic.smartparking.receivers.GeofenceBroadcastReceiver;
 import smarttraffic.smartparking.services.DetectedActivitiesService;
 import smarttraffic.smartparking.services.GeofenceTransitionsJobIntentService;
@@ -127,7 +141,7 @@ public class HomeActivity extends AppCompatActivity {
     private LocationSettingsRequest mLocationSettingsRequest;
     private LocationCallback mLocationCallback;
     private Location mCurrentLocation;
-    private ArrayList<SmartParkingSpot> spots = new ArrayList<>();
+    private List<Spot> spots = new ArrayList<Spot>();
     private ArrayList<String> geofencesTrigger = new ArrayList<>();
     private BroadcastReceiver broadcastReceiver;
     private BroadcastReceiver geofenceReceiver;
@@ -175,8 +189,6 @@ public class HomeActivity extends AppCompatActivity {
             addParkingLotsGeofences();
         }
 
-        Log.i(LOG_TAG,"On Create");
-
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -220,7 +232,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setMarkersOnMap() {
-//        ArrayList<SmartParkingSpot> spots
         ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
         OverlayItem overlayItem = new OverlayItem("Title1", "Description",
                 new GeoPoint(-25.30604186, -57.59168641));
@@ -300,23 +311,24 @@ public class HomeActivity extends AppCompatActivity {
         mapView.getOverlayManager().add(polygon);
     }
 
-    private List<GeoPoint> spotToListOfGeoPoints(SmartParkingSpot spot) {
+    private List<GeoPoint> spotToListOfGeoPoints(Spot spot) {
         List<GeoPoint> polygon = new ArrayList<>();
-        polygon.add(new GeoPoint(spot.getP1_latitud(), spot.getP1_longitud()));
-        polygon.add(new GeoPoint(spot.getP2_latitud(), spot.getP2_longitud()));
-        polygon.add(new GeoPoint(spot.getP3_latitud(), spot.getP3_longitud()));
-        polygon.add(new GeoPoint(spot.getP4_latitud(), spot.getP4_longitud()));
-        polygon.add(new GeoPoint(spot.getP5_latitud(), spot.getP5_longitud()));
+        List<Point> polygonPoints = spot.getGeometry().getPolygonPoints();
+        if(polygonPoints != null){
+            for(Point point : polygonPoints){
+                polygon.add(new GeoPoint(point.getLatitud(), point.getLongitud()));
+            }
+        }
         return polygon;
     }
 
     private void managerOfTransitions() {
-        getSpotsFromGeofence(geofencesTrigger);
+        getSpotsFromGeofence(geofencesTrigger, false);
         final Handler handler = new Handler();
         final long delay = Constants.getMinutesInMilliseconds();
         Runnable cronJob = new Runnable() {
             public void run() {
-                getSpotsFromGeofence(geofencesTrigger);
+                getSpotsFromGeofence(geofencesTrigger, true);
                 handler.postDelayed(this, delay);
             }
         };
@@ -345,15 +357,24 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private void getSpotsFromGeofence(ArrayList<String> geofencesTrigger) {
-        if(geofencesTrigger != null){
-            for (String geofenceTrigger : geofencesTrigger) {
-                getAllSpotFrom(geofenceTrigger);
+    private void getSpotsFromGeofence(ArrayList<String> geofencesTrigger, boolean isForUpdate) {
+        if(isForUpdate){
+            if(geofencesTrigger != null){
+                for (String geofenceTrigger : geofencesTrigger) {
+                    updatesSpotsFromGeofence(geofenceTrigger);
+                }
+            }
+
+        }else{
+            if(geofencesTrigger != null){
+                for (String geofenceTrigger : geofencesTrigger) {
+                    getSpotsGeographicValues(geofenceTrigger);
+                }
             }
         }
     }
 
-    private void getAllSpotFrom(String geofencesTrigger) {
+    private void getSpotsGeographicValues(String geofencesTrigger) {
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -362,6 +383,8 @@ public class HomeActivity extends AppCompatActivity {
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .writeTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
+                .addInterceptor(new AddGeoJsonInterceptor())
+                .addInterceptor(new AddUserTokenInterceptor(this))
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -369,19 +392,20 @@ public class HomeActivity extends AppCompatActivity {
                 .baseUrl(Constants.BASE_URL_HOME2)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
-
+        int lotId = Utils.getLotInSharedPreferences(HomeActivity.this, geofencesTrigger);
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
-        Call<List<SmartParkingSpot>> call = smartParkingAPI.getAllSpotsInLot(geofencesTrigger);
+        Call<SpotList> call = smartParkingAPI.getAllGeoJsonSpotsInLot(lotId);
 
-        call.enqueue(new Callback<List<SmartParkingSpot>>() {
+        call.enqueue(new Callback<SpotList>() {
             @Override
-            public void onResponse(Call<List<SmartParkingSpot>> call, Response<List<SmartParkingSpot>> response) {
+            public void onResponse(Call<SpotList> call, Response<SpotList> response) {
                 switch (response.code()) {
                     case 200:
-                        spots = (ArrayList<SmartParkingSpot>) response.body();
+                        SpotList testSpots = response.body();
+                        spots = testSpots.getFeatures();
                         if(spots != null){
-                            for (SmartParkingSpot spot : spots) {
-                                drawPolygon(spotToListOfGeoPoints(spot), spot.getStatus());
+                            for (Spot spot : spots) {
+                                drawPolygon(spotToListOfGeoPoints(spot), spot.getProperties().getState());
                             }
                         }
                         break;
@@ -393,7 +417,69 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<SmartParkingSpot>> call, Throwable t) {
+            public void onFailure(Call<SpotList> call, Throwable t) {
+                t.printStackTrace();
+                Log.e(LOG_TAG, t.toString());
+            }
+        });
+    }
+
+    private void updatesSpotsFromGeofence(String geofencesTrigger) {
+        SharedPreferences sharedPreferences = this.getSharedPreferences(
+                ReceivedTimeStampInterceptor.X_TIMESTAMP,MODE_PRIVATE);
+        NearbyPoint point = new NearbyPoint();
+        if(mCurrentLocation != null){
+            point.setLat(mCurrentLocation.getLatitude());
+            point.setLon(mCurrentLocation.getLongitude());
+        }
+        NearbyLocation nearbyLocation = new NearbyLocation();
+        nearbyLocation.setPoint(point);
+        nearbyLocation.setPrevious_timestamp(sharedPreferences.getString(
+                ReceivedTimeStampInterceptor.X_TIMESTAMP,
+                ""));
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+
+        final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .addInterceptor(new ReceivedTimeStampInterceptor(this))
+                .addInterceptor(new AddUserTokenInterceptor(this))
+                .addInterceptor(new AddGeoJsonInterceptor())
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(okHttpClient)
+                .baseUrl(Constants.BASE_URL_HOME2)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
+        Call<SpotList> call = smartParkingAPI.getGeoJsonNearbySpots(nearbyLocation);
+
+        call.enqueue(new Callback<SpotList>() {
+            @Override
+            public void onResponse(Call<SpotList> call, Response<SpotList> response) {
+                switch (response.code()) {
+                    case 200:
+                        List<Spot> changedSpots = response.body().getFeatures();
+                        if(changedSpots != null){
+                            for (Spot spot : changedSpots) {
+                                drawPolygon(spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                            }
+                        }
+                        break;
+                    default:
+                        Toast.makeText(HomeActivity.this, "Por alguna razón no fue posible la conexión",
+                                Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+
+            @Override
+            public void onFailure(Call<SpotList> call, Throwable t) {
                 t.printStackTrace();
                 Log.e(LOG_TAG, t.toString());
             }
@@ -403,7 +489,6 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        Log.i(LOG_TAG,"On Start");
         if (!checkPermissions()) {
             requestPermissions();
         }
@@ -419,7 +504,6 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(LOG_TAG,"On Resume");
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,
                 new IntentFilter(Constants.BROADCAST_TRANSITION_ACTIVITY_INTENT));
         LocalBroadcastManager.getInstance(this).registerReceiver(geofenceReceiver,
@@ -452,6 +536,7 @@ public class HomeActivity extends AppCompatActivity {
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .writeTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
+                .addInterceptor(new AddUserTokenInterceptor(this))
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -460,20 +545,23 @@ public class HomeActivity extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
-        Call<List<SmartParkingLot>> call = smartParkingAPI.getAllLots();
+        Call<LotList> call = smartParkingAPI.getAllLots();
 
-        call.enqueue(new Callback<List<SmartParkingLot>>() {
+        call.enqueue(new Callback<LotList>() {
             @Override
-            public void onResponse(Call<List<SmartParkingLot>> call, Response<List<SmartParkingLot>> response) {
+            public void onResponse(Call<LotList> call, Response<LotList> response) {
                 switch (response.code()) {
                     case 200:
-                        List<SmartParkingLot> lots = response.body();
+                        List<Lot> lots = response.body().getFeatures();
+                        Utils.saveLotInSharedPreferences(HomeActivity.this, lots);
                         ArrayList<Geofence> geofenceList = new ArrayList<>();
-                        for (SmartParkingLot lot : lots) {
-                            geofenceList.add(generateGeofence(lot.getLatitud_center(),
-                                    lot.getLongitud_center(),
-                                    lot.getRadio(),
-                                    lot.getName()));
+                        for (Lot lot : lots) {
+                            LotProperties properties = lot.getProperties();
+                            Point center = properties.getCenter().getCenterPoint();
+                            geofenceList.add(generateGeofence(center.getLatitud(),
+                                    center.getLongitud(),
+                                    properties.getRadio(),
+                                    properties.getName()));
                         }
                         Toast.makeText(HomeActivity.this, "Se han agregado todos los geofences",
                                 Toast.LENGTH_SHORT).show();
@@ -488,7 +576,7 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<SmartParkingLot>> call, Throwable t) {
+            public void onFailure(Call<LotList> call, Throwable t) {
                 t.printStackTrace();
                 Log.e(LOG_TAG, t.toString());
             }
@@ -636,11 +724,12 @@ public class HomeActivity extends AppCompatActivity {
         return builder.build();
     }
 
-    private GeofencingRequest getGeofenceRequest(SmartParkingSpot spot) {
+    private GeofencingRequest getGeofenceRequest(Spot spot) {
+        List<Point> points = spot.getGeometry().getPolygonPoints();
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
         builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
-        builder.addGeofence(generateGeofence(spot.getP1_latitud(), spot.getP1_longitud(),
-                15, "ParkinSpot" + spot.getId()));
+        builder.addGeofence(generateGeofence(points.get(0).getLatitud(), points.get(0).getLongitud(),
+                15, "ParkinSpot" + spot.getProperties().getIdFromUrl()));
         return builder.build();
     }
 
@@ -756,9 +845,10 @@ public class HomeActivity extends AppCompatActivity {
         int spotId = isPointInsideParkingSpot(spots, mCurrentLocation);
         if (spotId != Constants.NOT_IN_PARKINGSPOT && (activityTransition == DetectedActivity.STILL ||
                 activityTransition == DetectedActivity.IN_VEHICLE)) {
-            SmartParkingSpot spot = getSpotFromId(spots, spotId);
-            if (spot.getStatus().equals(StatesEnumerations.FREE.getEstado()) ||
-                    spot.getStatus().equals(StatesEnumerations.UNKNOWN.getEstado())) {
+            Spot spot = getSpotFromId(spots, spotId);
+            SpotProperties spotProperties = spot.getProperties();
+            if (spotProperties.getState().equals(StatesEnumerations.FREE.getEstado()) ||
+                    spotProperties.getState().equals(StatesEnumerations.UNKNOWN.getEstado())) {
                 if(!dialogSendAllready){
                     confirmationOfActionDialog(spot, true);
                 }
@@ -771,15 +861,12 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private SmartParkingSpot getSpotFromId(ArrayList<SmartParkingSpot> spots, int spotId) {
-        SmartParkingSpot result = new SmartParkingSpot();
-        for (SmartParkingSpot spot : spots) {
-            if (spot.getId() == spotId) {
+    private Spot getSpotFromId(List<Spot> spots, int spotId) {
+        Spot result = new Spot();
+        for (Spot spot : spots) {
+            if (spot.getProperties().getIdFromUrl() == spotId) {
                 result = spot;
             }
-//            if(userId == spot.getUserChanged()){
-//                break;
-//            }
         }
         return result;
     }
@@ -789,7 +876,7 @@ public class HomeActivity extends AppCompatActivity {
      * OCCUPYING a spot OR FREEING ONE
      * **/
     @SuppressWarnings("MissingPermission")
-    private void confirmationOfActionDialog(final SmartParkingSpot spotIn, boolean isParking) {
+    private void confirmationOfActionDialog(final Spot spotIn, boolean isParking) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         if (isParking) {
             builder.setMessage(R.string.are_you_parking)
@@ -834,15 +921,15 @@ public class HomeActivity extends AppCompatActivity {
         }, 10000);
     }
 
-    public boolean isPointInsidePolygon(SmartParkingSpot spot, Location location){
+    public boolean isPointInsidePolygon(Spot spot, Location location){
         return PolyUtil.containsLocation(location.getLatitude(),location.getLongitude(),spot.toLatLngList(),
                 true);
     }
 
-    public int isPointInsideParkingSpot(ArrayList<SmartParkingSpot> ParkingSpot, Location location){
-        for(SmartParkingSpot spot : ParkingSpot){
+    public int isPointInsideParkingSpot(List<Spot> ParkingSpot, Location location){
+        for(Spot spot : ParkingSpot){
             if (isPointInsidePolygon(spot, location)){
-                return spot.getId();
+                return spot.getProperties().getIdFromUrl();
             }
         }
         return Constants.NOT_IN_PARKINGSPOT;
