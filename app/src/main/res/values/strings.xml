@@ -99,4 +99,7 @@
     <string name="channel_description">SmartParking Notifications</string>
     <string name="go_to_app">Ir a la aplicación</string>
     <string name="are_you_sure_logout">¿Seguro que quieres cerrar sesión?</string>
+    <string name="parked_successfull">Has estacionado!</string>
+    <string name="unsuccessful">Actividad no procesada!</string>
+    <string name="free_successfull">Has liberado un lugar!</string>
 </resources>

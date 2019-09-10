@@ -74,10 +74,7 @@ import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -843,18 +840,18 @@ public class HomeActivity extends AppCompatActivity {
      *      THEN: show dialog for secure the action...**/
     private void checkForUserLocation(Location mCurrentLocation) {
         int spotId = isPointInsideParkingSpot(spots, mCurrentLocation);
-        if (spotId != Constants.NOT_IN_PARKINGSPOT && (activityTransition == DetectedActivity.STILL ||
-                activityTransition == DetectedActivity.IN_VEHICLE)) {
+        if (spotId != Constants.NOT_IN_PARKINGSPOT &&
+                activityTransition != DetectedActivity.UNKNOWN) {
             Spot spot = getSpotFromId(spots, spotId);
             SpotProperties spotProperties = spot.getProperties();
             if (spotProperties.getState().equals(StatesEnumerations.FREE.getEstado()) ||
                     spotProperties.getState().equals(StatesEnumerations.UNKNOWN.getEstado())) {
                 if(!dialogSendAllready){
-                    confirmationOfActionDialog(spot, true);
+                    confirmationOfActionDialog(spotId, true);
                 }
             } else {
                 if(!dialogSendAllready){
-                    confirmationOfActionDialog(spot, false);
+                    confirmationOfActionDialog(spotId, false);
                 }
             }
             dialogSendAllready = true;
@@ -876,13 +873,13 @@ public class HomeActivity extends AppCompatActivity {
      * OCCUPYING a spot OR FREEING ONE
      * **/
     @SuppressWarnings("MissingPermission")
-    private void confirmationOfActionDialog(final Spot spotIn, boolean isParking) {
+    private void confirmationOfActionDialog(final int spotIdIn, final boolean isParking) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         if (isParking) {
             builder.setMessage(R.string.are_you_parking)
                     .setPositiveButton(R.string.button_accept, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            // call REST service to UPDATE STATE to OCCUPIED by userId
+                            Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
 //                            geofencingClient.addGeofences(getGeofenceRequest(spotIn),
 //                                    getGeofencePendingIntent());
                         }
@@ -896,7 +893,7 @@ public class HomeActivity extends AppCompatActivity {
             builder.setMessage(R.string.are_you_vacating_a_place)
                 .setPositiveButton(R.string.button_accept, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        // call REST service to UPDATE STATE to FREE
+                        Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
 //                        List<String> geofencesToRemove = new ArrayList<>();
 //                        geofencesToRemove.add("ParkinSpot" + spotIn.getId());
 //                        geofencingClient.removeGeofences(geofencesToRemove);

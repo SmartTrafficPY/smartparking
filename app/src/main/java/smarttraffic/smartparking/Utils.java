@@ -5,21 +5,44 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
+import android.util.Log;
+import android.view.Gravity;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.location.DetectedActivity;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.OkHttpClient;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import smarttraffic.smartparking.Interceptors.AddGeoJsonInterceptor;
+import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
+import smarttraffic.smartparking.Interceptors.ReceivedTimeStampInterceptor;
+import smarttraffic.smartparking.activities.HomeActivity;
 import smarttraffic.smartparking.dataModels.Lots.Lot;
 import smarttraffic.smartparking.dataModels.Lots.LotList;
+import smarttraffic.smartparking.dataModels.NearbyLocation;
+import smarttraffic.smartparking.dataModels.NearbyPoint;
+import smarttraffic.smartparking.dataModels.Spots.Spot;
+import smarttraffic.smartparking.dataModels.Spots.SpotList;
 
 public class Utils {
+
+    private static final String LOG_TAG = "Utils class";
 
     public static final String LOTS_SYSTEM = "Lots in the System";
 
@@ -84,4 +107,76 @@ public class Utils {
         return id;
     }
 
+    public static void showToast(String message, Context context) {
+        Toast toast = Toast.makeText(context, message, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        LinearLayout toastContentView = (LinearLayout) toast.getView();
+        ImageView imageView = new ImageView(context);
+        imageView.setImageResource(R.mipmap.smartparking_logo_round);
+        toastContentView.addView(imageView, 0);
+        toast.show();
+    }
+
+    public static void setNewStateOnSpot(final Context context, boolean isParking, int spotId) {
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+
+        final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .addInterceptor(new AddUserTokenInterceptor(context))
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(okHttpClient)
+                .baseUrl(Constants.BASE_URL_HOME2)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
+        if(isParking){
+            Call<ResponseBody> call = smartParkingAPI.setOccupiedSpot(spotId);
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    switch (response.code()) {
+                        case 200:
+                            showToast(String.valueOf(R.string.parked_successfull), context);
+                            break;
+                        default:
+                            showToast(String.valueOf(R.string.unsuccessful), context);
+                            break;
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    t.printStackTrace();
+                }
+            });
+        }else{
+            Call<ResponseBody> call = smartParkingAPI.resetFreeSpot(spotId);
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    switch (response.code()) {
+                        case 200:
+                            showToast(String.valueOf(R.string.free_successfull), context);
+                            break;
+                        default:
+                            showToast(String.valueOf(R.string.unsuccessful), context);
+                            break;
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    t.printStackTrace();
+                }
+            });
+        }
+
+    }
 }
