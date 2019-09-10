@@ -11,6 +11,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import smarttraffic.smartparking.activities.ChangePasswordActivity;
 import smarttraffic.smartparking.dataModels.Credentials;
+import smarttraffic.smartparking.dataModels.Events;
 import smarttraffic.smartparking.dataModels.Lots.Lot;
 import smarttraffic.smartparking.dataModels.Lots.LotList;
 import smarttraffic.smartparking.dataModels.NearbyLocation;
@@ -67,4 +68,10 @@ public interface SmartParkingAPI {
 
     @GET("lots/{lotId}/spots/")
     Call<SpotList> getAllGeoJsonSpotsInLot(@Path("lotId") Integer lotId);
+
+    /**EVENTS**/
+
+    @POST("spots/events/")
+    Call<ResponseBody> setUserEvent(@Body Events event);
+
 }

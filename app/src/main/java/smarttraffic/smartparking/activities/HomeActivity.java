@@ -332,6 +332,7 @@ public class HomeActivity extends AppCompatActivity {
         switch (geofenceTransition) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 Log.i(LOG_TAG, "Enter Transition");
+//                Utils.setEntranceEvent(this, geofencesTrigger);
                 if (checkPermissions()) {
                     startLocationUpdates(mLocationRequest);
                 } else if (!checkPermissions()) {
@@ -358,7 +359,7 @@ public class HomeActivity extends AppCompatActivity {
         if(isForUpdate){
             if(geofencesTrigger != null){
                 for (String geofenceTrigger : geofencesTrigger) {
-                    updatesSpotsFromGeofence(geofenceTrigger);
+                    updatesSpotsFromGeofence();
                 }
             }
 
@@ -421,7 +422,7 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private void updatesSpotsFromGeofence(String geofencesTrigger) {
+    private void updatesSpotsFromGeofence() {
         SharedPreferences sharedPreferences = this.getSharedPreferences(
                 ReceivedTimeStampInterceptor.X_TIMESTAMP,MODE_PRIVATE);
         NearbyPoint point = new NearbyPoint();

@@ -33,6 +33,7 @@ import smarttraffic.smartparking.Interceptors.AddGeoJsonInterceptor;
 import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
 import smarttraffic.smartparking.Interceptors.ReceivedTimeStampInterceptor;
 import smarttraffic.smartparking.activities.HomeActivity;
+import smarttraffic.smartparking.dataModels.Events;
 import smarttraffic.smartparking.dataModels.Lots.Lot;
 import smarttraffic.smartparking.dataModels.Lots.LotList;
 import smarttraffic.smartparking.dataModels.NearbyLocation;
@@ -178,5 +179,60 @@ public class Utils {
             });
         }
 
+    }
+
+    public static void setEntranceEvent(Context context, ArrayList<String> geofencesTrigger){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.CLIENTE_DATA,
+                Context.MODE_PRIVATE);
+
+        int userId = sharedPreferences.getInt(Constants.USER_ID, -1);
+        Events events = new Events();
+        if(geofencesTrigger != null){
+            for(String geofenceTrigger : geofencesTrigger){
+                int lotId = Utils.getLotInSharedPreferences(context, geofenceTrigger);
+                events.setLotId(lotId);
+            }
+        }
+        if(userId != -1){
+            events.setUserId(userId);
+        }
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+
+        final OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .writeTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .addInterceptor(new AddUserTokenInterceptor(context))
+                .build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(okHttpClient)
+                .baseUrl(Constants.BASE_URL_HOME2)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
+        Call<ResponseBody> call = smartParkingAPI.setUserEvent(events);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                switch (response.code()) {
+                    case 200:
+                        Log.i(LOG_TAG, "Evento de entrada enviado correctamente");
+                        break;
+                    default:
+                        Log.e(LOG_TAG, response.errorBody().toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                t.printStackTrace();
+                Log.e(LOG_TAG, t.toString());
+            }
+        });
     }
 }
