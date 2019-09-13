@@ -25,6 +25,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
@@ -75,7 +76,9 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -96,6 +99,7 @@ import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
 import smarttraffic.smartparking.Interceptors.ReceivedTimeStampInterceptor;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.SmartParkingAPI;
+import smarttraffic.smartparking.SmartParkingInitialData;
 import smarttraffic.smartparking.StatesEnumerations;
 import smarttraffic.smartparking.Utils;
 import smarttraffic.smartparking.dataModels.Lots.Lot;
@@ -110,6 +114,8 @@ import smarttraffic.smartparking.dataModels.Spots.SpotProperties;
 import smarttraffic.smartparking.receivers.GeofenceBroadcastReceiver;
 import smarttraffic.smartparking.services.DetectedActivitiesService;
 import smarttraffic.smartparking.services.GeofenceTransitionsJobIntentService;
+
+import static smarttraffic.smartparking.Interceptors.ReceivedTimeStampInterceptor.X_TIMESTAMP;
 
 /**
  * Created by Joaquin Olivera on july 19.
@@ -156,25 +162,12 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_layout);
         ButterKnife.bind(this);
-        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(
-                this));
-        mapView.setTileSource(new OnlineTileSourceBase("SMARTPARKING CartoDB",
-                10, 22, 256, ".png",
-                new String[]{Constants.getTileServerUrl()}) {
-            @Override
-            public String getTileURLString(long pMapTileIndex) {
-                return getBaseUrl()
-                        + MapTileIndex.getZoom(pMapTileIndex)
-                        + "/" + MapTileIndex.getX(pMapTileIndex)
-                        + "/" + MapTileIndex.getY(pMapTileIndex)
-                        + mImageFilenameEnding;
-            }
-        });
 
         setMapView();
 
+        createLocationCallback();
         createLocationRequest(Constants.getSecondsInMilliseconds() * 2,
-                Constants.getSecondsInMilliseconds() );
+                Constants.getSecondsInMilliseconds());
         buildLocationSettingsRequest();
 
         mSettingsClient = LocationServices.getSettingsClient(this);
@@ -210,10 +203,49 @@ public class HomeActivity extends AppCompatActivity {
             }
         };
         setSupportActionBar(toolbar);
-        createLocationCallback();
     }
 
     private void setMapView() {
+        final String basic =
+                "Basic " + Base64.encodeToString(SmartParkingInitialData.getCredentials().getBytes(), Base64.NO_WRAP);
+        final Map<String, String> AuthHeader = new HashMap<>();
+        AuthHeader.put("Authorization", basic);
+        SharedPreferences preferencesManager = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferencesManager.edit();
+        for (final Map.Entry<String, String> entry : AuthHeader.entrySet()) {
+            final String key = "osmdroid.additionalHttpRequestProperty." + entry.getKey();
+            editor.putString(key, entry.getValue()).apply();
+        }
+
+        editor.commit();
+        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(
+                this));
+        OnlineTileSourceBase newTileSource = new OnlineTileSourceBase("SMARTPARKING CartoDB",
+                16, 22, 256, ".png",
+                new String[]{"http://" + "smartparking0:phobicflower934@" + Constants.TILE_SERVER}) {
+            @Override
+            public String getTileURLString(long pMapTileIndex) {
+                return getBaseUrl()
+                        + MapTileIndex.getZoom(pMapTileIndex)
+                        + "/" + MapTileIndex.getX(pMapTileIndex)
+                        + "/" + MapTileIndex.getY(pMapTileIndex)
+                        + mImageFilenameEnding;
+            }
+        };
+        mapView.setTileSource(new OnlineTileSourceBase("SMARTPARKING CartoDB",
+                16, 22, 256, ".png",
+                new String[]{"http://" + "smartparking0:phobicflower934@" + Constants.TILE_SERVER}) {
+            @Override
+            public String getTileURLString(long pMapTileIndex) {
+                return getBaseUrl()
+                        + MapTileIndex.getZoom(pMapTileIndex)
+                        + "/" + MapTileIndex.getX(pMapTileIndex)
+                        + "/" + MapTileIndex.getY(pMapTileIndex)
+                        + mImageFilenameEnding;
+            }
+        });
+
+
         IMapController mapController = mapView.getController();
 
         setGralMapConfiguration(mapController);
@@ -311,8 +343,8 @@ public class HomeActivity extends AppCompatActivity {
     private List<GeoPoint> spotToListOfGeoPoints(Spot spot) {
         List<GeoPoint> polygon = new ArrayList<>();
         List<Point> polygonPoints = spot.getGeometry().getPolygonPoints();
-        if(polygonPoints != null){
-            for(Point point : polygonPoints){
+        if (polygonPoints != null) {
+            for (Point point : polygonPoints) {
                 polygon.add(new GeoPoint(point.getLatitud(), point.getLongitud()));
             }
         }
@@ -332,7 +364,6 @@ public class HomeActivity extends AppCompatActivity {
         switch (geofenceTransition) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 Log.i(LOG_TAG, "Enter Transition");
-//                Utils.setEntranceEvent(this, geofencesTrigger);
                 if (checkPermissions()) {
                     startLocationUpdates(mLocationRequest);
                 } else if (!checkPermissions()) {
@@ -340,12 +371,14 @@ public class HomeActivity extends AppCompatActivity {
                 }
                 handler.postDelayed(cronJob, delay);
                 requestActivityUpdates();
+                Utils.setEntranceEvent(this, mCurrentLocation, "enter_lot");
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 Log.i(LOG_TAG, "Exit Transition");
                 stopLocationUpdates();
                 removeActivityUpdates();
                 handler.removeCallbacks(cronJob);
+                Utils.setEntranceEvent(this, mCurrentLocation,"exit_lot");
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 Log.i(LOG_TAG, "Dwell Transition");
@@ -356,15 +389,12 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void getSpotsFromGeofence(ArrayList<String> geofencesTrigger, boolean isForUpdate) {
-        if(isForUpdate){
-            if(geofencesTrigger != null){
+        if(geofencesTrigger != null) {
+            if(isForUpdate){
                 for (String geofenceTrigger : geofencesTrigger) {
                     updatesSpotsFromGeofence();
                 }
-            }
-
-        }else{
-            if(geofencesTrigger != null){
+            }else{
                 for (String geofenceTrigger : geofencesTrigger) {
                     getSpotsGeographicValues(geofenceTrigger);
                 }
@@ -387,7 +417,7 @@ public class HomeActivity extends AppCompatActivity {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl(Constants.BASE_URL_HOME2)
+                .baseUrl(Constants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         int lotId = Utils.getLotInSharedPreferences(HomeActivity.this, geofencesTrigger);
@@ -424,7 +454,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private void updatesSpotsFromGeofence() {
         SharedPreferences sharedPreferences = this.getSharedPreferences(
-                ReceivedTimeStampInterceptor.X_TIMESTAMP,MODE_PRIVATE);
+                X_TIMESTAMP,MODE_PRIVATE);
         NearbyPoint point = new NearbyPoint();
         if(mCurrentLocation != null){
             point.setLat(mCurrentLocation.getLatitude());
@@ -433,8 +463,8 @@ public class HomeActivity extends AppCompatActivity {
         NearbyLocation nearbyLocation = new NearbyLocation();
         nearbyLocation.setPoint(point);
         nearbyLocation.setPrevious_timestamp(sharedPreferences.getString(
-                ReceivedTimeStampInterceptor.X_TIMESTAMP,
-                ""));
+                X_TIMESTAMP,
+                "1559447999"));
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -450,7 +480,7 @@ public class HomeActivity extends AppCompatActivity {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl(Constants.BASE_URL_HOME2)
+                .baseUrl(Constants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
@@ -539,7 +569,7 @@ public class HomeActivity extends AppCompatActivity {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl(Constants.BASE_URL_HOME2)
+                .baseUrl(Constants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
@@ -855,6 +885,7 @@ public class HomeActivity extends AppCompatActivity {
                     confirmationOfActionDialog(spotId, false);
                 }
             }
+            //TODO: after a while reset this flag...
             dialogSendAllready = true;
         }
     }
@@ -913,10 +944,10 @@ public class HomeActivity extends AppCompatActivity {
         timer.schedule(new TimerTask() {
             public void run() {
                 alertDialog.dismiss();
-                //if he was to park o to make vacating a spot, make it...
+                Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
                 timer.cancel();
             }
-        }, 10000);
+        }, 15000);
     }
 
     public boolean isPointInsidePolygon(Spot spot, Location location){
@@ -1032,7 +1063,6 @@ public class HomeActivity extends AppCompatActivity {
                 .putBoolean(Constants.KEY_ACTIVITY_UPDATES_REQUESTED, requesting)
                 .apply();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

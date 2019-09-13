@@ -4,7 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.preference.PreferenceManager;
+import android.location.Location;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
@@ -17,11 +17,11 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -29,17 +29,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import smarttraffic.smartparking.Interceptors.AddGeoJsonInterceptor;
 import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
-import smarttraffic.smartparking.Interceptors.ReceivedTimeStampInterceptor;
-import smarttraffic.smartparking.activities.HomeActivity;
+import smarttraffic.smartparking.dataModels.EventProperties;
 import smarttraffic.smartparking.dataModels.Events;
 import smarttraffic.smartparking.dataModels.Lots.Lot;
-import smarttraffic.smartparking.dataModels.Lots.LotList;
-import smarttraffic.smartparking.dataModels.NearbyLocation;
-import smarttraffic.smartparking.dataModels.NearbyPoint;
-import smarttraffic.smartparking.dataModels.Spots.Spot;
-import smarttraffic.smartparking.dataModels.Spots.SpotList;
+import smarttraffic.smartparking.dataModels.Lots.PointGeometry;
 
 public class Utils {
 
@@ -132,7 +126,7 @@ public class Utils {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl(Constants.BASE_URL_HOME2)
+                .baseUrl(Constants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
@@ -181,21 +175,22 @@ public class Utils {
 
     }
 
-    public static void setEntranceEvent(Context context, ArrayList<String> geofencesTrigger){
+    public static void setEntranceEvent(Context context, Location location, String eventType){
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.CLIENTE_DATA,
                 Context.MODE_PRIVATE);
 
-        int userId = sharedPreferences.getInt(Constants.USER_ID, -1);
+        String userUrl = sharedPreferences.getString(Constants.USER_URL, "");
         Events events = new Events();
-        if(geofencesTrigger != null){
-            for(String geofenceTrigger : geofencesTrigger){
-                int lotId = Utils.getLotInSharedPreferences(context, geofenceTrigger);
-                events.setLotId(lotId);
-            }
-        }
-        if(userId != -1){
-            events.setUserId(userId);
-        }
+        EventProperties properties = new EventProperties();
+        PointGeometry geometry = new PointGeometry();
+        properties.setApplication(Constants.APPLICATION_ID);
+        properties.setAgent(userUrl);
+        properties.setE_type(Constants.BASE_URL + Constants.EVENT_BASIC + eventType);
+        geometry.setPointCoordinates(location);
+        events.setType("Feature");
+        events.setProperties(properties);
+        events.setGeometry(geometry);
+
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -209,22 +204,23 @@ public class Utils {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl(Constants.BASE_URL_HOME2)
+                .baseUrl(Constants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
-        Call<ResponseBody> call = smartParkingAPI.setUserEvent(events);
+        Call<ResponseBody> call = smartParkingAPI.setUserEvent("application/vnd.geo+json", events);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Headers headers = response.headers();
                 switch (response.code()) {
                     case 200:
                         Log.i(LOG_TAG, "Evento de entrada enviado correctamente");
                         break;
                     default:
-                        Log.e(LOG_TAG, response.errorBody().toString());
+                        Log.e(LOG_TAG, "Evento de entrada enviado incorrectamente");
                 }
             }
 

@@ -1,5 +1,8 @@
 package smarttraffic.smartparking.dataModels.Lots;
 
+import android.location.Location;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import smarttraffic.smartparking.dataModels.Point;
@@ -12,7 +15,7 @@ import smarttraffic.smartparking.dataModels.Point;
 
 public class PointGeometry {
 
-    private String type;
+    private String type = "Point";
     private List<Double> coordinates;
 
     public PointGeometry() {
@@ -48,5 +51,26 @@ public class PointGeometry {
             return centerPoint;
         }
         return null;
+    }
+
+    public Point getPointCoordinates(){
+        if(getCoordinates() != null){
+            Point centerPoint = new Point(getCoordinates().get(1), getCoordinates().get(0));
+            return centerPoint;
+        }
+        return null;
+    }
+
+    public void setPointCoordinates(Location location){
+        List<Double> points = new ArrayList<Double>();
+        if(location != null){
+            points.add(location.getLongitude());
+            points.add(location.getLatitude());
+        }else{
+            points.add((double) 0);
+            points.add((double) 0);
+        }
+
+        setCoordinates(points);
     }
 }

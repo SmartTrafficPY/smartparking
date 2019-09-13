@@ -74,7 +74,7 @@ public class LoginService extends IntentService {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .client(okHttpClient)
-                .baseUrl(Constants.BASE_URL_HOME2)
+                .baseUrl(Constants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
@@ -91,6 +91,7 @@ public class LoginService extends IntentService {
                 editor.putString(Constants.USER_PASSWORD,
                         intent.getStringExtra("password")).apply();
                 editor.putInt(Constants.USER_ID, result.body().getIdFromUrl()).apply();
+                editor.putString(Constants.USER_URL, result.body().getUrl()).apply();
                 editor.commit();
             }else if (result.code() == 400){
                 ResponseBody error = result.errorBody();

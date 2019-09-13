@@ -7,6 +7,7 @@ package smarttraffic.smartparking;
  */
 
 public class Constants {
+
     /**
      * Add here all variables used at width in the project...
      * **/
@@ -18,6 +19,10 @@ public class Constants {
     public static final String CLIENT_NOT_LOGIN = "CLIENT_NOT_LOGIN";
     public static final String CLIENTE_DATA = "CLIENTE_DATA";
     public static final String USER_ID = "USER_ID";
+    public static final String USER_URL = "USER_URL";
+    public static final String APPLICATION_ID = "1";
+    public static final String EVENT_BASIC = "/entities/smartparking/event_types/";
+
     public static final int NOT_IN_PARKINGSPOT = -1;
     public static final String GEOFENCE_LOTS_SHARED_PREFERENCES = "GEOFENCE_LOTS_SHARED_PREFERENCES";
     private static final String BROADCAST_GEOFENCE_TRIGGER_INTENT = "BROADCAST_GEOFENCE_TRIGGER_INTENT";
@@ -34,9 +39,7 @@ public class Constants {
     public static final long DETECTION_INTERVAL_IN_MILLISECONDS =  SECONDS_IN_MILLISECONDS; // 30 seconds
     private static final long MINUTES_IN_MILLISECONDS = SECONDS_IN_MILLISECONDS * 60;
     private static final long HOURS_IN_MILLISECONDS = MINUTES_IN_MILLISECONDS * 60;
-    private static final String BASE_URL = "http://10.50.225.75:8000/api/smartparking/";
-    private static final String BASE_URL_HOME = "http://192.168.100.5:8000/api/smartparking/";
-    public static final String BASE_URL_HOME2 = "http://192.168.100.5:8000/smartparking/";
+    public static final String BASE_URL = "http://192.168.100.5:8000/";
     private static final String CHANNEL_ID = "SMARTPARKING_CHANNEL_ID";
     private static final String PROXIMITY_INTENT_ACTION = "SMARTPARKING_PROXIMITY_ALERT";
     private static final String NOTIFICATION_SERVICE = "notification";
@@ -51,10 +54,8 @@ public class Constants {
     private static final long HIGH_FREQUENCY_UPDATES = SECONDS_IN_MILLISECONDS * 1;
     private static final long LOW_FREQUENCY_UPDATES = MINUTES_IN_MILLISECONDS * 20;
     private static final String PROX_ALERT_INTENT = "smarttraffic.smartparking.services.ProximityAlert";
-    private static final String TILE_SERVER_URL_HOME = "http://192.168.100.49:80/tile/";
-    private static final String TILE_SERVER_URL = "http://10.50.127.127:80/tile/";
+    public static final String TILE_SERVER = "smarttraffic.com.py/tile/";
     public static final int REQUEST_CHECK_SETTINGS = 0x1;
-    public static final long POINT_RADIUS = 25;
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
@@ -134,20 +135,5 @@ public class Constants {
         return CHANNEL_ID;
     }
 
-    public static String getTileServerUrlHome() {
-        return TILE_SERVER_URL_HOME;
-    }
-
-    public static String getTileServerUrl() {
-        return TILE_SERVER_URL;
-    }
-
-    public static String getBaseUrl() {
-        return BASE_URL;
-    }
-
-    public static String getBaseUrlHome() {
-        return BASE_URL_HOME;
-    }
 
 }

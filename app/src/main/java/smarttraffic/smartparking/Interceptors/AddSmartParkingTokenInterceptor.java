@@ -5,7 +5,7 @@ import java.io.IOException;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
-import smarttraffic.smartparking.SmartParkingInitialToken;
+import smarttraffic.smartparking.SmartParkingInitialData;
 
 /**
  * Created by Joaquin on 09/2019.
@@ -22,7 +22,7 @@ public class AddSmartParkingTokenInterceptor implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         Request newRequest  = chain.request().newBuilder()
                 .addHeader("Authorization", "Token "
-                        + SmartParkingInitialToken.getToken())
+                        + SmartParkingInitialData.getToken())
                 .build();
         return chain.proceed(newRequest);
     }

@@ -1,5 +1,7 @@
 package smarttraffic.smartparking.dataModels;
 
+import smarttraffic.smartparking.dataModels.Lots.PointGeometry;
+
 /**
  * Created by Joaquin on 09/2019.
  * <p>
@@ -8,9 +10,9 @@ package smarttraffic.smartparking.dataModels;
 
 public class Events {
 
-    private int userId;
-    private int lotId;
-    private String action = "E";
+    private String type;
+    private EventProperties properties;
+    private PointGeometry geometry;
 
     public Events() {
     }
@@ -18,33 +20,33 @@ public class Events {
     @Override
     public String toString() {
         return "Events{" +
-                "userId=" + userId +
-                ", lotId=" + lotId +
-                ", action='" + action + '\'' +
+                "type='" + type + '\'' +
+                ", properties=" + properties +
+                ", geometry=" + geometry +
                 '}';
     }
 
-    public int getUserId() {
-        return userId;
+    public String getType() {
+        return type;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public int getLotId() {
-        return lotId;
+    public EventProperties getProperties() {
+        return properties;
     }
 
-    public void setLotId(int lotId) {
-        this.lotId = lotId;
+    public void setProperties(EventProperties properties) {
+        this.properties = properties;
     }
 
-    public String getAction() {
-        return action;
+    public PointGeometry getGeometry() {
+        return geometry;
     }
 
-    public void setAction(String action) {
-        this.action = action;
+    public void setGeometry(PointGeometry geometry) {
+        this.geometry = geometry;
     }
 }

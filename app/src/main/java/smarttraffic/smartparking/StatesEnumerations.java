@@ -5,6 +5,7 @@ package smarttraffic.smartparking;
  * <p>
  * smarttraffic.smartparking
  */
+
 public enum StatesEnumerations {
     FREE("F"),
     UNKNOWN("U"),

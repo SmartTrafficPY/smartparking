@@ -6,6 +6,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -25,53 +26,53 @@ public interface SmartParkingAPI {
 
     /**USERS**/
 
-    @POST("auth-token/")
+    @POST("smartparking/auth-token/")
     Call<UserToken> getUserToken(@Body Credentials userCredentials);
 
-    @POST("users/")
+    @POST("smartparking/users/")
     Call<ProfileUser> signUpUser(@Body ProfileRegistry profileRegistry);
 
-    @PATCH("users/{identifier}/")
+    @PATCH("smartparking/users/{identifier}/")
     Call<ProfileUser> updateUserProfile(@Path("identifier") Integer userId,
                                         @Body ChangePasswordActivity.Password newProfile);
 
     /**SPOTS**/
 
-    @POST("spots/{spotId}/reset/")
+    @POST("smartparking/spots/{spotId}/reset/")
     Call<ResponseBody> resetFreeSpot(@Path("spotId") Integer spotId);
 
-    @POST("spots/{spotId}/set/")
+    @POST("smartparking/spots/{spotId}/set/")
     Call<ResponseBody> setOccupiedSpot(@Path("spotId") Integer spotId);
 
-    @POST("spots/nearby/")
+    @POST("smartparking/spots/nearby/")
     Call<HashMap<String, String>> getMapNearbySpots(@Body NearbyLocation nearbyLocation);
 
-    @POST("spots/nearby/")
+    @POST("smartparking/spots/nearby/")
     Call<SpotList> getGeoJsonNearbySpots(@Body NearbyLocation nearbyLocation);
 
-    @GET("spots/")
+    @GET("smartparking/spots/")
     Call<SpotList> getAllSpots();
 
-    @GET("spots/{spotId}/")
+    @GET("smartparking/spots/{spotId}/")
     Call<Spot> getASpot(@Path("spotId") Integer spotId);
 
     /**LOTS**/
 
-    @GET("lots/")
+    @GET("smartparking/lots/")
     Call<LotList> getAllLots();
 
-    @GET("lots/{lotId}/")
+    @GET("smartparking/lots/{lotId}/")
     Call<Lot> getALot(@Path("lotId") Integer lotId);
 
-    @GET("lots/{lotId}/spots/")
+    @GET("smartparking/lots/{lotId}/spots/")
     Call<HashMap<String, String>> getAllMapSpotsInLot(@Path("lotId") Integer lotId);
 
-    @GET("lots/{lotId}/spots/")
+    @GET("smartparking/lots/{lotId}/spots/")
     Call<SpotList> getAllGeoJsonSpotsInLot(@Path("lotId") Integer lotId);
 
     /**EVENTS**/
 
-    @POST("spots/events/")
-    Call<ResponseBody> setUserEvent(@Body Events event);
+    @POST("services/events/")
+    Call<ResponseBody> setUserEvent(@Header("Content-Type") String content_type, @Body Events event);
 
 }
