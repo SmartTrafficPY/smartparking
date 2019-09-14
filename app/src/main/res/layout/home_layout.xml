@@ -34,15 +34,6 @@
             android:layout_alignParentRight="true">
         </ImageButton>
 
-        <ImageButton android:id="@+id/buttonAbout"
-            android:background="@drawable/roundbutton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/about"
-            android:adjustViewBounds="true"
-            android:layout_above="@+id/buttonRecenter"
-            android:layout_alignParentRight="true">
-        </ImageButton>
 
     </RelativeLayout>
 

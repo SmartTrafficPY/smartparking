@@ -214,7 +214,6 @@ public class Utils {
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Headers headers = response.headers();
                 switch (response.code()) {
                     case 200:
                         Log.i(LOG_TAG, "Evento de entrada enviado correctamente");

@@ -31,6 +31,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
 
@@ -131,6 +132,9 @@ public class HomeActivity extends AppCompatActivity {
     MapView mapView;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @BindView(R.id.buttonRecenter)
+    ImageButton buttonRecenter;
+
 
     private FusedLocationProviderClient mFusedLocationClient;
     private ActivityRecognitionClient mActivityRecognitionClient;
@@ -178,6 +182,13 @@ public class HomeActivity extends AppCompatActivity {
         if (getIntent().getExtras() == null) {
             addParkingLotsGeofences();
         }
+
+        buttonRecenter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setLocationOverlay();
+            }
+        });
 
         broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -885,8 +896,13 @@ public class HomeActivity extends AppCompatActivity {
                     confirmationOfActionDialog(spotId, false);
                 }
             }
-            //TODO: after a while reset this flag...
-            dialogSendAllready = true;
+            final Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                public void run() {
+                    dialogSendAllready = false;
+                    timer.cancel();
+                }
+            }, Constants.getMinutesInMilliseconds());
         }
     }
 
@@ -939,6 +955,7 @@ public class HomeActivity extends AppCompatActivity {
         }
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
+        dialogSendAllready = true;
 
         final Timer timer = new Timer();
         timer.schedule(new TimerTask() {
