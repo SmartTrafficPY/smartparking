@@ -217,6 +217,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setMapView() {
+
         final String basic =
                 "Basic " + Base64.encodeToString(SmartParkingInitialData.getCredentials().getBytes(), Base64.NO_WRAP);
         final Map<String, String> AuthHeader = new HashMap<>();
@@ -233,7 +234,7 @@ public class HomeActivity extends AppCompatActivity {
                 this));
         OnlineTileSourceBase newTileSource = new OnlineTileSourceBase("SMARTPARKING CartoDB",
                 16, 22, 256, ".png",
-                new String[]{"http://" + "smartparking0:phobicflower934@" + Constants.TILE_SERVER}) {
+                new String[]{Constants.TILE_SERVER}) {
             @Override
             public String getTileURLString(long pMapTileIndex) {
                 return getBaseUrl()
