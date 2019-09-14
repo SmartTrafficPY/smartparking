@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -186,7 +187,9 @@ public class HomeActivity extends AppCompatActivity {
         buttonRecenter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setLocationOverlay();
+                if(mLocationOverlay != null){
+                    mapView.getController().setCenter(mLocationOverlay.getMyLocation());
+                }
             }
         });
 
@@ -233,7 +236,7 @@ public class HomeActivity extends AppCompatActivity {
 
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(
                 this));
-        
+
         mapView.setTileSource(new OnlineTileSourceBase("SMARTPARKING CartoDB",
                 16, 22, 256, ".png",
                 new String[]{Constants.TILE_SERVER}) {
