@@ -230,23 +230,13 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         editor.commit();
+
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(
                 this));
-        OnlineTileSourceBase newTileSource = new OnlineTileSourceBase("SMARTPARKING CartoDB",
-                16, 22, 256, ".png",
-                new String[]{Constants.TILE_SERVER}) {
-            @Override
-            public String getTileURLString(long pMapTileIndex) {
-                return getBaseUrl()
-                        + MapTileIndex.getZoom(pMapTileIndex)
-                        + "/" + MapTileIndex.getX(pMapTileIndex)
-                        + "/" + MapTileIndex.getY(pMapTileIndex)
-                        + mImageFilenameEnding;
-            }
-        };
+        
         mapView.setTileSource(new OnlineTileSourceBase("SMARTPARKING CartoDB",
                 16, 22, 256, ".png",
-                new String[]{"http://" + "smartparking0:phobicflower934@" + Constants.TILE_SERVER}) {
+                new String[]{Constants.TILE_SERVER}) {
             @Override
             public String getTileURLString(long pMapTileIndex) {
                 return getBaseUrl()

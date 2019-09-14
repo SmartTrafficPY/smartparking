@@ -54,7 +54,7 @@ public class Constants {
     private static final long HIGH_FREQUENCY_UPDATES = SECONDS_IN_MILLISECONDS * 1;
     private static final long LOW_FREQUENCY_UPDATES = MINUTES_IN_MILLISECONDS * 20;
     private static final String PROX_ALERT_INTENT = "smarttraffic.smartparking.services.ProximityAlert";
-    public static final String TILE_SERVER = "http://smarttraffic.com.py/tile/";
+    public static final String TILE_SERVER = "https://smarttraffic.com.py/tile/";
     public static final int REQUEST_CHECK_SETTINGS = 0x1;
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
