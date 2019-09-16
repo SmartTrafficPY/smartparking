@@ -135,6 +135,8 @@ public class HomeActivity extends AppCompatActivity {
     Toolbar toolbar;
     @BindView(R.id.buttonRecenter)
     ImageButton buttonRecenter;
+    @BindView(R.id.buttonAbout)
+    ImageButton buttonAbout;
 
 
     private FusedLocationProviderClient mFusedLocationClient;
@@ -144,6 +146,7 @@ public class HomeActivity extends AppCompatActivity {
     int activityTransition;
     int geofenceTransition;
     int confidence;
+    boolean userNotResponse = true;
     boolean dialogSendAllready = false;
     private LocationRequest mLocationRequest;
     private LocationSettingsRequest mLocationSettingsRequest;
@@ -155,7 +158,6 @@ public class HomeActivity extends AppCompatActivity {
     private BroadcastReceiver geofenceReceiver;
     private GeofencingClient geofencingClient;
     private PendingIntent mGeofencePendingIntent;
-    private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
     //MAP...
     private MyLocationNewOverlay mLocationOverlay;
     private CompassOverlay mCompassOverlay;
@@ -168,6 +170,11 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.home_layout);
         ButterKnife.bind(this);
 
+        mSettingsClient = LocationServices.getSettingsClient(this);
+        geofencingClient = LocationServices.getGeofencingClient(this);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mActivityRecognitionClient = new ActivityRecognitionClient(this);
+
         setMapView();
 
         createLocationCallback();
@@ -175,14 +182,7 @@ public class HomeActivity extends AppCompatActivity {
                 Constants.getSecondsInMilliseconds());
         buildLocationSettingsRequest();
 
-        mSettingsClient = LocationServices.getSettingsClient(this);
-        geofencingClient = LocationServices.getGeofencingClient(this);
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        mActivityRecognitionClient = new ActivityRecognitionClient(this);
-
-        if (getIntent().getExtras() == null) {
-            addParkingLotsGeofences();
-        }
+        addParkingLotsGeofences();
 
         buttonRecenter.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -193,6 +193,14 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+//        buttonAbout.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(HomeActivity.this, AboutActivity.class);
+//                startActivity(intent);
+//            }
+//        });
+
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -202,6 +210,10 @@ public class HomeActivity extends AppCompatActivity {
                 }
             }
         };
+
+
+
+
 
         geofenceReceiver = new BroadcastReceiver() {
             @Override
@@ -537,12 +549,20 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Log.i(LOG_TAG, "onResume");
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,
                 new IntentFilter(Constants.BROADCAST_TRANSITION_ACTIVITY_INTENT));
         LocalBroadcastManager.getInstance(this).registerReceiver(geofenceReceiver,
                 new IntentFilter(Constants.getBroadcastGeofenceTriggerIntent()));
 //        managerOfTransitions();
         mapView.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(LOG_TAG, "onCreate");
+
     }
 
     @Override
@@ -659,7 +679,7 @@ public class HomeActivity extends AppCompatActivity {
                             // Request permission
                             ActivityCompat.requestPermissions(HomeActivity.this,
                                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                    REQUEST_PERMISSIONS_REQUEST_CODE);
+                                    Constants.getRequestPermissionsRequestCode());
                         }
                     });
         } else {
@@ -669,7 +689,7 @@ public class HomeActivity extends AppCompatActivity {
             // previously and checked "Never ask again".
             ActivityCompat.requestPermissions(HomeActivity.this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
+                    Constants.getRequestPermissionsRequestCode());
         }
     }
 
@@ -770,7 +790,7 @@ public class HomeActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
         Log.i(LOG_TAG, "onRequestPermissionResult");
-        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
+        if (requestCode == Constants.getRequestPermissionsRequestCode()) {
             if (grantResults.length <= 0) {
                 // If user interaction was interrupted, the permission request is cancelled and you
                 // receive empty arrays.
@@ -880,8 +900,7 @@ public class HomeActivity extends AppCompatActivity {
                 activityTransition != DetectedActivity.UNKNOWN) {
             Spot spot = getSpotFromId(spots, spotId);
             SpotProperties spotProperties = spot.getProperties();
-            if (spotProperties.getState().equals(StatesEnumerations.FREE.getEstado()) ||
-                    spotProperties.getState().equals(StatesEnumerations.UNKNOWN.getEstado())) {
+            if (!spotProperties.getState().equals(StatesEnumerations.OCCUPIED.getEstado())) {
                 if(!dialogSendAllready){
                     confirmationOfActionDialog(spotId, true);
                 }
@@ -916,19 +935,15 @@ public class HomeActivity extends AppCompatActivity {
      * **/
     @SuppressWarnings("MissingPermission")
     private void confirmationOfActionDialog(final int spotIdIn, final boolean isParking) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         if (isParking) {
             builder.setMessage(R.string.are_you_parking)
                     .setPositiveButton(R.string.button_accept, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
+                            userNotResponse = false;
 //                            geofencingClient.addGeofences(getGeofenceRequest(spotIn),
 //                                    getGeofencePendingIntent());
-                        }
-                    })
-                    .setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            // User cancelled the dialog
                         }
                     });
         }else{
@@ -936,17 +951,20 @@ public class HomeActivity extends AppCompatActivity {
                 .setPositiveButton(R.string.button_accept, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
+                        userNotResponse = false;
 //                        List<String> geofencesToRemove = new ArrayList<>();
 //                        geofencesToRemove.add("ParkinSpot" + spotIn.getId());
 //                        geofencingClient.removeGeofences(geofencesToRemove);
                     }
-                })
-                .setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
-                    }
                 });
         }
+        builder.setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                userNotResponse = false;
+                builder.create().dismiss();
+                // User cancelled the dialog
+            }
+        });
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
         dialogSendAllready = true;
@@ -955,10 +973,13 @@ public class HomeActivity extends AppCompatActivity {
         timer.schedule(new TimerTask() {
             public void run() {
                 alertDialog.dismiss();
-                Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
+                if(userNotResponse){
+                    Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
+                }
+                userNotResponse = true;
                 timer.cancel();
             }
-        }, 15000);
+        }, Constants.getSecondsInMilliseconds() * 20);
     }
 
     public boolean isPointInsidePolygon(Spot spot, Location location){

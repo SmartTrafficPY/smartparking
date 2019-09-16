@@ -72,7 +72,7 @@ public interface SmartParkingAPI {
 
     /**EVENTS**/
 
-    @POST("services/events/")
+    @POST("events/")
     Call<ResponseBody> setUserEvent(@Header("Content-Type") String content_type, @Body Events event);
 
 }

@@ -9,7 +9,7 @@ package smarttraffic.smartparking.dataModels.Lots;
 public class LotProperties {
 
     private String url;
-    private float radio;
+    private float monitoring_distance;
     private String name;
     private PointGeometry center;
 
@@ -20,7 +20,7 @@ public class LotProperties {
     public String toString() {
         return "LotProperties{" +
                 "url='" + url + '\'' +
-                ", radio=" + radio +
+                ", radio=" + monitoring_distance +
                 ", name='" + name + '\'' +
                 ", center=" + center +
                 '}';
@@ -35,11 +35,11 @@ public class LotProperties {
     }
 
     public float getRadio() {
-        return radio;
+        return monitoring_distance;
     }
 
     public void setRadio(float radio) {
-        this.radio = radio;
+        this.monitoring_distance = radio;
     }
 
     public String getName() {

@@ -11,6 +11,7 @@ public class Constants {
     /**
      * Add here all variables used at width in the project...
      * **/
+
     public Constants() {
     }
 
@@ -39,7 +40,8 @@ public class Constants {
     public static final long DETECTION_INTERVAL_IN_MILLISECONDS =  SECONDS_IN_MILLISECONDS; // 30 seconds
     private static final long MINUTES_IN_MILLISECONDS = SECONDS_IN_MILLISECONDS * 60;
     private static final long HOURS_IN_MILLISECONDS = MINUTES_IN_MILLISECONDS * 60;
-    public static final String BASE_URL = "http://192.168.100.5:8000/";
+    public static final String BASE_URL = "http://192.168.100.5:8000/api/";
+    private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
     private static final String CHANNEL_ID = "SMARTPARKING_CHANNEL_ID";
     private static final String PROXIMITY_INTENT_ACTION = "SMARTPARKING_PROXIMITY_ALERT";
     private static final String NOTIFICATION_SERVICE = "notification";
@@ -135,5 +137,8 @@ public class Constants {
         return CHANNEL_ID;
     }
 
+    public static int getRequestPermissionsRequestCode() {
+        return REQUEST_PERMISSIONS_REQUEST_CODE;
+    }
 
 }

@@ -31,9 +31,20 @@
             android:src="@drawable/to_location"
             android:layout_alignParentBottom="true"
             android:adjustViewBounds="true"
-            android:layout_alignParentRight="true">
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="25dp">
         </ImageButton>
 
+        <ImageButton android:id="@+id/buttonAbout"
+            android:background="@drawable/roundbutton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/about"
+            android:adjustViewBounds="true"
+            android:layout_marginBottom="15dp"
+            android:layout_above="@+id/buttonRecenter"
+            android:layout_alignParentRight="true">
+        </ImageButton>
 
     </RelativeLayout>
 
