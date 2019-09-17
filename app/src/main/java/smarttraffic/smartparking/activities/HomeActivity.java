@@ -180,8 +180,8 @@ public class HomeActivity extends AppCompatActivity {
         setMapView();
 
         createLocationCallback();
-        createLocationRequest(Constants.getSecondsInMilliseconds() * 2,
-                Constants.getSecondsInMilliseconds());
+        createLocationRequest(Constants.getSecondsInMilliseconds() * 10,
+                Constants.getSecondsInMilliseconds() * 5);
         buildLocationSettingsRequest();
 
         addParkingLotsGeofences();
@@ -358,7 +358,7 @@ public class HomeActivity extends AppCompatActivity {
     private void managerOfTransitions() {
         getSpotsFromGeofence(geofencesTrigger, false);
         final Handler handler = new Handler();
-        final long delay = Constants.getSecondsInMilliseconds();
+        final long delay = Constants.getMinutesInMilliseconds();
         Runnable cronJob = new Runnable() {
             public void run() {
                 getSpotsFromGeofence(geofencesTrigger, true);
