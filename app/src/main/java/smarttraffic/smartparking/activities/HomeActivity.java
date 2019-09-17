@@ -261,7 +261,6 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-
         IMapController mapController = mapView.getController();
 
         setGralMapConfiguration(mapController);
