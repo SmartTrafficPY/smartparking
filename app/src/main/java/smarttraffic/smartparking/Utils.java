@@ -21,7 +21,9 @@ import org.osmdroid.util.GeoPoint;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Headers;
@@ -259,4 +261,15 @@ public class Utils {
         return polygon;
     }
 
+    public static List<Spot> updateSpots(HashMap<String, String> changedSpots, List<Spot> spots) {
+        List<Spot> spotsUpdated = new ArrayList<>();
+        if(changedSpots != null && spots != null){
+            for(Map.Entry<String,String> entry : changedSpots.entrySet()){
+                Spot spot = spots.get(Integer.valueOf(entry.getKey()));
+                spot.getProperties().setState(entry.getValue());
+                spotsUpdated.add(spot);
+            }
+        }
+        return spotsUpdated;
+    }
 }

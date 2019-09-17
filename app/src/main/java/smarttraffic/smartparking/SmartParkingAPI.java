@@ -51,6 +51,10 @@ public interface SmartParkingAPI {
                                                @Header("Accept") String accept,
                                                @Body NearbyLocation nearbyLocation);
 
+    @POST("smartparking/spots/nearby/")
+    Call<HashMap<String, String>> getNearbySpots(@Header("Content-Type") String content_type,
+                                               @Body NearbyLocation nearbyLocation);
+
     /**LOTS**/
 
     @GET("smartparking/lots/")

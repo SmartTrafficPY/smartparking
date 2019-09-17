@@ -88,6 +88,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import okhttp3.OkHttpClient;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -211,9 +212,6 @@ public class HomeActivity extends AppCompatActivity {
                 }
             }
         };
-
-
-
 
 
         geofenceReceiver = new BroadcastReceiver() {
@@ -361,7 +359,7 @@ public class HomeActivity extends AppCompatActivity {
     private void managerOfTransitions() {
         getSpotsFromGeofence(geofencesTrigger, false);
         final Handler handler = new Handler();
-        final long delay = Constants.getMinutesInMilliseconds();
+        final long delay = Constants.getSecondsInMilliseconds();
         Runnable cronJob = new Runnable() {
             public void run() {
                 getSpotsFromGeofence(geofencesTrigger, true);
@@ -493,19 +491,19 @@ public class HomeActivity extends AppCompatActivity {
                 .build();
 
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
-        Call<NearbySpotList> call = smartParkingAPI.getGeoJsonNearbySpots("application/vnd.geo+json",
-                "application/vnd.geo+json", nearbyLocation);
+        Call<HashMap<String, String>> call = smartParkingAPI.getNearbySpots("application/vnd.geo+json", nearbyLocation);
 
-        call.enqueue(new Callback<NearbySpotList>() {
+        call.enqueue(new Callback<HashMap<String, String>>() {
             @Override
-            public void onResponse(Call<NearbySpotList> call, Response<NearbySpotList> response) {
+            public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
                 switch (response.code()) {
                     case 200:
-                        List<NearbySpot> changedSpots = response.body().getFeatures();
-                        if(changedSpots != null){
-                            for (NearbySpot nearbySpot : changedSpots) {
-                                drawPolygon(Utils.nearbySpotToListOfGeoPoints(nearbySpot),
-                                        nearbySpot.getProperties().getState());
+                        HashMap<String, String> changedSpots = response.body();
+                        List<Spot> spotsUpdated = Utils.updateSpots(changedSpots, spots);
+                        if(spotsUpdated != null){
+                            for (Spot spot : spotsUpdated) {
+                                drawPolygon(Utils.spotToListOfGeoPoints(spot),
+                                        spot.getProperties().getState());
                             }
                         }
                         break;
@@ -517,7 +515,7 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<NearbySpotList> call, Throwable t) {
+            public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
                 t.printStackTrace();
                 Log.e(LOG_TAG, t.toString());
             }
@@ -889,6 +887,7 @@ public class HomeActivity extends AppCompatActivity {
                 activityTransition != DetectedActivity.UNKNOWN) {
             Spot spot = getSpotFromId(spots, spotId);
             SpotProperties spotProperties = spot.getProperties();
+            Toast.makeText(this,"you are inside a spot", Toast.LENGTH_LONG).show();
             if (!spotProperties.getState().equals(StatesEnumerations.OCCUPIED.getEstado())) {
                 if(!dialogSendAllready){
                     confirmationOfActionDialog(spotId, true);
@@ -898,6 +897,14 @@ public class HomeActivity extends AppCompatActivity {
                     confirmationOfActionDialog(spotId, false);
                 }
             }
+
+            final Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                public void run() {
+                    dialogSendAllready = false;
+                    timer.cancel();
+                }
+            }, Constants.getMinutesInMilliseconds());
         }
     }
 
