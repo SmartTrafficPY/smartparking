@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.location.Location;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
@@ -15,6 +16,8 @@ import com.google.android.gms.location.DetectedActivity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+
+import org.osmdroid.util.GeoPoint;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -34,6 +37,9 @@ import smarttraffic.smartparking.dataModels.EventProperties;
 import smarttraffic.smartparking.dataModels.Events;
 import smarttraffic.smartparking.dataModels.Lots.Lot;
 import smarttraffic.smartparking.dataModels.Lots.PointGeometry;
+import smarttraffic.smartparking.dataModels.Point;
+import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbySpot;
+import smarttraffic.smartparking.dataModels.Spots.Spot;
 
 public class Utils {
 
@@ -215,8 +221,8 @@ public class Utils {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 switch (response.code()) {
-                    case 200:
-                        Log.i(LOG_TAG, "Evento de entrada enviado correctamente");
+                    case 201:
+                        Log.i(LOG_TAG, "Evento de entrada creado correctamente");
                         break;
                     default:
                         Log.e(LOG_TAG, "Evento de entrada enviado incorrectamente");
@@ -230,4 +236,27 @@ public class Utils {
             }
         });
     }
+
+    public static List<GeoPoint> spotToListOfGeoPoints(Spot spot) {
+        List<GeoPoint> polygon = new ArrayList<>();
+        List<Point> polygonPoints = spot.getGeometry().getPolygonPoints();
+        if (polygonPoints != null) {
+            for (Point point : polygonPoints) {
+                polygon.add(new GeoPoint(point.getLatitud(), point.getLongitud()));
+            }
+        }
+        return polygon;
+    }
+
+    public static List<GeoPoint> nearbySpotToListOfGeoPoints(NearbySpot spot) {
+        List<GeoPoint> polygon = new ArrayList<>();
+        List<Point> polygonPoints = spot.getGeometry().getPolygonPoints();
+        if (polygonPoints != null) {
+            for (Point point : polygonPoints) {
+                polygon.add(new GeoPoint(point.getLatitud(), point.getLongitud()));
+            }
+        }
+        return polygon;
+    }
+
 }

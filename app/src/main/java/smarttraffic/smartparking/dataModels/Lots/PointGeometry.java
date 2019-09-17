@@ -45,14 +45,6 @@ public class PointGeometry {
         this.coordinates = coordinates;
     }
 
-    public Point getCenterPoint(){
-        if(getCoordinates() != null){
-            Point centerPoint = new Point(getCoordinates().get(0), getCoordinates().get(1));
-            return centerPoint;
-        }
-        return null;
-    }
-
     public Point getPointCoordinates(){
         if(getCoordinates() != null){
             Point centerPoint = new Point(getCoordinates().get(1), getCoordinates().get(0));
@@ -70,7 +62,6 @@ public class PointGeometry {
             points.add((double) 0);
             points.add((double) 0);
         }
-
         setCoordinates(points);
     }
 }

@@ -13,12 +13,11 @@ import retrofit2.http.Path;
 import smarttraffic.smartparking.activities.ChangePasswordActivity;
 import smarttraffic.smartparking.dataModels.Credentials;
 import smarttraffic.smartparking.dataModels.Events;
-import smarttraffic.smartparking.dataModels.Lots.Lot;
 import smarttraffic.smartparking.dataModels.Lots.LotList;
-import smarttraffic.smartparking.dataModels.NearbyLocation;
+import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbyLocation;
 import smarttraffic.smartparking.dataModels.ProfileUser;
 import smarttraffic.smartparking.dataModels.ProfileRegistry;
-import smarttraffic.smartparking.dataModels.Spots.Spot;
+import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbySpotList;
 import smarttraffic.smartparking.dataModels.Spots.SpotList;
 import smarttraffic.smartparking.dataModels.UserToken;
 
@@ -48,21 +47,14 @@ public interface SmartParkingAPI {
     Call<HashMap<String, String>> getMapNearbySpots(@Body NearbyLocation nearbyLocation);
 
     @POST("smartparking/spots/nearby/")
-    Call<SpotList> getGeoJsonNearbySpots(@Body NearbyLocation nearbyLocation);
-
-    @GET("smartparking/spots/")
-    Call<SpotList> getAllSpots();
-
-    @GET("smartparking/spots/{spotId}/")
-    Call<Spot> getASpot(@Path("spotId") Integer spotId);
+    Call<NearbySpotList> getGeoJsonNearbySpots(@Header("Content-Type") String content_type,
+                                               @Header("Accept") String accept,
+                                               @Body NearbyLocation nearbyLocation);
 
     /**LOTS**/
 
     @GET("smartparking/lots/")
     Call<LotList> getAllLots();
-
-    @GET("smartparking/lots/{lotId}/")
-    Call<Lot> getALot(@Path("lotId") Integer lotId);
 
     @GET("smartparking/lots/{lotId}/spots/")
     Call<HashMap<String, String>> getAllMapSpotsInLot(@Path("lotId") Integer lotId);

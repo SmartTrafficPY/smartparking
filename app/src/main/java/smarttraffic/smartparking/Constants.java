@@ -21,8 +21,8 @@ public class Constants {
     public static final String CLIENTE_DATA = "CLIENTE_DATA";
     public static final String USER_ID = "USER_ID";
     public static final String USER_URL = "USER_URL";
-    public static final String APPLICATION_ID = "1";
-    public static final String EVENT_BASIC = "/entities/smartparking/event_types/";
+    public static final int APPLICATION_ID = 1;
+    public static final String EVENT_BASIC = "entities/smartparking/event_types/";
 
     public static final int NOT_IN_PARKINGSPOT = -1;
     public static final String GEOFENCE_LOTS_SHARED_PREFERENCES = "GEOFENCE_LOTS_SHARED_PREFERENCES";
@@ -40,7 +40,7 @@ public class Constants {
     public static final long DETECTION_INTERVAL_IN_MILLISECONDS =  SECONDS_IN_MILLISECONDS; // 30 seconds
     private static final long MINUTES_IN_MILLISECONDS = SECONDS_IN_MILLISECONDS * 60;
     private static final long HOURS_IN_MILLISECONDS = MINUTES_IN_MILLISECONDS * 60;
-    public static final String BASE_URL = "http://192.168.100.5:8000/api/";
+    public static final String BASE_URL = "https://api.smarttraffic.com.py/api/";
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
     private static final String CHANNEL_ID = "SMARTPARKING_CHANNEL_ID";
     private static final String PROXIMITY_INTENT_ACTION = "SMARTPARKING_PROXIMITY_ALERT";
@@ -56,7 +56,7 @@ public class Constants {
     private static final long HIGH_FREQUENCY_UPDATES = SECONDS_IN_MILLISECONDS * 1;
     private static final long LOW_FREQUENCY_UPDATES = MINUTES_IN_MILLISECONDS * 20;
     private static final String PROX_ALERT_INTENT = "smarttraffic.smartparking.services.ProximityAlert";
-    public static final String TILE_SERVER = "https://smarttraffic.com.py/tile/";
+    public static final String TILE_SERVER = "https://api.smarttraffic.com.py/tile/";
     public static final int REQUEST_CHECK_SETTINGS = 0x1;
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.

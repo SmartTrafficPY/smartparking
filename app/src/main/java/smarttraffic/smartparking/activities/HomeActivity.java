@@ -13,7 +13,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -107,9 +106,12 @@ import smarttraffic.smartparking.Utils;
 import smarttraffic.smartparking.dataModels.Lots.Lot;
 import smarttraffic.smartparking.dataModels.Lots.LotList;
 import smarttraffic.smartparking.dataModels.Lots.LotProperties;
-import smarttraffic.smartparking.dataModels.NearbyLocation;
-import smarttraffic.smartparking.dataModels.NearbyPoint;
+import smarttraffic.smartparking.dataModels.Lots.PointGeometry;
+import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbyLocation;
 import smarttraffic.smartparking.dataModels.Point;
+import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbyPropertiesFeed;
+import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbySpot;
+import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbySpotList;
 import smarttraffic.smartparking.dataModels.Spots.Spot;
 import smarttraffic.smartparking.dataModels.Spots.SpotList;
 import smarttraffic.smartparking.dataModels.Spots.SpotProperties;
@@ -137,7 +139,6 @@ public class HomeActivity extends AppCompatActivity {
     ImageButton buttonRecenter;
     @BindView(R.id.buttonAbout)
     ImageButton buttonAbout;
-
 
     private FusedLocationProviderClient mFusedLocationClient;
     private ActivityRecognitionClient mActivityRecognitionClient;
@@ -357,17 +358,6 @@ public class HomeActivity extends AppCompatActivity {
         mapView.getOverlayManager().add(polygon);
     }
 
-    private List<GeoPoint> spotToListOfGeoPoints(Spot spot) {
-        List<GeoPoint> polygon = new ArrayList<>();
-        List<Point> polygonPoints = spot.getGeometry().getPolygonPoints();
-        if (polygonPoints != null) {
-            for (Point point : polygonPoints) {
-                polygon.add(new GeoPoint(point.getLatitud(), point.getLongitud()));
-            }
-        }
-        return polygon;
-    }
-
     private void managerOfTransitions() {
         getSpotsFromGeofence(geofencesTrigger, false);
         final Handler handler = new Handler();
@@ -450,7 +440,7 @@ public class HomeActivity extends AppCompatActivity {
                         spots = testSpots.getFeatures();
                         if(spots != null){
                             for (Spot spot : spots) {
-                                drawPolygon(spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
                             }
                         }
                         break;
@@ -472,16 +462,18 @@ public class HomeActivity extends AppCompatActivity {
     private void updatesSpotsFromGeofence() {
         SharedPreferences sharedPreferences = this.getSharedPreferences(
                 X_TIMESTAMP,MODE_PRIVATE);
-        NearbyPoint point = new NearbyPoint();
-        if(mCurrentLocation != null){
-            point.setLat(mCurrentLocation.getLatitude());
-            point.setLon(mCurrentLocation.getLongitude());
-        }
         NearbyLocation nearbyLocation = new NearbyLocation();
-        nearbyLocation.setPoint(point);
-        nearbyLocation.setPrevious_timestamp(sharedPreferences.getString(
-                X_TIMESTAMP,
-                "1559447999"));
+        PointGeometry point = new PointGeometry();
+        NearbyPropertiesFeed nearbyPropertiesFeed = new NearbyPropertiesFeed();
+
+        if(mCurrentLocation != null){
+            point.setPointCoordinates(mCurrentLocation);
+        }
+        nearbyPropertiesFeed.setPrevious_timestamp(sharedPreferences.getString(
+                X_TIMESTAMP,"1559447999"));
+        nearbyLocation.setGeometry(point);
+        nearbyLocation.setProperties(nearbyPropertiesFeed);
+
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -492,7 +484,6 @@ public class HomeActivity extends AppCompatActivity {
                 .readTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(new ReceivedTimeStampInterceptor(this))
                 .addInterceptor(new AddUserTokenInterceptor(this))
-                .addInterceptor(new AddGeoJsonInterceptor())
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -502,17 +493,19 @@ public class HomeActivity extends AppCompatActivity {
                 .build();
 
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
-        Call<SpotList> call = smartParkingAPI.getGeoJsonNearbySpots(nearbyLocation);
+        Call<NearbySpotList> call = smartParkingAPI.getGeoJsonNearbySpots("application/vnd.geo+json",
+                "application/vnd.geo+json", nearbyLocation);
 
-        call.enqueue(new Callback<SpotList>() {
+        call.enqueue(new Callback<NearbySpotList>() {
             @Override
-            public void onResponse(Call<SpotList> call, Response<SpotList> response) {
+            public void onResponse(Call<NearbySpotList> call, Response<NearbySpotList> response) {
                 switch (response.code()) {
                     case 200:
-                        List<Spot> changedSpots = response.body().getFeatures();
+                        List<NearbySpot> changedSpots = response.body().getFeatures();
                         if(changedSpots != null){
-                            for (Spot spot : changedSpots) {
-                                drawPolygon(spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                            for (NearbySpot nearbySpot : changedSpots) {
+                                drawPolygon(Utils.nearbySpotToListOfGeoPoints(nearbySpot),
+                                        nearbySpot.getProperties().getState());
                             }
                         }
                         break;
@@ -524,7 +517,7 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<SpotList> call, Throwable t) {
+            public void onFailure(Call<NearbySpotList> call, Throwable t) {
                 t.printStackTrace();
                 Log.e(LOG_TAG, t.toString());
             }
@@ -610,11 +603,11 @@ public class HomeActivity extends AppCompatActivity {
                         ArrayList<Geofence> geofenceList = new ArrayList<>();
                         for (Lot lot : lots) {
                             LotProperties properties = lot.getProperties();
-                            Point center = properties.getCenter().getCenterPoint();
+                            Point center = properties.getCenter().getPointCoordinates();
                             geofenceList.add(generateGeofence(center.getLatitud(),
                                     center.getLongitud(),
                                     properties.getRadio(),
-                                    properties.getName()));
+                                    properties.getName(), false));
                         }
                         Toast.makeText(HomeActivity.this, "Se han agregado todos los geofences",
                                 Toast.LENGTH_SHORT).show();
@@ -640,18 +633,23 @@ public class HomeActivity extends AppCompatActivity {
      * This sample hard codes geofence data. A real app might dynamically create geofences based on
      * the user's location.
      */
-    private Geofence generateGeofence(double latitude, double longitud, float radius, String nameId) {
-        Geofence geofence = new Geofence.Builder()
+    private Geofence generateGeofence(double latitude, double longitud, float radius, String nameId,
+                                      boolean isSpotGeofence) {
+        Geofence.Builder builder = new Geofence.Builder()
                 .setRequestId(nameId)
                 .setCircularRegion(
                         latitude,
                         longitud,
                         radius
                 )
-                .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                        Geofence.GEOFENCE_TRANSITION_EXIT)
-                .build();
+                        Geofence.GEOFENCE_TRANSITION_EXIT);
+        if(isSpotGeofence){
+            builder.setExpirationDuration(Constants.getHoursInMilliseconds() * 24);
+        }else{
+            builder.setExpirationDuration(Geofence.NEVER_EXPIRE);
+        }
+        Geofence geofence = builder.build();
         return geofence;
     }
 
@@ -762,7 +760,8 @@ public class HomeActivity extends AppCompatActivity {
         Intent intent = new Intent(this, GeofenceBroadcastReceiver.class);
         // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
         // addGeofences() and removeGeofences().
-        mGeofencePendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mGeofencePendingIntent = PendingIntent.getBroadcast(this, 0, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
         return mGeofencePendingIntent;
     }
 
@@ -782,7 +781,7 @@ public class HomeActivity extends AppCompatActivity {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
         builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
         builder.addGeofence(generateGeofence(points.get(0).getLatitud(), points.get(0).getLongitud(),
-                15, "ParkinSpot" + spot.getProperties().getIdFromUrl()));
+                15, "ParkinSpot" + spot.getProperties().getIdFromUrl(), true));
         return builder.build();
     }
 
@@ -884,16 +883,6 @@ public class HomeActivity extends AppCompatActivity {
         };
     }
 
-    /**
-     - Is User in a spot?
-     - Is the user STILL in that spot?
-     * THEN, THE USER COULD BE:
-     * PARKING:
-     *      - Is the spot free?
-     *      THEN: show dialog for secure the action...
-     *FREEING A SPOT:
-     *      - Is the spot occupied by the SAME user?
-     *      THEN: show dialog for secure the action...**/
     private void checkForUserLocation(Location mCurrentLocation) {
         int spotId = isPointInsideParkingSpot(spots, mCurrentLocation);
         if (spotId != Constants.NOT_IN_PARKINGSPOT &&
@@ -909,13 +898,6 @@ public class HomeActivity extends AppCompatActivity {
                     confirmationOfActionDialog(spotId, false);
                 }
             }
-            final Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
-                public void run() {
-                    dialogSendAllready = false;
-                    timer.cancel();
-                }
-            }, Constants.getMinutesInMilliseconds());
         }
     }
 
@@ -942,8 +924,8 @@ public class HomeActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int id) {
                             Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
                             userNotResponse = false;
-//                            geofencingClient.addGeofences(getGeofenceRequest(spotIn),
-//                                    getGeofencePendingIntent());
+                            geofencingClient.addGeofences(getGeofenceRequest(
+                                    getSpotFromId(spots, spotIdIn)), getGeofencePendingIntent());
                         }
                     });
         }else{
@@ -977,6 +959,7 @@ public class HomeActivity extends AppCompatActivity {
                     Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
                 }
                 userNotResponse = true;
+                dialogSendAllready = false;
                 timer.cancel();
             }
         }, Constants.getSecondsInMilliseconds() * 20);

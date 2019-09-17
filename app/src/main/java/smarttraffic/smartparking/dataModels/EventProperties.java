@@ -8,7 +8,7 @@ package smarttraffic.smartparking.dataModels;
 
 public class EventProperties {
 
-    private String application;
+    private int application;
     private String e_type;
     private String agent;
 
@@ -24,11 +24,11 @@ public class EventProperties {
                 '}';
     }
 
-    public String getApplication() {
+    public int getApplication() {
         return application;
     }
 
-    public void setApplication(String application) {
+    public void setApplication(int application) {
         this.application = application;
     }
 
