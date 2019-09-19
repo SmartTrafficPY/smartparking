@@ -442,8 +442,7 @@ public class HomeActivity extends AppCompatActivity {
                         }
                         break;
                     default:
-                        Toast.makeText(HomeActivity.this, "Por alguna razón no fue posible la conexión",
-                                Toast.LENGTH_SHORT).show();
+                        Log.e(LOG_TAG, "Por alguna razón no fue posible la conexión");
                         break;
                 }
             }
@@ -507,8 +506,7 @@ public class HomeActivity extends AppCompatActivity {
                         }
                         break;
                     default:
-                        Toast.makeText(HomeActivity.this, "Por alguna razón no fue posible la conexión",
-                                Toast.LENGTH_SHORT).show();
+                        Log.e(LOG_TAG, "Por alguna razón no fue posible la conexión");
                         break;
                 }
             }
@@ -606,14 +604,12 @@ public class HomeActivity extends AppCompatActivity {
                                     properties.getRadio(),
                                     properties.getName(), false));
                         }
-                        Toast.makeText(HomeActivity.this, "Se han agregado todos los geofences",
-                                Toast.LENGTH_SHORT).show();
+                        Log.e(LOG_TAG, "Se han agregado todos los geofences");
                         addGeofences(geofenceList);
                         break;
                     default:
-                        Toast.makeText(HomeActivity.this, "Por problemas de conexion no " +
-                                        "se han conseguido los predios del sistema",
-                                Toast.LENGTH_SHORT).show();
+                        Log.e(LOG_TAG, "Por problemas de conexion no " +
+                                        "se han conseguido los predios del sistema");
                         break;
                 }
             }
@@ -860,7 +856,6 @@ public class HomeActivity extends AppCompatActivity {
                                 String errorMessage = "Location settings are inadequate, and cannot be " +
                                         "fixed here. Fix in Settings.";
                                 Log.e(LOG_TAG, errorMessage);
-                                Toast.makeText(HomeActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -886,7 +881,6 @@ public class HomeActivity extends AppCompatActivity {
                 activityTransition != DetectedActivity.UNKNOWN) {
             Spot spot = getSpotFromId(spots, spotId);
             SpotProperties spotProperties = spot.getProperties();
-            Toast.makeText(this,"you are inside a spot", Toast.LENGTH_LONG).show();
             if (!spotProperties.getState().equals(StatesEnumerations.OCCUPIED.getEstado())) {
                 if(!dialogSendAllready){
                     confirmationOfActionDialog(spotId, true);
@@ -896,14 +890,6 @@ public class HomeActivity extends AppCompatActivity {
                     confirmationOfActionDialog(spotId, false);
                 }
             }
-
-            final Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
-                public void run() {
-                    dialogSendAllready = false;
-                    timer.cancel();
-                }
-            }, Constants.getMinutesInMilliseconds());
         }
     }
 
@@ -1058,9 +1044,6 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.w(LOG_TAG, "Failed to enable activity recognition.");
-                Toast.makeText(HomeActivity.this,
-                        getString(R.string.activity_updates_not_removed),
-                        Toast.LENGTH_SHORT).show();
                 setUpdatesRequestedState(true);
             }
         });

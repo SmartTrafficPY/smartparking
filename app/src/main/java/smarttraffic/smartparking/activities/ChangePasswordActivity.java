@@ -153,7 +153,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 .build();
 
         int userId = sharedPreferences.getInt(Constants.USER_ID, -1);
-
+        final SharedPreferences.Editor editor = sharedPreferences.edit();
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
         Call<ProfileUser> call = smartParkingAPI.updateUserProfile(userId, password);
 
@@ -163,6 +163,8 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 switch (response.code()) {
                     case 200:
                         showToast(CHANGE_SUCCESS);
+                        editor.putString(Constants.USER_PASSWORD,
+                                firstNewPassword.getText().toString());
                         Intent intent = new Intent(ChangePasswordActivity.this,
                                 HomeActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

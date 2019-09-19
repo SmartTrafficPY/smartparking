@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.location.Location;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
@@ -26,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -146,10 +144,10 @@ public class Utils {
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     switch (response.code()) {
                         case 200:
-                            showToast(String.valueOf(R.string.parked_successfull), context);
+                            showToast(context.getResources().getString(R.string.parked_successfull), context);
                             break;
                         default:
-                            showToast(String.valueOf(R.string.unsuccessful), context);
+                            showToast(context.getResources().getString(R.string.unsuccessful), context);
                             break;
                     }
                 }
@@ -166,10 +164,10 @@ public class Utils {
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     switch (response.code()) {
                         case 200:
-                            showToast(String.valueOf(R.string.free_successfull), context);
+                            showToast(context.getResources().getString(R.string.free_successfull), context);
                             break;
                         default:
-                            showToast(String.valueOf(R.string.unsuccessful), context);
+                            showToast(context.getResources().getString(R.string.unsuccessful), context);
                             break;
                     }
                 }
@@ -265,11 +263,24 @@ public class Utils {
         List<Spot> spotsUpdated = new ArrayList<>();
         if(changedSpots != null && spots != null){
             for(Map.Entry<String,String> entry : changedSpots.entrySet()){
-                Spot spot = spots.get(Integer.valueOf(entry.getKey()));
-                spot.getProperties().setState(entry.getValue());
-                spotsUpdated.add(spot);
+                Spot spot = getSpotFromKey(Integer.valueOf(entry.getKey()), spots);
+                if(spot != null){
+                    spot.getProperties().setState(entry.getValue());
+                    spotsUpdated.add(spot);
+                }
             }
         }
         return spotsUpdated;
     }
+
+    private static Spot getSpotFromKey(int key, List<Spot> spots){
+        for(Spot spot : spots){
+            int id = spot.getProperties().getIdFromUrl();
+            if(id == key){
+                return spot;
+            }
+        }
+        return null;
+    }
+
 }
