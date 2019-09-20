@@ -222,17 +222,14 @@ public class Utils {
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 switch (response.code()) {
                     case 201:
-                        Log.i(LOG_TAG, "Evento de entrada creado correctamente");
                         break;
                     default:
-                        Log.e(LOG_TAG, "Evento de entrada enviado incorrectamente");
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 t.printStackTrace();
-                Log.e(LOG_TAG, t.toString());
             }
         });
     }

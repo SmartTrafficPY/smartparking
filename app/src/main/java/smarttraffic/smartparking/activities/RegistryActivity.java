@@ -179,8 +179,6 @@ public class RegistryActivity extends AppCompatActivity {
     }
 
     private void createRegister() {
-        Log.d(LOG_TAG, "User trying to registry");
-
         signInButton.setEnabled(false);
 
         final ProgressDialog progressDialog = new ProgressDialog(RegistryActivity.this,

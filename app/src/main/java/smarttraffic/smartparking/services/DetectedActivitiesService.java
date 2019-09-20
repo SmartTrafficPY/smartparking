@@ -33,10 +33,6 @@ public class DetectedActivitiesService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
 
-        // Get the list of the probable activities associated with the current state of the
-        // device. Each activity is associated with a confidence level, which is an int between
-        // 0 and 100.
-
         ArrayList<DetectedActivity> detectedActivities = (ArrayList) result.getProbableActivities();
 
         PreferenceManager.getDefaultSharedPreferences(this)
@@ -45,10 +41,6 @@ public class DetectedActivitiesService extends IntentService {
                         Utils.detectedActivitiesToJson(detectedActivities))
                 .apply();
 
-        // Log each activity.
-        Log.i(LOG_TAG, Utils.getActivityString(
-                getApplicationContext(),
-                result.getMostProbableActivity().getType()) + " " + result.getMostProbableActivity().getConfidence() + "%");
         broadcastActivityTransition(result);
     }
 

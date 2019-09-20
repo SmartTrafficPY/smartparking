@@ -102,7 +102,6 @@ public class ResetPassActivity extends AppCompatActivity {
     }
 
     private void resetUsersPassword() {
-        Log.d(LOG_TAG, "User trying to reset password!");
 
         resetPass.setEnabled(false);
 

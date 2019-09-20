@@ -367,7 +367,6 @@ public class HomeActivity extends AppCompatActivity {
         };
         switch (geofenceTransition) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
-                Log.i(LOG_TAG, "Enter Transition");
                 if (checkPermissions()) {
                     startLocationUpdates(mLocationRequest);
                 } else if (!checkPermissions()) {
@@ -378,17 +377,14 @@ public class HomeActivity extends AppCompatActivity {
                 Utils.setEntranceEvent(this, mCurrentLocation, "enter_lot");
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
-                Log.i(LOG_TAG, "Exit Transition");
                 stopLocationUpdates();
                 removeActivityUpdates();
                 handler.removeCallbacks(cronJob);
                 Utils.setEntranceEvent(this, mCurrentLocation,"exit_lot");
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
-                Log.i(LOG_TAG, "Dwell Transition");
                 break;
             default:
-                Log.i(LOG_TAG, "No transition detected");
         }
     }
 
@@ -442,7 +438,6 @@ public class HomeActivity extends AppCompatActivity {
                         }
                         break;
                     default:
-                        Log.e(LOG_TAG, "Por alguna razón no fue posible la conexión");
                         break;
                 }
             }
@@ -450,7 +445,6 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<SpotList> call, Throwable t) {
                 t.printStackTrace();
-                Log.e(LOG_TAG, t.toString());
             }
         });
     }
@@ -506,7 +500,6 @@ public class HomeActivity extends AppCompatActivity {
                         }
                         break;
                     default:
-                        Log.e(LOG_TAG, "Por alguna razón no fue posible la conexión");
                         break;
                 }
             }
@@ -514,7 +507,6 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
                 t.printStackTrace();
-                Log.e(LOG_TAG, t.toString());
             }
         });
     }
@@ -537,7 +529,6 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(LOG_TAG, "onResume");
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,
                 new IntentFilter(Constants.BROADCAST_TRANSITION_ACTIVITY_INTENT));
         LocalBroadcastManager.getInstance(this).registerReceiver(geofenceReceiver,
@@ -549,8 +540,6 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.i(LOG_TAG, "onCreate");
-
     }
 
     @Override
@@ -604,12 +593,9 @@ public class HomeActivity extends AppCompatActivity {
                                     properties.getRadio(),
                                     properties.getName(), false));
                         }
-                        Log.e(LOG_TAG, "Se han agregado todos los geofences");
                         addGeofences(geofenceList);
                         break;
                     default:
-                        Log.e(LOG_TAG, "Por problemas de conexion no " +
-                                        "se han conseguido los predios del sistema");
                         break;
                 }
             }
@@ -617,7 +603,6 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<LotList> call, Throwable t) {
                 t.printStackTrace();
-                Log.e(LOG_TAG, t.toString());
             }
         });
     }
@@ -662,7 +647,6 @@ public class HomeActivity extends AppCompatActivity {
         // Provide an additional rationale to the user. This would happen if the user denied the
         // request previously, but didn't check the "Don't ask again" checkbox.
         if (shouldProvideRationale) {
-            Log.i(LOG_TAG, "Displaying permission rationale to provide additional context.");
             showSnackbar(R.string.permission_rationale, android.R.string.ok,
                     new View.OnClickListener() {
                         @Override
@@ -674,7 +658,6 @@ public class HomeActivity extends AppCompatActivity {
                         }
                     });
         } else {
-            Log.i(LOG_TAG, "Requesting permission");
             // Request permission. It's possible this can be auto answered if device policy
             // sets the permission in a given state or the user denied the permission
             // previously and checked "Never ask again".
@@ -781,14 +764,11 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
-        Log.i(LOG_TAG, "onRequestPermissionResult");
         if (requestCode == Constants.getRequestPermissionsRequestCode()) {
             if (grantResults.length <= 0) {
                 // If user interaction was interrupted, the permission request is cancelled and you
                 // receive empty arrays.
-                Log.i(LOG_TAG, "User interaction was cancelled.");
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.i(LOG_TAG, "Permission granted.");
             } else {
                 showSnackbar(R.string.permission_denied_explanation, R.string.settings,
                         new View.OnClickListener() {
@@ -832,7 +812,6 @@ public class HomeActivity extends AppCompatActivity {
                     @SuppressLint("MissingPermission")
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        Log.i(LOG_TAG, "All location settings are satisfied.");
                         mFusedLocationClient.requestLocationUpdates(mLocationRequest,
                                 mLocationCallback, Looper.myLooper());
                     }
@@ -843,19 +822,15 @@ public class HomeActivity extends AppCompatActivity {
                         int statusCode = ((ApiException) e).getStatusCode();
                         switch (statusCode) {
                             case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                                Log.i(LOG_TAG, "Location settings are not satisfied. Attempting to upgrade " +
-                                        "location settings ");
                                 try {
                                     ResolvableApiException rae = (ResolvableApiException) e;
                                     rae.startResolutionForResult(HomeActivity.this, Constants.REQUEST_CHECK_SETTINGS);
                                 } catch (IntentSender.SendIntentException sie) {
-                                    Log.i(LOG_TAG, "PendingIntent unable to execute request.");
                                 }
                                 break;
                             case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
                                 String errorMessage = "Location settings are inadequate, and cannot be " +
                                         "fixed here. Fix in Settings.";
-                                Log.e(LOG_TAG, errorMessage);
                         }
                     }
                 });
@@ -1018,7 +993,6 @@ public class HomeActivity extends AppCompatActivity {
         task.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Log.w(LOG_TAG, getString(R.string.activity_updates_not_enabled));
                 setUpdatesRequestedState(false);
             }
         });
@@ -1043,7 +1017,6 @@ public class HomeActivity extends AppCompatActivity {
         task.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Log.w(LOG_TAG, "Failed to enable activity recognition.");
                 setUpdatesRequestedState(true);
             }
         });

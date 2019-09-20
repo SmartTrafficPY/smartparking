@@ -49,12 +49,10 @@ public class AddCookiesInterceptor implements Interceptor {
         for (String cookie : csrfCookies) {
             cookiesConcat = cookie.substring(0, cookie.indexOf(";"));
             builder.header(CSRF_TOKEN, cookie.substring(10, cookie.indexOf(";")));
-            Log.v(LOG_TAG, cookie);
         }
 
         for (String cookie : sessionCookies) {
             cookiesConcat = cookiesConcat + "; " + cookie.substring(0, cookie.indexOf(";"));
-            Log.v(LOG_TAG, cookie);
         }
 
         builder.header(COOKIE, cookiesConcat);

@@ -70,7 +70,6 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
         if (geofencingEvent.hasError()) {
             String errorMessage = GeofenceErrorMessages.getErrorString(this,
                     geofencingEvent.getErrorCode());
-            Log.e(LOG_TAG, errorMessage);
             return;
         }
         // Get the transition type.
@@ -87,10 +86,8 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
             // Send notification and log the transition details.
             broadcastGeofenceTransition(triggeringGeofences, geofenceTransition);
             sendNotification(geofenceTransitionDetails, triggeringGeofences, geofenceTransition);
-            Log.i(LOG_TAG, geofenceTransitionDetails);
         } else {
             // Log the error.
-            Log.e(LOG_TAG, getString(R.string.geofence_transition_invalid_type, geofenceTransition));
         }
     }
 

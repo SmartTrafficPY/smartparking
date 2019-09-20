@@ -52,8 +52,6 @@ public class ReceivedCookiesInterceptor implements Interceptor {
             editor.putStringSet(SESSION_COOKIES, sessionCookies).apply();
             editor.commit();
 
-            Log.v(LOG_TAG, originalResponse.headers().get(SET_COOKIE));
-
         }
 
         return originalResponse;

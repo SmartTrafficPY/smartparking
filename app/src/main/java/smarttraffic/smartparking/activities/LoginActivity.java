@@ -81,8 +81,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void makeLoginHappen() {
-        Log.d(LOG_TAG, "User trying to make the login");
-
         loginButton.setEnabled(false);
 
         final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this,

@@ -122,7 +122,6 @@ public class ChangePasswordActivity extends AppCompatActivity {
         changePassButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.v(LOG_TAG, "User trying to change his password");
                 if(currentPassword.getText().toString().equals(userPassword)){
                     changeProfileUser(sharedPreferences);
                 }else{
@@ -181,7 +180,6 @@ public class ChangePasswordActivity extends AppCompatActivity {
             public void onFailure(Call<ProfileUser> call, Throwable t) {
                 t.printStackTrace();
                 showToast(SERVER_MISTAQUE);
-                Log.e(LOG_TAG,t.toString());
             }
         });
 

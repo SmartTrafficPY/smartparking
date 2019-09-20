@@ -38,7 +38,6 @@ public class ReceivedTimeStampInterceptor implements Interceptor {
         editor.putString(X_TIMESTAMP, originalResponse.header(X_TIMESTAMP)).apply();
         editor.commit();
 
-        Log.v(LOG_TAG, X_TIMESTAMP);
 
         return originalResponse;
 
