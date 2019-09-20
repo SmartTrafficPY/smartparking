@@ -90,3 +90,6 @@ db.sqlite3
 /requirements/
 /static
 /.venv
+
+app/src/main/java/smarttraffic/smartparking/SmartParkingInitialData.java
+app/src/main/res/xml/network_security_config.xml

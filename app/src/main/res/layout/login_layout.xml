@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/loginLinearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="25dp"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:id="@+id/welcomeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:textAllCaps="true"
+            android:textColor="@color/ic_launcher_background"
+            android:textSize="24dp"
+            android:textStyle="bold|italic|normal"
+            android:layout_gravity="center"
+            android:text="@string/welcome" />
+
+        <ImageView
+            android:id="@+id/initLogo"
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="274dp"
+            android:src="@mipmap/smart_parking_logo_round"
+            tools:srcCompat="@mipmap/smart_parking_logo_round" />
+
+        <TextView
+            android:id="@+id/usernameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/primary_text"
+            android:layout_marginBottom="8dp"
+            android:text="@string/loginText" />
+
+        <EditText
+            android:id="@+id/usernameLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Username"
+            android:textColorHint="@color/divider"
+            android:inputType="textPersonName" />
+
+        <EditText
+            android:id="@+id/passwordLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Password"
+            android:textColorHint="@color/divider"
+            android:inputType="textPassword" />
+
+        <!--<TextView-->
+            <!--android:id="@+id/forgotPassword"-->
+            <!--android:focusable="false"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textIsSelectable="true"-->
+            <!--android:textColor="@color/smartparking_red"-->
+            <!--android:text="@string/forgotPassword" />-->
+
+
+        <Button
+            android:id="@+id/loginButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/icons"
+            android:layout_marginTop="25dp"
+            android:shadowColor="@color/cardview_shadow_end_color"
+            android:background="@color/colorPrimary"
+            android:text="@string/loginButton" />
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/linkSignUp"
+                android:focusable="false"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginTop="25dp"
+                android:textIsSelectable="true"
+                android:textColor="@color/blue"
+                android:text="@string/register" />
+
+        </android.support.design.widget.TextInputLayout>
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
