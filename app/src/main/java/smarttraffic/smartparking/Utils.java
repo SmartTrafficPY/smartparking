@@ -294,4 +294,20 @@ public class Utils {
         }
     }
 
+    public static void geofencesSetUp(Context context, Boolean added){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(
+                Constants.GEOFENCES_SETUP, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(Constants.GEOFENCES_ADD, added).apply();
+        editor.commit();
+    }
+
+    public static boolean getGeofenceStatus(Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(
+                Constants.GEOFENCES_SETUP, Context.MODE_PRIVATE);
+        boolean isGeofenceAddes = sharedPreferences.getBoolean(
+                Constants.GEOFENCES_ADD, false);
+        return  isGeofenceAddes;
+    }
+
 }

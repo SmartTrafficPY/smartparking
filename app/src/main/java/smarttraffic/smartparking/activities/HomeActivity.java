@@ -222,7 +222,6 @@ public class HomeActivity extends AppCompatActivity {
             }
         };
 
-
         geofenceReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -240,7 +239,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setMapView() {
-
         final String basic =
                 "Basic " + Base64.encodeToString(SmartParkingInitialData.getCredentials().getBytes(), Base64.NO_WRAP);
         final Map<String, String> AuthHeader = new HashMap<>();
@@ -336,6 +334,8 @@ public class HomeActivity extends AppCompatActivity {
         mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this), mapView);
         mLocationOverlay.enableMyLocation();
         mLocationOverlay.enableFollowLocation();
+//        mLocationOverlay.setPersonIcon();
+//        mLocationOverlay.setDirectionArrow();
         mLocationOverlay.setOptionsMenuEnabled(true);
     }
 
@@ -542,7 +542,13 @@ public class HomeActivity extends AppCompatActivity {
                 new IntentFilter(Constants.BROADCAST_TRANSITION_ACTIVITY_INTENT));
         LocalBroadcastManager.getInstance(this).registerReceiver(geofenceReceiver,
                 new IntentFilter(Constants.getBroadcastGeofenceTriggerIntent()));
-//        managerOfTransitions();
+        if(Utils.getGeofenceStatus(HomeActivity.this)){
+            if(!Utils.isDayOfWeek()){
+                removeGeofences();
+            }
+        }else if(!Utils.isDayOfWeek()){
+            addParkingLotsGeofences();
+        }
         mapView.onResume();
     }
 
@@ -603,6 +609,7 @@ public class HomeActivity extends AppCompatActivity {
                                     properties.getName(), false));
                         }
                         addGeofences(geofenceList);
+                        Log.i(LOG_TAG,"add geofences");
                         break;
                     default:
                         break;
@@ -715,6 +722,7 @@ public class HomeActivity extends AppCompatActivity {
             return;
         }
         geofencingClient.addGeofences(getGeofencingRequest(geofenceArrayList), getGeofencePendingIntent());
+        Utils.geofencesSetUp(HomeActivity.this,true);
     }
 
     /**
@@ -728,6 +736,7 @@ public class HomeActivity extends AppCompatActivity {
             return;
         }
         geofencingClient.removeGeofences(getGeofencePendingIntent());
+        Utils.geofencesSetUp(HomeActivity.this,false);
     }
 
     /**
