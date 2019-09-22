@@ -25,7 +25,7 @@
             android:layout_height="fill_parent"/>
 
         <ImageButton android:id="@+id/buttonRecenter"
-            android:background="@drawable/roundbutton"
+            android:background="@drawable/btn_rectangle"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:src="@drawable/to_location"
@@ -36,10 +36,10 @@
         </ImageButton>
 
         <ImageButton android:id="@+id/buttonAbout"
-            android:background="@drawable/roundbutton"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:src="@drawable/about"
+            android:background="@drawable/btn_rectangle"
             android:adjustViewBounds="true"
             android:layout_marginBottom="15dp"
             android:layout_above="@+id/buttonRecenter"
