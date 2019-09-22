@@ -23,10 +23,10 @@
     <string name="eula_URL">http://example.com/</string>
     <string name="server_address"></string>
     <string name="eula_warning_title"></string>
-    <string name="eula_title">Aviso Legal de Responsabilidades</string>
+    <string name="eula_title">Aviso de Responsabilidades</string>
     <string name="eula_checkbox">I Accept the terms and Conditions</string>
     <string name="eula_body">El uso de esta aplicación es completamente voluntario por parte del usuario.
-        Los proveedores de esta aplicación se comprometen en usar los datos recolectados de los
+        Los proveedores de esta aplicación se comprometen en usar los datos de los
         usuarios de forma responsable y de manera privada.
     </string>
     <string name="passwords_not_match">Las contraseñas no coinciden!</string>

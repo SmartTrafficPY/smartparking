@@ -2,6 +2,7 @@ package smarttraffic.smartparking.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,6 +32,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
@@ -184,7 +186,11 @@ public class HomeActivity extends AppCompatActivity {
                 Constants.getSecondsInMilliseconds() * 5);
         buildLocationSettingsRequest();
 
-        addParkingLotsGeofences();
+        if(Utils.isDayOfWeek()){
+            addParkingLotsGeofences();
+        }else{
+            removeGeofences();
+        }
 
         buttonRecenter.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -195,13 +201,16 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-//        buttonAbout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(HomeActivity.this, AboutActivity.class);
-//                startActivity(intent);
-//            }
-//        });
+        buttonAbout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Dialog settingsDialog = new Dialog(HomeActivity.this);
+                settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+                settingsDialog.setContentView(getLayoutInflater().inflate(R.layout.about_layout
+                        , null));
+                settingsDialog.show();
+            }
+        });
 
         broadcastReceiver = new BroadcastReceiver() {
             @Override

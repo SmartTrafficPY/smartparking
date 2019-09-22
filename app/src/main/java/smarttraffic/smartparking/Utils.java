@@ -20,6 +20,7 @@ import org.osmdroid.util.GeoPoint;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -278,6 +279,19 @@ public class Utils {
             }
         }
         return null;
+    }
+
+    public static Boolean isDayOfWeek(){
+        Calendar calendar = Calendar.getInstance();
+        int day = calendar.get(Calendar.DAY_OF_WEEK);
+        switch (day) {
+            case Calendar.SATURDAY:
+                return false;
+            case Calendar.SUNDAY:
+                return false;
+            default:
+                return true;
+        }
     }
 
 }

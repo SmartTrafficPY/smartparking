@@ -5,12 +5,9 @@
     <group>
         <item
             android:id="@+id/menu_changepass"
-            android:title="@string/seccion_change_pass"
-            android:icon="@drawable/changepass_menu"></item>
+            android:title="@string/seccion_change_pass"></item>
         <item
             android:id="@+id/menu_logout"
-            android:title="@string/opcion_log_out"
-            android:icon="@drawable/logout_menu"></item>
+            android:title="@string/opcion_log_out"></item>
     </group>
-
 </menu>

@@ -1,6 +1,7 @@
 package smarttraffic.smartparking.activities;
 
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +16,7 @@ import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -80,6 +82,7 @@ public class RegistryActivity extends AppCompatActivity {
     @BindView(R.id.setRandomUser)
     ImageButton randomUser;
 
+
     public final Calendar calendar = Calendar.getInstance();
     private final int MAX_LENGTH = 10;
     public static Random RANDOM = new Random();
@@ -95,15 +98,17 @@ public class RegistryActivity extends AppCompatActivity {
         setContentView(R.layout.registry_layout);
         ButterKnife.bind(this);
 
-//        signInButton.setEnabled(false);
-            //TODO:make EULAActivity...
-//        textInTermsAndCond.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(RegistryActivity.this, EulaActivity.class);
-//                startActivity(intent);
-//            }
-//        });
+        signInButton.setEnabled(false);
+        textInTermsAndCond.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Dialog settingsDialog = new Dialog(RegistryActivity.this);
+                settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+                settingsDialog.setContentView(getLayoutInflater().inflate(R.layout.eula_layout
+                        , null));
+                settingsDialog.show();
+            }
+        });
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(RegistrationService.REGISTRATION_OK);

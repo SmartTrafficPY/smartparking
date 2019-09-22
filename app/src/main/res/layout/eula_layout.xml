@@ -1,83 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/textvieweula"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/eula_title"
-        android:gravity="center"
-        android:layout_alignParentTop="true"
-        android:textAppearance="?android:attr/textAppearanceLargePopupMenu"/>
-
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_below="@id/textvieweula"
         android:weightSum="1">
 
-        <WebView
-            android:id="@+id/webviewEula"
-            android:layout_width="fill_parent"
-            android:layout_height="400dp"
-            android:layout_weight="1">
-        </WebView>
-
-        <CheckBox
-            android:id="@+id/checkBoxAcceptEula"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="false"
-            android:layout_gravity="center"
-            android:text="@string/eula_checkbox"
-            android:enabled="true"/>
-
-        <TableLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:textAlignment="center">
-        </TableLayout>
-
-        <TableRow
+        <TextView
+            android:id="@+id/textvieweula"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:textAlignment="center">
+            android:text="@string/eula_title"
+            android:gravity="center"
+            android:layout_alignParentTop="true"
+            android:textSize="30dp"
+            android:layout_marginTop="5dp"
+            android:textAppearance="?android:attr/textAppearanceLargePopupMenu"/>
 
-            <Button
-                android:id="@+id/eula_refuse_btn"
-                android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:layout_column="0"
-                android:layout_marginBottom="12dp"
-                android:layout_marginLeft="12dp"
-                android:paddingRight="20dp"
-                android:text="@string/button_cancel"
-                android:paddingLeft="20dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/eulaTextBody"
+            android:text="@string/eula_body"
+            android:layout_below="@id/textvieweula"
+            android:layout_marginTop="25dp"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            />
 
-            <Space
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_column="1" />
+    </RelativeLayout>
 
-            <Button
-                android:id="@+id/eula_accept_btn"
-                android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:layout_column="2"
-                android:layout_marginBottom="12dp"
-                android:layout_marginRight="12dp"
-                android:clickable="true"
-                android:enabled="true"
-                android:paddingLeft="20dp"
-                android:paddingRight="20dp"
-                android:text="@string/button_accept" />
-        </TableRow>
-
-    </LinearLayout>
-
-</RelativeLayout>
+</ScrollView>

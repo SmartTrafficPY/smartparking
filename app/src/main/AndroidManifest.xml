@@ -66,15 +66,6 @@
             android:value="smarttraffic.smartparking.activities.LoginActivity" />
         </activity>
         <activity
-            android:name="smarttraffic.smartparking.activities.ResetPassActivity"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme.SmartParking"
-            android:windowSoftInputMode="stateHidden">
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value="smarttraffic.smartparking.activities.LoginActivity" />
-        </activity>
-        <activity
             android:name="smarttraffic.smartparking.activities.ChangePasswordActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.SmartParking"

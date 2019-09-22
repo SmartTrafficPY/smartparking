@@ -138,7 +138,7 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.notifications_smart_parking)
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(),
-                        R.drawable.notify_smart_parking))
+                        R.drawable.notifications_smart_parking))
                 .setTimeoutAfter(Constants.getMinutesInMilliseconds() * 5)
                 .setColor(Color.GREEN)
                 .setContentTitle(notificationDetails)
