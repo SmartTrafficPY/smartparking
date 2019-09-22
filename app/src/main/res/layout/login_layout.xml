@@ -82,7 +82,7 @@
             android:textColor="@color/icons"
             android:layout_marginTop="25dp"
             android:shadowColor="@color/cardview_shadow_end_color"
-            android:background="@color/colorPrimary"
+            android:background="@drawable/btn_rectangle"
             android:text="@string/loginButton" />
 
         <android.support.design.widget.TextInputLayout

@@ -185,8 +185,8 @@
                     android:layout_marginTop="25dp"
                     android:layout_height="wrap_content"
                     android:textColor="@color/icons"
+                    android:background="@drawable/btn_rectangle"
                     android:shadowColor="@color/cardview_shadow_end_color"
-                    android:backgroundTint="@color/colorPrimary"
                     android:text="@string/signUpButton" />
 
                 <Button
@@ -199,7 +199,7 @@
                     android:textColor="@color/icons"
                     android:layout_toRightOf="@+id/signUpButton"
                     android:shadowColor="@color/cardview_shadow_end_color"
-                    android:backgroundTint="@color/colorPrimary"
+                    android:background="@drawable/btn_rectangle"
                     android:text="@string/toLoginButton"/>
 
         </RelativeLayout>
