@@ -123,7 +123,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_margin="5dp"
-                android:text="Actualización normal(Default): 1 min" />
+                android:text="Actualización normal(predeterminado): 1 min" />
 
             <RadioButton
                 android:id="@+id/slowUpdateRequest"

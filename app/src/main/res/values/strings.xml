@@ -12,6 +12,8 @@
     <string name="settings_request_map_time_update">Tiempo de actualizaciones del mapa de lugares</string>
     <string name="settings_descriptions">Configurar tiempos de la aplicación</string>
     <string name="version_number">v1.0 Beta</string>
+    <string name="report_bug">Reportar problema</string>
+    report_bug
     <string name="conacytThanks">
         Esta aplicación es uno de los casos de estudio del proyecto SmartTraffic que es cofinanciado
         por el CONACYT a través del programa PROCIENCIA- FEEI, FONACIDE.</string>
