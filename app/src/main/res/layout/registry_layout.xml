@@ -174,34 +174,16 @@
                     android:textIsSelectable="true"/>
         </RelativeLayout>
 
-        <RelativeLayout
+        <Button
+            android:id="@+id/signUpButton"
+            android:layout_gravity="center"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_marginTop="25dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/icons"
+            android:background="@drawable/btn_rectangle"
+            android:shadowColor="@color/cardview_shadow_end_color"
+            android:text="@string/signUpButton" />
 
-                <Button
-                    android:id="@+id/signUpButton"
-                    android:layout_gravity="center"
-                    android:layout_width="175dp"
-                    android:layout_marginTop="25dp"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/icons"
-                    android:background="@drawable/btn_rectangle"
-                    android:shadowColor="@color/cardview_shadow_end_color"
-                    android:text="@string/signUpButton" />
-
-                <Button
-                    android:id="@+id/goToLogin"
-                    android:layout_gravity="center"
-                    android:layout_width="200dp"
-                    android:layout_marginTop="25dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:textColor="@color/icons"
-                    android:layout_toRightOf="@+id/signUpButton"
-                    android:shadowColor="@color/cardview_shadow_end_color"
-                    android:background="@drawable/btn_rectangle"
-                    android:text="@string/toLoginButton"/>
-
-        </RelativeLayout>
 
 </LinearLayout>

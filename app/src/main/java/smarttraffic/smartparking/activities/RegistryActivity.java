@@ -75,8 +75,6 @@ public class RegistryActivity extends AppCompatActivity {
     TextView textInTermsAndCond;
     @BindView(R.id.signUpButton)
     Button signInButton;
-    @BindView(R.id.goToLogin)
-    Button goToLogin;
     @BindView(R.id.passModeButton)
     ImageButton passwordModeButton;
     @BindView(R.id.setRandomUser)
@@ -91,6 +89,9 @@ public class RegistryActivity extends AppCompatActivity {
     final int actuallDay = calendar.get(Calendar.DAY_OF_MONTH);
     final int actuallYear = calendar.get(Calendar.YEAR);
     private boolean showPasswordText = false;
+    IntentFilter filter = new IntentFilter();
+    RegistrationReceiver registrationReceiver = new RegistrationReceiver();
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -110,10 +111,8 @@ public class RegistryActivity extends AppCompatActivity {
             }
         });
 
-        IntentFilter filter = new IntentFilter();
         filter.addAction(RegistrationService.REGISTRATION_OK);
         filter.addAction(RegistrationService.BAD_REGISTRATION);
-        RegistrationReceiver registrationReceiver = new RegistrationReceiver();
         registerReceiver(registrationReceiver, filter);
 
         datePickerButton.setOnClickListener(new View.OnClickListener() {
@@ -127,12 +126,6 @@ public class RegistryActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 createRegister();
-            }
-        });
-        goToLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goToLoginActivity();
             }
         });
         passwordModeButton.setOnClickListener(new View.OnClickListener() {
@@ -163,9 +156,19 @@ public class RegistryActivity extends AppCompatActivity {
         });
     }
 
-    private void goToLoginActivity() {
-        Intent intent = new Intent(RegistryActivity.this, LoginActivity.class);
-        startActivity(intent);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        filter.addAction(RegistrationService.REGISTRATION_OK);
+        filter.addAction(RegistrationService.BAD_REGISTRATION);
+        registerReceiver(registrationReceiver,filter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(registrationReceiver);
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

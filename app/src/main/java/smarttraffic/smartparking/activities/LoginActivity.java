@@ -40,8 +40,10 @@ public class LoginActivity extends AppCompatActivity {
     EditText passwordText;
     @BindView(R.id.loginButton)
     Button loginButton;
-    @BindView(R.id.linkSignUp)
-    TextView goSignUp;
+
+    IntentFilter filter = new IntentFilter();
+    LoginReceiver loginReceiver = new LoginReceiver();
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,18 +61,8 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        goSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, RegistryActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        IntentFilter filter = new IntentFilter();
         filter.addAction(LoginService.LOGIN_ACTION);
         filter.addAction(LoginService.BAD_LOGIN_ACTION);
-        LoginReceiver loginReceiver = new LoginReceiver();
         registerReceiver(loginReceiver, filter);
 
         Intent intent = getIntent();
@@ -78,6 +70,20 @@ public class LoginActivity extends AppCompatActivity {
         if(statusRegistry != null){
             showToast(statusRegistry);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        filter.addAction(LoginService.LOGIN_ACTION);
+        filter.addAction(LoginService.BAD_LOGIN_ACTION);
+        registerReceiver(loginReceiver, filter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(loginReceiver);
     }
 
     private void makeLoginHappen() {
@@ -111,12 +117,6 @@ public class LoginActivity extends AppCompatActivity {
         loginIntent.putExtra("username", usernameText.getText().toString());
         loginIntent.putExtra("password", passwordText.getText().toString());
         startService(loginIntent);
-    }
-
-    @Override
-    public void onBackPressed() {
-        // disable going back...
-        moveTaskToBack(true);
     }
 
     // Show images in Toast prompt.

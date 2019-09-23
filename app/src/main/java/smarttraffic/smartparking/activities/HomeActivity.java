@@ -12,6 +12,8 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
@@ -331,10 +333,10 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setLocationOverlay() {
+//        Bitmap icon = BitmapFactory.decodeResource(HomeActivity.this.getResources(), R.drawable.user_location);
         mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this), mapView);
         mLocationOverlay.enableMyLocation();
         mLocationOverlay.enableFollowLocation();
-//        mLocationOverlay.setPersonIcon();
 //        mLocationOverlay.setDirectionArrow();
         mLocationOverlay.setOptionsMenuEnabled(true);
     }
@@ -546,7 +548,7 @@ public class HomeActivity extends AppCompatActivity {
             if(!Utils.isDayOfWeek()){
                 removeGeofences();
             }
-        }else if(!Utils.isDayOfWeek()){
+        }else if(Utils.isDayOfWeek()){
             addParkingLotsGeofences();
         }
         mapView.onResume();
@@ -1084,7 +1086,8 @@ public class HomeActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int id) {
                             editor.putString(Constants.USER_TOKEN, Constants.CLIENT_NOT_LOGIN).apply();
                             editor.commit();
-                            Intent logoutIntent = new Intent(HomeActivity.this, LoginActivity.class);
+                            Intent logoutIntent = new Intent(HomeActivity.this,
+                                    BifurcationActivity.class);
                             logoutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(logoutIntent);
                         }
@@ -1098,6 +1101,9 @@ public class HomeActivity extends AppCompatActivity {
             builder.create().show();
 
             return true;
+        }else if(id == R.id.setting_menu){
+            Intent settingsActivity = new Intent(HomeActivity.this, SettingsActivity.class);
+            startActivity(settingsActivity);
         }
         return super.onOptionsItemSelected(item);
     }

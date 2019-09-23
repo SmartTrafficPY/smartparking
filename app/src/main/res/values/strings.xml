@@ -1,12 +1,14 @@
 <resources>
     <string name="app_name">SmartParking</string>
-    <string name="register">Sin cuenta? Regístrate!</string>
+    <string name="register">Ya tenés una cuenta? Iniciar sesión</string>
     <string name="loginButton">Login</string>
     <string name="toLoginButton">Tengo cuenta</string>
     <string name="sendButton">Enviar</string>
     <string name="welcome">Welcome</string>
     <string name="loginText">Credenciales</string>
-    <string name="signUpButton">Registrarse!</string>
+    <string name="signUpButton">Registrar cuenta</string>
+    <string name="createAccount">Crear cuenta</string>
+    <string name="settings_descriptions">Configurar tiempos de la aplicación</string>
     <string name="version_number">v1.0 Beta</string>
     <string name="conacytThanks">
         Esta aplicación es uno de los casos de estudio del proyecto SmartTraffic que es cofinanciado
@@ -41,6 +43,8 @@
     <string name="password_key">password</string>
     <string name="age_key">age</string>
     <string name="sex_key">sexo</string>
+    <string name="not_login_message">Accede a un mapa con información sobre la disponibilidad
+        de lugares de estacionamiento.</string>
     <string name="id_key">identificador</string>
     <string name="preference_file_key">ProfileSharedPreferencesPrivateData</string>
     <string name="terms_conditions">Acepto los <u>términos y condiciones</u>.</string>

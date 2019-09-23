@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/initImageView"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:layout_gravity="center"
+        android:layout_margin="50dp"
+        android:src="@mipmap/bifurcation_icon"/>
+
+    <TextView
+        android:id="@+id/bifurcation_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_marginTop="50dp"
+        android:layout_margin="25dp"
+        android:text="@string/not_login_message"
+        android:textColor="@color/colorPrimary"
+        android:textSize="25dp" />
+
+    <Button
+        android:id="@+id/createAccountButton"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="75dp"
+        android:gravity="center"
+        android:background="@drawable/btn_rectangle"
+        android:shadowColor="@color/cardview_shadow_end_color"
+        android:text="@string/createAccount"
+        android:textColor="@color/icons"
+        android:textSize="20dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/initSession"
+        android:focusable="false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="75dp"
+        android:textIsSelectable="true"
+        android:textColor="@color/blue"
+        android:gravity="center"
+        android:text="@string/register"/>
+
+</LinearLayout>

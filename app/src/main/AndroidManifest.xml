@@ -44,7 +44,7 @@
             android:windowSoftInputMode="stateHidden">
         <meta-data
             android:name="android.support.PARENT_ACTIVITY"
-            android:value="smarttraffic.smartparking.activities.InitActivity" />
+            android:value="smarttraffic.smartparking.activities.BifurcationActivity" />
         </activity>
         <activity
             android:name="smarttraffic.smartparking.activities.HomeActivity"
@@ -63,7 +63,7 @@
             android:windowSoftInputMode="stateHidden">
         <meta-data
             android:name="android.support.PARENT_ACTIVITY"
-            android:value="smarttraffic.smartparking.activities.LoginActivity" />
+            android:value="smarttraffic.smartparking.activities.BifurcationActivity" />
         </activity>
         <activity
             android:name="smarttraffic.smartparking.activities.ChangePasswordActivity"
@@ -73,6 +73,24 @@
         <meta-data
             android:name="android.support.PARENT_ACTIVITY"
             android:value="smarttraffic.smartparking.activities.HomeActivity" />
+        </activity>
+        <activity
+            android:name="smarttraffic.smartparking.activities.BifurcationActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.SmartParking"
+            android:windowSoftInputMode="stateHidden">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="smarttraffic.smartparking.activities.InitActivity" />
+        </activity>
+        <activity
+            android:name="smarttraffic.smartparking.activities.SettingsActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.SmartParking"
+            android:windowSoftInputMode="stateHidden">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="smarttraffic.smartparking.activities.HomeActivity" />
         </activity>
 
         <service

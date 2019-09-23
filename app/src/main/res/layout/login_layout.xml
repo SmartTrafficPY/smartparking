@@ -23,7 +23,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:textAllCaps="true"
-            android:textColor="@color/ic_launcher_background"
+            android:textColor="@color/colorPrimary"
             android:textSize="24dp"
             android:textStyle="bold|italic|normal"
             android:layout_gravity="center"
@@ -85,22 +85,6 @@
             android:background="@drawable/btn_rectangle"
             android:text="@string/loginButton" />
 
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/linkSignUp"
-                android:focusable="false"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginTop="25dp"
-                android:textIsSelectable="true"
-                android:textColor="@color/blue"
-                android:text="@string/register" />
-
-        </android.support.design.widget.TextInputLayout>
 
     </LinearLayout>
 
