@@ -8,6 +8,8 @@
     <string name="loginText">Credenciales</string>
     <string name="signUpButton">Registrar cuenta</string>
     <string name="createAccount">Crear cuenta</string>
+    <string name="settings_gps_time">Tiempo de actualizaciones de localización</string>
+    <string name="settings_request_map_time_update">Tiempo de actualizaciones del mapa de lugares</string>
     <string name="settings_descriptions">Configurar tiempos de la aplicación</string>
     <string name="version_number">v1.0 Beta</string>
     <string name="conacytThanks">

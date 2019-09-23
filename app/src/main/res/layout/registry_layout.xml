@@ -185,5 +185,4 @@
             android:shadowColor="@color/cardview_shadow_end_color"
             android:text="@string/signUpButton" />
 
-
 </LinearLayout>
