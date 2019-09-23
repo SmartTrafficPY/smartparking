@@ -134,6 +134,44 @@
                 android:text="Bajo consumo(menor gasto de paquetes de datos, menor fidelidad): 2 min" />
         </RadioGroup>
 
+        <TextView
+            android:id="@+id/textDrawGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/requestActualizationsTime"
+            android:layout_margin="20dp"
+            android:text="@string/settings_request_map_time_update"
+            android:textColor="@color/primary_text"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/drawGroup"
+            android:layout_below="@+id/textDrawGroup"
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/primary_text"
+            android:text="@string/settings_gps_time"
+            android:textStyle="bold">
+
+        <RadioButton
+            android:id="@+id/pointsDraw"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="5dp"
+            android:text="Dibujar lugares como puntos"/>
+
+        <RadioButton
+            android:id="@+id/polygonDraw"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="5dp"
+            android:text="Dibujar lugares como polígonos" />
+
+    </RadioGroup>
+
         <Button
             android:id="@+id/saveSettings"
             android:layout_width="match_parent"

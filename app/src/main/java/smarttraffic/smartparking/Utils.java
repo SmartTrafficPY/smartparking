@@ -53,6 +53,7 @@ public class Utils {
     /**
      * Returns a human readable String corresponding to a detected activity type.
      */
+
     @SuppressLint("StringFormatInvalid")
     public static String getActivityString(Context context, int detectedActivityType) {
         Resources resources = context.getResources();
@@ -308,6 +309,21 @@ public class Utils {
         boolean isGeofenceAddes = sharedPreferences.getBoolean(
                 Constants.GEOFENCES_ADD, false);
         return  isGeofenceAddes;
+    }
+
+    public static GeoPoint getCentroid(List<GeoPoint> geoPoints) {
+        double[] centroid = { 0.0, 0.0 };
+
+        for (GeoPoint point : geoPoints) {
+            centroid[0] += point.getLatitude();
+            centroid[1] += point.getLongitude();
+        }
+
+        int totalPoints = geoPoints.size();
+        centroid[0] = centroid[0] / totalPoints;
+        centroid[1] = centroid[1] / totalPoints;
+
+        return new GeoPoint(centroid[0], centroid[1]);
     }
 
 }

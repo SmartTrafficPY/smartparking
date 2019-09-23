@@ -15,6 +15,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
@@ -23,6 +25,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
@@ -93,6 +96,7 @@ import butterknife.ButterKnife;
 
 import okhttp3.OkHttpClient;
 import okhttp3.ResponseBody;
+import okhttp3.internal.Util;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -184,8 +188,8 @@ public class HomeActivity extends AppCompatActivity {
         setMapView();
 
         createLocationCallback();
-        createLocationRequest(Constants.getSecondsInMilliseconds() * 10,
-                Constants.getSecondsInMilliseconds() * 5);
+        createLocationRequest(Constants.getSecondsInMilliseconds() * 2,
+                Constants.getSecondsInMilliseconds());
         buildLocationSettingsRequest();
 
         if(Utils.isDayOfWeek()){
@@ -240,6 +244,12 @@ public class HomeActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
     }
 
+    @Override
+    public void onBackPressed() {
+        // disable going back...
+        moveTaskToBack(true);
+    }
+
     private void setMapView() {
         final String basic =
                 "Basic " + Base64.encodeToString(SmartParkingInitialData.getCredentials().getBytes(), Base64.NO_WRAP);
@@ -281,14 +291,22 @@ public class HomeActivity extends AppCompatActivity {
         setCompassGestureOverlays();
 //        setMarkersOnMap();
         //add all overlays
+        mapView.setBuiltInZoomControls(false);
         addOverlays();
     }
 
-    private void setMarkersOnMap() {
+    private void setMarkersOnMap(List<GeoPoint> geoPoints, String state) {
         ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
+        GeoPoint point = Utils.getCentroid(geoPoints);
         OverlayItem overlayItem = new OverlayItem("Title1", "Description",
-                new GeoPoint(-25.30604186, -57.59168641));
-//        overlayItem.setMarker(getDrawable(R.drawable.about_menu));
+                point);
+        Drawable marker = getDrawable(R.drawable.unknown_marker);
+        if (state.equals(StatesEnumerations.FREE.getEstado())) {
+            marker = getDrawable(R.drawable.free_marker);
+        } else if (state.equals(StatesEnumerations.OCCUPIED.getEstado())) {
+            marker = getDrawable(R.drawable.occupied_marker);
+        }
+        overlayItem.setMarker(marker);
         items.add(overlayItem);
         //the overlay
         ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(items,
@@ -304,6 +322,7 @@ public class HomeActivity extends AppCompatActivity {
                         return false;
                     }
                 }, this);
+
         mOverlay.setFocusItemsOnTap(true);
 
         mapView.getOverlays().add(mOverlay);
@@ -333,11 +352,10 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setLocationOverlay() {
-//        Bitmap icon = BitmapFactory.decodeResource(HomeActivity.this.getResources(), R.drawable.user_location);
         mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this), mapView);
         mLocationOverlay.enableMyLocation();
         mLocationOverlay.enableFollowLocation();
-//        mLocationOverlay.setDirectionArrow();
+//        mLocationOverlay.setDirectionArrow(personIcon, directionsIcon);
         mLocationOverlay.setOptionsMenuEnabled(true);
     }
 
@@ -444,7 +462,8 @@ public class HomeActivity extends AppCompatActivity {
                         spots = testSpots.getFeatures();
                         if(spots != null){
                             for (Spot spot : spots) {
-                                drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+//                                drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
                             }
                         }
                         break;
@@ -452,7 +471,6 @@ public class HomeActivity extends AppCompatActivity {
                         break;
                 }
             }
-
             @Override
             public void onFailure(Call<SpotList> call, Throwable t) {
                 t.printStackTrace();
@@ -505,8 +523,9 @@ public class HomeActivity extends AppCompatActivity {
                         List<Spot> spotsUpdated = Utils.updateSpots(changedSpots, spots);
                         if(spotsUpdated != null){
                             for (Spot spot : spotsUpdated) {
-                                drawPolygon(Utils.spotToListOfGeoPoints(spot),
-                                        spot.getProperties().getState());
+                                setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+//                                drawPolygon(Utils.spotToListOfGeoPoints(spot),
+//                                        spot.getProperties().getState());
                             }
                         }
                         break;
@@ -559,10 +578,6 @@ public class HomeActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
 
     @Override
     protected void onPause() {

@@ -99,7 +99,6 @@ public class RegistryActivity extends AppCompatActivity {
         setContentView(R.layout.registry_layout);
         ButterKnife.bind(this);
 
-        signInButton.setEnabled(false);
         textInTermsAndCond.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
