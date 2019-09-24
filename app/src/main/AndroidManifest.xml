@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
 
     <!-- Needed only if your app targets Android 5.0 (API level 21) or higher. -->
     <uses-feature android:name="android.hardware.location.gps" />
@@ -123,6 +124,11 @@
 
         <receiver
             android:name=".receivers.GeofenceBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true" />
+
+        <receiver
+            android:name=".receivers.AlarmReceiver"
             android:enabled="true"
             android:exported="true" />
 

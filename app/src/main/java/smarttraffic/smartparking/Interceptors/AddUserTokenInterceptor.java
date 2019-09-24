@@ -17,7 +17,6 @@ import smarttraffic.smartparking.Constants;
  */
 
 public class AddUserTokenInterceptor implements Interceptor {
-
     private Context context;
 
     public AddUserTokenInterceptor(Context context){

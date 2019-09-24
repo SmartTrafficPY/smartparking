@@ -1,7 +1,10 @@
 package smarttraffic.smartparking;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.location.Location;
@@ -41,6 +44,9 @@ import smarttraffic.smartparking.dataModels.Lots.PointGeometry;
 import smarttraffic.smartparking.dataModels.Point;
 import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbySpot;
 import smarttraffic.smartparking.dataModels.Spots.Spot;
+import smarttraffic.smartparking.receivers.AlarmReceiver;
+
+import static android.content.Context.ALARM_SERVICE;
 
 public class Utils {
 
@@ -324,6 +330,31 @@ public class Utils {
         centroid[1] = centroid[1] / totalPoints;
 
         return new GeoPoint(centroid[0], centroid[1]);
+    }
+
+    public static void addAlarmGeofencingTask(Context context, Calendar calendar){
+        AlarmManager alarmManager= (AlarmManager) context.getSystemService(ALARM_SERVICE);
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, Constants.ALARM_REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 7, pendingIntent);
+    }
+
+    public static Calendar timeToAddGeofences(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(calendar.DAY_OF_WEEK, calendar.MONDAY);
+        calendar.set(calendar.HOUR_OF_DAY, 6);
+        calendar.set(calendar.MINUTE, 30);
+        return calendar;
+    }
+
+    public static Calendar timeToRemoveGeofences(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(calendar.DAY_OF_WEEK, calendar.SATURDAY);
+        calendar.set(calendar.HOUR_OF_DAY, 6);
+        calendar.set(calendar.MINUTE, 30);
+        return calendar;
     }
 
 }

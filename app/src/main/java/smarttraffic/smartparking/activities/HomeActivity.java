@@ -12,20 +12,17 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
@@ -33,32 +30,26 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageButton;
-import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
 
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.DetectedActivity;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -72,9 +63,7 @@ import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.util.MapTileIndex;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.ItemizedIconOverlay;
-import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
-import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
@@ -95,8 +84,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import okhttp3.OkHttpClient;
-import okhttp3.ResponseBody;
-import okhttp3.internal.Util;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -119,11 +106,10 @@ import smarttraffic.smartparking.dataModels.Lots.PointGeometry;
 import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbyLocation;
 import smarttraffic.smartparking.dataModels.Point;
 import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbyPropertiesFeed;
-import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbySpot;
-import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbySpotList;
 import smarttraffic.smartparking.dataModels.Spots.Spot;
 import smarttraffic.smartparking.dataModels.Spots.SpotList;
 import smarttraffic.smartparking.dataModels.Spots.SpotProperties;
+import smarttraffic.smartparking.receivers.AlarmReceiver;
 import smarttraffic.smartparking.receivers.GeofenceBroadcastReceiver;
 import smarttraffic.smartparking.services.DetectedActivitiesService;
 import smarttraffic.smartparking.services.GeofenceTransitionsJobIntentService;
@@ -149,7 +135,10 @@ public class HomeActivity extends AppCompatActivity {
     @BindView(R.id.buttonAbout)
     ImageButton buttonAbout;
 
-    private FusedLocationProviderClient mFusedLocationClient;
+    AlarmReceiver alarmReceiver = new AlarmReceiver();
+    IntentFilter filter = new IntentFilter();
+
+    //    private FusedLocationProviderClient mFusedLocationClient;
     private ActivityRecognitionClient mActivityRecognitionClient;
 
     private SettingsClient mSettingsClient;
@@ -160,7 +149,7 @@ public class HomeActivity extends AppCompatActivity {
     boolean dialogSendAllready = false;
     private LocationRequest mLocationRequest;
     private LocationSettingsRequest mLocationSettingsRequest;
-    private LocationCallback mLocationCallback;
+//    private LocationCallback mLocationCallback;
     private Location mCurrentLocation;
     private List<Spot> spots = new ArrayList<Spot>();
     private ArrayList<String> geofencesTrigger = new ArrayList<>();
@@ -168,6 +157,8 @@ public class HomeActivity extends AppCompatActivity {
     private BroadcastReceiver geofenceReceiver;
     private GeofencingClient geofencingClient;
     private PendingIntent mGeofencePendingIntent;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
     //MAP...
     private MyLocationNewOverlay mLocationOverlay;
     private CompassOverlay mCompassOverlay;
@@ -182,21 +173,40 @@ public class HomeActivity extends AppCompatActivity {
 
         mSettingsClient = LocationServices.getSettingsClient(this);
         geofencingClient = LocationServices.getGeofencingClient(this);
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+//        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mActivityRecognitionClient = new ActivityRecognitionClient(this);
+        registerReceiver(alarmReceiver, filter);
+        locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+        Utils.addAlarmGeofencingTask(HomeActivity.this, Utils.timeToAddGeofences());
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                mCurrentLocation = location;
+                checkForUserLocation(mCurrentLocation);
+            }
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+                //nothing need to do...
+            }
+            @Override
+            public void onProviderEnabled(String provider) {
+                //nothing need to do...
+            }
+            @Override
+            public void onProviderDisabled(String provider) {
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+        };
 
         setMapView();
 
-        createLocationCallback();
+//        createLocationCallback();
         createLocationRequest(Constants.getSecondsInMilliseconds() * 2,
                 Constants.getSecondsInMilliseconds());
         buildLocationSettingsRequest();
 
-        if(Utils.isDayOfWeek()){
-            addParkingLotsGeofences();
-        }else{
-            removeGeofences();
-        }
+        addParkingLotsGeofences();
 
         buttonRecenter.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -246,7 +256,6 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // disable going back...
         moveTaskToBack(true);
     }
 
@@ -296,36 +305,23 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setMarkersOnMap(List<GeoPoint> geoPoints, String state) {
-        ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
-        GeoPoint point = Utils.getCentroid(geoPoints);
-        OverlayItem overlayItem = new OverlayItem("Title1", "Description",
-                point);
         Drawable marker = getDrawable(R.drawable.unknown_marker);
+        Marker startMarker = new Marker(mapView);
+        String stateValue = "Desconocido";
+        startMarker.setPosition(Utils.getCentroid(geoPoints));
+        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
         if (state.equals(StatesEnumerations.FREE.getEstado())) {
             marker = getDrawable(R.drawable.free_marker);
+            stateValue = "Libre";
         } else if (state.equals(StatesEnumerations.OCCUPIED.getEstado())) {
             marker = getDrawable(R.drawable.occupied_marker);
+            stateValue = "Ocupado";
         }
-        overlayItem.setMarker(marker);
-        items.add(overlayItem);
-        //the overlay
-        ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(items,
-                new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
-                    @Override
-                    public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
-                        //do something
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onItemLongPress(final int index, final OverlayItem item) {
-                        return false;
-                    }
-                }, this);
-
-        mOverlay.setFocusItemsOnTap(true);
-
-        mapView.getOverlays().add(mOverlay);
+        startMarker.setTitle(stateValue);
+        startMarker.setTextLabelBackgroundColor(R.color.white);
+        startMarker.setTextLabelForegroundColor(R.color.white);
+        startMarker.setIcon(marker);
+        mapView.getOverlays().add(startMarker);
     }
 
     private void addOverlays() {
@@ -352,10 +348,10 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setLocationOverlay() {
+        //TODO: set better movement icon...
         mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this), mapView);
         mLocationOverlay.enableMyLocation();
         mLocationOverlay.enableFollowLocation();
-//        mLocationOverlay.setDirectionArrow(personIcon, directionsIcon);
         mLocationOverlay.setOptionsMenuEnabled(true);
     }
 
@@ -563,6 +559,7 @@ public class HomeActivity extends AppCompatActivity {
                 new IntentFilter(Constants.BROADCAST_TRANSITION_ACTIVITY_INTENT));
         LocalBroadcastManager.getInstance(this).registerReceiver(geofenceReceiver,
                 new IntentFilter(Constants.getBroadcastGeofenceTriggerIntent()));
+        registerReceiver(alarmReceiver, filter);
         if(Utils.getGeofenceStatus(HomeActivity.this)){
             if(!Utils.isDayOfWeek()){
                 removeGeofences();
@@ -578,12 +575,12 @@ public class HomeActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-
     @Override
     protected void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(geofenceReceiver);
+        unregisterReceiver(alarmReceiver);
         stopLocationUpdates();
         removeActivityUpdates();
         mapView.onPause();
@@ -626,7 +623,6 @@ public class HomeActivity extends AppCompatActivity {
                                     properties.getName(), false));
                         }
                         addGeofences(geofenceList);
-                        Log.i(LOG_TAG,"add geofences");
                         break;
                     default:
                         break;
@@ -828,12 +824,13 @@ public class HomeActivity extends AppCompatActivity {
      * Removes location updates from the FusedLocationApi.
      */
     private void stopLocationUpdates() {
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback)
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(Task<Void> task) {
-                    }
-                });
+//        mFusedLocationClient.removeLocationUpdates(mLocationCallback)
+//                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(Task<Void> task) {
+//                    }
+//                });
+        locationManager.removeUpdates(locationListener);
     }
 
     /**
@@ -847,8 +844,10 @@ public class HomeActivity extends AppCompatActivity {
                     @SuppressLint("MissingPermission")
                     @Override
                     public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                                mLocationCallback, Looper.myLooper());
+                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                                5 * Constants.getSecondsInMilliseconds(), 0 ,locationListener);
+//                        mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+//                                mLocationCallback, Looper.myLooper());
                     }
                 })
                 .addOnFailureListener(this, new OnFailureListener() {
@@ -871,19 +870,19 @@ public class HomeActivity extends AppCompatActivity {
                 });
     }
 
-    /**
-     * Creates a callback for receiving location events.
-     */
-    private void createLocationCallback() {
-        mLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-                mCurrentLocation = locationResult.getLastLocation();
-                checkForUserLocation(mCurrentLocation);
-            }
-        };
-    }
+//    /**
+//     * Creates a callback for receiving location events.
+//     */
+//    private void createLocationCallback() {
+//        mLocationCallback = new LocationCallback() {
+//            @Override
+//            public void onLocationResult(LocationResult locationResult) {
+//                super.onLocationResult(locationResult);
+//                mCurrentLocation = locationResult.getLastLocation();
+//                checkForUserLocation(mCurrentLocation);
+//            }
+//        };
+//    }
 
     private void checkForUserLocation(Location mCurrentLocation) {
         int spotId = isPointInsideParkingSpot(spots, mCurrentLocation);
@@ -964,7 +963,7 @@ public class HomeActivity extends AppCompatActivity {
                 dialogSendAllready = false;
                 timer.cancel();
             }
-        }, Constants.getSecondsInMilliseconds() * 20);
+        }, Constants.getSecondsInMilliseconds() * 10);
     }
 
     public boolean isPointInsidePolygon(Spot spot, Location location){
@@ -1078,7 +1077,6 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }

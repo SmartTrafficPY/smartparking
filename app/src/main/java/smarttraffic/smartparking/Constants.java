@@ -9,7 +9,6 @@ package smarttraffic.smartparking;
 public class Constants {
 
 
-
     /**
      * Add here all variables used at width in the project...
      * **/
@@ -17,6 +16,8 @@ public class Constants {
     public Constants() {
     }
 
+    public static final int ALARM_REQUEST_CODE=132;
+    public static final String SETTINGS = "SETTINGS";
     public static final String GEOFENCES_ADD = "GEOFENCES_ADD";
     public static final String GEOFENCES_SETUP = "GEOFENCES_SETUP";
     public static final String USER_PASSWORD = "USER_PASSWORD";

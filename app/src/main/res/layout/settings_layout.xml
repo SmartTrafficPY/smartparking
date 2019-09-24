@@ -180,7 +180,7 @@
             android:layout_marginTop="15dp"
             android:layout_alignParentBottom="true"
             android:layout_gravity="center"
-            android:layout_below="@+id/requestActualizationsTime"
+            android:layout_below="@+id/drawGroup"
             android:background="@drawable/btn_rectangle"
             android:shadowColor="@color/cardview_shadow_end_color"
             android:text="@string/button_save"
