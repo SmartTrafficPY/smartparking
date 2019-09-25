@@ -152,28 +152,6 @@
                 android:layout_marginBottom="25dp"/>
         </RadioGroup>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="30dp">
-
-                <CheckBox
-                    android:id="@+id/acceptTermsCheckBox"
-                    android:layout_width="25dp"
-                    android:layout_height="match_parent"
-                    android:gravity="center"/>
-
-                <TextView
-                    android:id="@+id/textInTermsAndCond"
-                    android:layout_width="250dp"
-                    android:layout_height="match_parent"
-                    android:layout_toEndOf="@+id/acceptTermsCheckBox"
-                    android:layout_toRightOf="@+id/acceptTermsCheckBox"
-                    android:gravity="center"
-                    android:text="@string/terms_conditions"
-                    android:textColor="@color/blue"
-                    android:textIsSelectable="true"/>
-        </RelativeLayout>
-
         <Button
             android:id="@+id/signUpButton"
             android:layout_gravity="center"

@@ -14,6 +14,7 @@ import android.widget.Toast;
 public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
+        //TODO: add geofences here...
         Toast.makeText(context, "Alarm Triggered", Toast.LENGTH_LONG).show();
     }
 }

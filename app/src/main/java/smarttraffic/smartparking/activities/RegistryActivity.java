@@ -69,10 +69,6 @@ public class RegistryActivity extends AppCompatActivity {
     ImageButton datePickerButton;
     @BindView(R.id.sexRadioGroup)
     RadioGroup sexSelectRadioGroup;
-    @BindView(R.id.acceptTermsCheckBox)
-    CheckBox termsAndConditions;
-    @BindView(R.id.textInTermsAndCond)
-    TextView textInTermsAndCond;
     @BindView(R.id.signUpButton)
     Button signInButton;
     @BindView(R.id.passModeButton)
@@ -98,17 +94,6 @@ public class RegistryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.registry_layout);
         ButterKnife.bind(this);
-
-        textInTermsAndCond.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Dialog settingsDialog = new Dialog(RegistryActivity.this);
-                settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-                settingsDialog.setContentView(getLayoutInflater().inflate(R.layout.eula_layout
-                        , null));
-                settingsDialog.show();
-            }
-        });
 
         filter.addAction(RegistrationService.REGISTRATION_OK);
         filter.addAction(RegistrationService.BAD_REGISTRATION);
@@ -208,7 +193,6 @@ public class RegistryActivity extends AppCompatActivity {
     }
 
     private boolean dataIsCorrectlyComplete() {
-        if(termsAndConditions.isChecked()){
             if(passwordInput.getText().toString().length() > 5){
                 if(maleRadButton.isChecked() || femaleRadButton.isChecked()){
                     if(!birthDate.getText().toString().isEmpty()){
@@ -225,10 +209,6 @@ public class RegistryActivity extends AppCompatActivity {
                 showToast("La CONTRASEÑA debe tener al menos 6 caracteres!");
                 return false;
             }
-        }else{
-            showToast("Tienes que aceptar los TERMINOS y CONDICIONES!");
-            return false;
-        }
     }
 
     private void sendRegistrationPetition() {
