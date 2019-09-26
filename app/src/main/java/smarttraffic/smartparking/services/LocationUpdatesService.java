@@ -57,11 +57,14 @@ public class LocationUpdatesService extends Service {
      */
     private static final long FASTEST_UPDATE_INTERVAL =
             Constants.getSecondsInMilliseconds() * 5;
-
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
     private static final long UPDATE_INTERVAL = 2 * FASTEST_UPDATE_INTERVAL;
+
+    private static final long UPDATE_INTERVAL_DWELL =
+            Constants.getMinutesInMilliseconds() * 10;
+    private static final long DWELL_INTERVAL = 2 * UPDATE_INTERVAL_DWELL;
 
     /**
      * The identifier for the notification displayed for the foreground service.
@@ -174,7 +177,6 @@ public class LocationUpdatesService extends Service {
                 false);
         ArrayList<String> namesOfGeofencesTrigger =
                 intent.getStringArrayListExtra(Constants.GEOFENCE_TRIGGED);
-
         lotsPolygons = Utils.returnListOfGateways(this, namesOfGeofencesTrigger);
         // We got here because the user decided to remove location updates from the notification.
         if (startedFromNotification) {

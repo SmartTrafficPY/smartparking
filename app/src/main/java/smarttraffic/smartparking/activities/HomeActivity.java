@@ -384,8 +384,6 @@ public class HomeActivity extends AppCompatActivity {
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 removeActivityUpdates();
                 handler.removeCallbacks(cronJob);
-                //TODO:change it
-                Utils.setEntranceEvent(this, mCurrentLocation,Constants.EVENT_TYPE_EXIT);
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 break;
@@ -629,8 +627,10 @@ public class HomeActivity extends AppCompatActivity {
                         longitud,
                         radius
                 )
+                .setLoiteringDelay(1000 * 60 * 20)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                        Geofence.GEOFENCE_TRANSITION_EXIT);
+                        Geofence.GEOFENCE_TRANSITION_EXIT |
+                        Geofence.GEOFENCE_TRANSITION_DWELL);
         if(isSpotGeofence){
             builder.setExpirationDuration(Constants.getHoursInMilliseconds() * 24);
         }else{
@@ -790,7 +790,7 @@ public class HomeActivity extends AppCompatActivity {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
         builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
         builder.addGeofence(generateGeofence(points.get(0).getLatitud(), points.get(0).getLongitud(),
-                25, "Tu vehiculo en " + spot.getProperties().getIdFromUrl(), true));
+                50, "Tu vehiculo en " + spot.getProperties().getIdFromUrl(), true));
         return builder.build();
     }
 
@@ -849,9 +849,6 @@ public class HomeActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int id) {
                         Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
                         userNotResponse = false;
-                        Intent serviceIntent = new Intent(HomeActivity.this,
-                                LocationUpdatesService.class);
-                        stopService(serviceIntent);
 //                        List<String> geofencesToRemove = new ArrayList<>();
 //                        geofencesToRemove.add("Tu vehiculo en " + spotIn.getId());
 //                        geofencingClient.removeGeofences(geofencesToRemove);
