@@ -9,6 +9,7 @@ package smarttraffic.smartparking;
 public class Constants {
 
 
+
     /**
      * Add here all variables used at width in the project...
      * **/
@@ -16,6 +17,10 @@ public class Constants {
     public Constants() {
     }
 
+    public static final String EVENT_TYPE_EXIT = "exit_lot";
+    public static final String EVENT_TYPE_ENTRACE = "enter_lot";
+    public static final String HAS_ENTER_IN_LOT = "HAS_ENTER_IN_LOT";
+    public static final String ENTER_LOT_FLAG = "ENTER_LOT_FLAG";
     public static final int ALARM_REQUEST_CODE=132;
     public static final String SETTINGS = "SETTINGS";
     public static final String GEOFENCES_ADD = "GEOFENCES_ADD";
@@ -27,12 +32,14 @@ public class Constants {
     public static final String USER_ID = "USER_ID";
     public static final String USER_URL = "USER_URL";
     public static final int APPLICATION_ID = 1;
+    public static final String GEOFENCE_TRIGGED = "GEOFENCE_TRIGGED";
     public static final String EVENT_BASIC = "entities/smartparking/event_types/";
-
+    public static final String GATEWAYS = "GATEWAYS";
     public static final int NOT_IN_PARKINGSPOT = -1;
     public static final String GEOFENCE_LOTS_SHARED_PREFERENCES = "GEOFENCE_LOTS_SHARED_PREFERENCES";
     private static final String BROADCAST_GEOFENCE_TRIGGER_INTENT = "BROADCAST_GEOFENCE_TRIGGER_INTENT";
     public static final String BROADCAST_TRANSITION_ACTIVITY_INTENT = "BROADCAST_TRANSITION_ACTIVITY_INTENT";
+    public static final String BROADCAST_TRANSITION_LOCATION_INTENT = "BROADCAST_TRANSITION_LOCATION_INTENT";
     public static final String GEOFENCE_TRIGGER_ID = "geofenceTriggerId";
     public static final String GEOFENCE_TRANSITION_TYPE = "GEOFENCE_TRANSITION_TYPE";
 
@@ -45,7 +52,7 @@ public class Constants {
     public static final long DETECTION_INTERVAL_IN_MILLISECONDS =  SECONDS_IN_MILLISECONDS; // 30 seconds
     private static final long MINUTES_IN_MILLISECONDS = SECONDS_IN_MILLISECONDS * 60;
     private static final long HOURS_IN_MILLISECONDS = MINUTES_IN_MILLISECONDS * 60;
-    public static final String BASE_URL = "https://api.smarttraffic.com.py/api/";
+    public static final String BASE_URL = "http://192.168.100.5:8000/api/";
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
     private static final String CHANNEL_ID = "SMARTPARKING_CHANNEL_ID";
     private static final String PROXIMITY_INTENT_ACTION = "SMARTPARKING_PROXIMITY_ALERT";

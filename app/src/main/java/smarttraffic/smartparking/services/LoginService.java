@@ -100,7 +100,7 @@ public class LoginService extends IntentService {
                 loginIntent.setAction(BAD_LOGIN_ACTION);
             }
             else {
-                loginIntent.putExtra(PROBLEM, result.errorBody().string());
+                loginIntent.putExtra(PROBLEM, CANNOT_LOGIN);
                 loginIntent.setAction(SERVER_PROBLEM);
             }
         } catch (IOException e) {
@@ -111,8 +111,4 @@ public class LoginService extends IntentService {
         sendBroadcast(loginIntent);
     }
 
-    private int getIdFromUrl(String url) {
-        String[] parts = url.split("/");
-        return Integer.parseInt(parts[parts.length - 1]);
-    }
 }

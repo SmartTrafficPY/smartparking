@@ -176,11 +176,13 @@ public class HomeActivity extends AppCompatActivity {
 
         registerReceiver(alarmReceiver, filter);
 
-        Utils.addAlarmGeofencingTask(HomeActivity.this, Utils.timeToAddGeofences());
+//        Utils.addAlarmGeofencingTask(HomeActivity.this, Utils.timeToAddGeofences());
 
         setMapView();
 
-        addParkingLotsGeofences();
+        if(Utils.isDayOfWeek()){
+            addParkingLotsGeofences();
+        }
 
         buttonRecenter.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -217,7 +219,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(Constants.getBroadcastGeofenceTriggerIntent())) {
                     geofencesTrigger = intent.getStringArrayListExtra(
-                            GeofenceTransitionsJobIntentService.GEOFENCE_TRIGGED);
+                            Constants.GEOFENCE_TRIGGED);
                     geofenceTransition = intent.getIntExtra(
                             GeofenceTransitionsJobIntentService.TRANSITION,
                             -1);
@@ -229,11 +231,8 @@ public class HomeActivity extends AppCompatActivity {
         locationReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                double la = intent.getDoubleExtra(LocationUpdatesService.EXTRA_LOCATION_LATITUD, 0);
-                double lo = intent.getDoubleExtra(LocationUpdatesService.EXTRA_LOCATION_LONGITUD, 0);
-                if (la != 0) {
-                    Toast.makeText(HomeActivity.this, la + "" + lo,
-                            Toast.LENGTH_SHORT).show();
+                mCurrentLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
+                if (mCurrentLocation != null) {
                     checkForUserLocation(mCurrentLocation);
                 }
             }
@@ -381,12 +380,12 @@ public class HomeActivity extends AppCompatActivity {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 handler.postDelayed(cronJob, delay);
                 requestActivityUpdates();
-                Utils.setEntranceEvent(this, mCurrentLocation, "enter_lot");
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 removeActivityUpdates();
                 handler.removeCallbacks(cronJob);
-                Utils.setEntranceEvent(this, mCurrentLocation,"exit_lot");
+                //TODO:change it
+                Utils.setEntranceEvent(this, mCurrentLocation,Constants.EVENT_TYPE_EXIT);
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 break;
@@ -397,9 +396,7 @@ public class HomeActivity extends AppCompatActivity {
     private void getSpotsFromGeofence(ArrayList<String> geofencesTrigger, boolean isForUpdate) {
         if(geofencesTrigger != null) {
             if(isForUpdate){
-                for (String geofenceTrigger : geofencesTrigger) {
-                    updatesSpotsFromGeofence();
-                }
+                updatesSpotsFromGeofence();
             }else{
                 for (String geofenceTrigger : geofencesTrigger) {
                     getSpotsGeographicValues(geofenceTrigger);
@@ -540,7 +537,7 @@ public class HomeActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).registerReceiver(geofenceReceiver,
                 new IntentFilter(Constants.getBroadcastGeofenceTriggerIntent()));
         LocalBroadcastManager.getInstance(this).registerReceiver(locationReceiver,
-                new IntentFilter(Constants.getBroadcastGeofenceTriggerIntent()));
+                new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
         registerReceiver(alarmReceiver, filter);
         if(Utils.getGeofenceStatus(HomeActivity.this)){
             if(!Utils.isDayOfWeek()){
@@ -605,6 +602,7 @@ public class HomeActivity extends AppCompatActivity {
                                     properties.getName(), false));
                         }
                         addGeofences(geofenceList);
+                        Utils.saveListOfGateways(HomeActivity.this, response.body());
                         break;
                     default:
                         break;
@@ -766,13 +764,11 @@ public class HomeActivity extends AppCompatActivity {
      * @return A PendingIntent for the IntentService that handles geofence transitions.
      */
     private PendingIntent getGeofencePendingIntent() {
-        // Reuse the PendingIntent if we already have it.
         if (mGeofencePendingIntent != null) {
             return mGeofencePendingIntent;
         }
         Intent intent = new Intent(this, GeofenceBroadcastReceiver.class);
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
-        // addGeofences() and removeGeofences().
+
         mGeofencePendingIntent = PendingIntent.getBroadcast(this, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         return mGeofencePendingIntent;
@@ -794,14 +790,15 @@ public class HomeActivity extends AppCompatActivity {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
         builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
         builder.addGeofence(generateGeofence(points.get(0).getLatitud(), points.get(0).getLongitud(),
-                15, "ParkinSpot" + spot.getProperties().getIdFromUrl(), true));
+                25, "Tu vehiculo en " + spot.getProperties().getIdFromUrl(), true));
         return builder.build();
     }
 
     private void checkForUserLocation(Location mCurrentLocation) {
         int spotId = isPointInsideParkingSpot(spots, mCurrentLocation);
+        //TODO: add more activityTransition detail...
         if (spotId != Constants.NOT_IN_PARKINGSPOT &&
-                activityTransition != DetectedActivity.UNKNOWN) {
+                (activityTransition != DetectedActivity.UNKNOWN)) {
             Spot spot = getSpotFromId(spots, spotId);
             SpotProperties spotProperties = spot.getProperties();
             if (!spotProperties.getState().equals(StatesEnumerations.OCCUPIED.getEstado())) {
@@ -841,6 +838,9 @@ public class HomeActivity extends AppCompatActivity {
                             userNotResponse = false;
                             geofencingClient.addGeofences(getGeofenceRequest(
                                     getSpotFromId(spots, spotIdIn)), getGeofencePendingIntent());
+                            Intent serviceIntent = new Intent(HomeActivity.this,
+                                    LocationUpdatesService.class);
+                            stopService(serviceIntent);
                         }
                     });
         }else{
@@ -849,8 +849,11 @@ public class HomeActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int id) {
                         Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
                         userNotResponse = false;
+                        Intent serviceIntent = new Intent(HomeActivity.this,
+                                LocationUpdatesService.class);
+                        stopService(serviceIntent);
 //                        List<String> geofencesToRemove = new ArrayList<>();
-//                        geofencesToRemove.add("ParkinSpot" + spotIn.getId());
+//                        geofencesToRemove.add("Tu vehiculo en " + spotIn.getId());
 //                        geofencingClient.removeGeofences(geofencesToRemove);
                     }
                 });
@@ -866,18 +869,22 @@ public class HomeActivity extends AppCompatActivity {
         alertDialog.show();
         dialogSendAllready = true;
 
-        final Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
+        final Timer dialogtimer = new Timer();
+        dialogtimer.schedule(new TimerTask() {
             public void run() {
                 alertDialog.dismiss();
                 if(userNotResponse){
                     Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
                 }
                 userNotResponse = true;
-                dialogSendAllready = false;
-                timer.cancel();
             }
-        }, Constants.getSecondsInMilliseconds() * 10);
+        }, Constants.getSecondsInMilliseconds() * 20);
+        dialogtimer.schedule(new TimerTask() {
+            public void run() {
+                dialogSendAllready = false;
+                dialogtimer.cancel();
+            }
+        }, Constants.getSecondsInMilliseconds() * 40);
     }
 
     public boolean isPointInsidePolygon(Spot spot, Location location){

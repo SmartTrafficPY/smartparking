@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
-import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -22,13 +21,15 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.gson.internal.LinkedTreeMap;
+import com.google.maps.android.PolyUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +47,7 @@ public class LocationUpdatesService extends Service {
 
     private static final String CHANNEL_ID = "location_updates_channel";
 
-    public static final String EXTRA_LOCATION_LATITUD = PACKAGE_NAME + ".location.latitud";
-    public static final String EXTRA_LOCATION_LONGITUD = PACKAGE_NAME + ".location.longitud";
+    public static final String EXTRA_LOCATION = PACKAGE_NAME + ".location";
 
     private static final String EXTRA_STARTED_FROM_NOTIFICATION = PACKAGE_NAME +
             ".started_from_notification";
@@ -56,18 +56,19 @@ public class LocationUpdatesService extends Service {
      * than this value.
      */
     private static final long FASTEST_UPDATE_INTERVAL =
-            Constants.getSecondsInMilliseconds();
+            Constants.getSecondsInMilliseconds() * 5;
+
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
-    private static final long UPDATE_INTERVAL = 3 * FASTEST_UPDATE_INTERVAL;
+    private static final long UPDATE_INTERVAL = 2 * FASTEST_UPDATE_INTERVAL;
 
     /**
      * The identifier for the notification displayed for the foreground service.
      */
-    private static final int NOTIFICATION_ID = 1122334455;
+    private static final int NOTIFICATION_ID = 5;
 
-    static final String ACTION_BROADCAST = PACKAGE_NAME + ".broadcast";
+    public static final String ACTION_BROADCAST = PACKAGE_NAME + ".broadcast";
     /**
      * Used to check whether the bound activity has really gone away and not unbound as part of an
      * orientation change. We create a foreground service notification only if the former takes
@@ -93,6 +94,9 @@ public class LocationUpdatesService extends Service {
      */
     private Location mLocation;
 
+    List<List<LatLng>> lotsPolygons = new ArrayList<>();
+
+
     public LocationUpdatesService() {
     }
 
@@ -105,7 +109,9 @@ public class LocationUpdatesService extends Service {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
+                Log.i(LOG_TAG,locationResult.getLastLocation().toString());
                 broadcastLocation(locationResult.getLastLocation());
+                compareUncomingGateways(locationResult.getLastLocation());
             }
         };
 
@@ -129,10 +135,47 @@ public class LocationUpdatesService extends Service {
 
     }
 
+    private void compareUncomingGateways(Location currentLocation) {
+        if(lotsPolygons != null){
+            for(List linkedTrees: lotsPolygons){
+                compareToEntranceLot(currentLocation, toLatLngList(linkedTrees));
+            }
+        }
+    }
+
+    private List<LatLng> toLatLngList(List<LinkedTreeMap> linkedTrees) {
+        List<LatLng> listToReturn = new ArrayList<>();
+        for(LinkedTreeMap tree: linkedTrees){
+            LatLng point = new LatLng(Double.valueOf(tree.get("latitude").toString()),
+                    Double.valueOf(tree.get("longitude").toString()));
+            listToReturn.add(point);
+        }
+        return listToReturn;
+    }
+
+    private void compareToEntranceLot(Location location, List<LatLng> polygonEntrance) {
+        if(PolyUtil.containsLocation(location.getLatitude(),location.getLongitude(),
+                polygonEntrance, true)){
+            if(!Utils.returnEnterLotFlag(this)){
+                Utils.setEntranceEvent(this, location, Constants.EVENT_TYPE_ENTRACE);
+                Utils.hasEnterLotFlag(this,true);
+            }
+        }else{
+            if(Utils.returnEnterLotFlag(this)){
+                Utils.setEntranceEvent(this, location, Constants.EVENT_TYPE_EXIT);
+                Utils.hasEnterLotFlag(this,false);
+            }
+        }
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         boolean startedFromNotification = intent.getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION,
                 false);
+        ArrayList<String> namesOfGeofencesTrigger =
+                intent.getStringArrayListExtra(Constants.GEOFENCE_TRIGGED);
+
+        lotsPolygons = Utils.returnListOfGateways(this, namesOfGeofencesTrigger);
         // We got here because the user decided to remove location updates from the notification.
         if (startedFromNotification) {
             removeLocationUpdates();
@@ -158,7 +201,6 @@ public class LocationUpdatesService extends Service {
      * {@link SecurityException}.
      */
     public void requestLocationUpdates() {
-        Log.i(LOG_TAG, "Requesting location updates");
         Utils.setRequestingLocationUpdates(this, true);
         mNotificationManager.notify(NOTIFICATION_ID, getNotification());
         try {
@@ -166,7 +208,6 @@ public class LocationUpdatesService extends Service {
                     mLocationCallback, Looper.myLooper());
         } catch (SecurityException unlikely) {
             Utils.setRequestingLocationUpdates(this, false);
-            Log.e(LOG_TAG, "Lost location permission. Could not request updates. " + unlikely);
         }
     }
     /**
@@ -174,14 +215,12 @@ public class LocationUpdatesService extends Service {
      * {@link SecurityException}.
      */
     public void removeLocationUpdates() {
-        Log.i(LOG_TAG, "Removing location updates");
         try {
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
             Utils.setRequestingLocationUpdates(this, false);
             stopSelf();
         } catch (SecurityException unlikely) {
             Utils.setRequestingLocationUpdates(this, true);
-            Log.e(LOG_TAG, "Lost location permission. Could not remove updates. " + unlikely);
         }
     }
     /**
@@ -234,12 +273,10 @@ public class LocationUpdatesService extends Service {
                             if (task.isSuccessful() && task.getResult() != null) {
                                 mLocation = task.getResult();
                             } else {
-                                Log.w(LOG_TAG, "Failed to get location.");
                             }
                         }
                     });
         } catch (SecurityException unlikely) {
-            Log.e(LOG_TAG, "Lost location permission." + unlikely);
         }
     }
 
@@ -272,10 +309,8 @@ public class LocationUpdatesService extends Service {
     }
 
     private void broadcastLocation(Location location) {
-        Log.i(LOG_TAG, "Location send");
         Intent intent = new Intent(ACTION_BROADCAST);
-        intent.putExtra(EXTRA_LOCATION_LATITUD, location.getLatitude());
-        intent.putExtra(EXTRA_LOCATION_LONGITUD, location.getLongitude());
+        intent.putExtra(EXTRA_LOCATION, location);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 

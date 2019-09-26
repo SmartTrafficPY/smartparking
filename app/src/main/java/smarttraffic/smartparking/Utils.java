@@ -9,12 +9,15 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.location.Location;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.location.DetectedActivity;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polygon;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -40,9 +43,11 @@ import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
 import smarttraffic.smartparking.dataModels.EventProperties;
 import smarttraffic.smartparking.dataModels.Events;
 import smarttraffic.smartparking.dataModels.Lots.Lot;
+import smarttraffic.smartparking.dataModels.Lots.LotList;
 import smarttraffic.smartparking.dataModels.Lots.PointGeometry;
 import smarttraffic.smartparking.dataModels.Point;
 import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbySpot;
+import smarttraffic.smartparking.dataModels.Spots.PolygonGeometry;
 import smarttraffic.smartparking.dataModels.Spots.Spot;
 import smarttraffic.smartparking.receivers.AlarmReceiver;
 
@@ -194,7 +199,7 @@ public class Utils {
 
     }
 
-    public static void setEntranceEvent(Context context, Location location, String eventType){
+    public static void setEntranceEvent(Context context, Location location, final String eventType){
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.CLIENTE_DATA,
                 Context.MODE_PRIVATE);
 
@@ -396,6 +401,45 @@ public class Utils {
                 .edit()
                 .putBoolean(KEY_REQUESTING_LOCATION_UPDATES, requestingLocationUpdates)
                 .apply();
+    }
+
+    public static void saveListOfGateways(Context context, LotList lotList){
+        SharedPreferences mPrefs = context.getSharedPreferences(Constants.GATEWAYS,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
+        for(Lot lot : lotList.getFeatures()){
+            Gson gson = new Gson();
+            String json = gson.toJson(lot.getGeometry().toLatLngList());
+            prefsEditor.putString(lot.getProperties().getName(), json).apply();
+            prefsEditor.commit();
+        }
+    }
+
+    public static List<List<LatLng>> returnListOfGateways(Context context, ArrayList<String> geofencesName){
+        SharedPreferences mPrefs = context.getSharedPreferences(Constants.GATEWAYS,
+                Context.MODE_PRIVATE);
+        ArrayList<List<LatLng>> lotsPolygons = new ArrayList<>();
+        for(String geofenceName : geofencesName){
+            Gson gson = new Gson();
+            String json = mPrefs.getString(geofenceName, "");
+            List<LatLng> obj = gson.fromJson(json, List.class);
+            lotsPolygons.add(obj);
+        }
+        return lotsPolygons;
+    }
+
+    public static void hasEnterLotFlag(Context context, boolean flag){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.ENTER_LOT_FLAG,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(Constants.HAS_ENTER_IN_LOT, flag).apply();
+        editor.commit();
+    }
+
+    public static boolean returnEnterLotFlag(Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.ENTER_LOT_FLAG,
+                Context.MODE_PRIVATE);
+        return sharedPreferences.getBoolean(Constants.HAS_ENTER_IN_LOT, false);
     }
 
 }

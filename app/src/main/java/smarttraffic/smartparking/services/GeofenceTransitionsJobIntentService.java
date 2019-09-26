@@ -37,7 +37,6 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
     private static final String CHANNEL_ID = "channel_01";
 
     public static final String TRANSITION = "TRANSITION";
-    public static final String GEOFENCE_TRIGGED = "GEOFENCE_TRIGGED";
 
     /**
      * Convenience method for enqueuing work in to this service.
@@ -61,10 +60,12 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
         }
         // Get the transition type.
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
+        List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
+
         // Test that the reported transition was of interest.
         switch (geofenceTransition) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
-                startLocationService();
+                startLocationService(triggeringGeofences);
 //                mService.requestLocationUpdates();
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
@@ -75,7 +76,6 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
                 break;
         }
         // Get the geofences that were triggered. A single event can trigger multiple geofences.
-        List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
         // Get the transition details as a String.
         String geofenceTransitionDetails = getGeofenceTransitionDetails(geofenceTransition,
                 triggeringGeofences);
@@ -175,27 +175,33 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
 
     private void broadcastGeofenceTransition(List<Geofence> triggeringGeofences,
                                              int geofenceTransition) {
+        Intent intent = new Intent(Constants.getBroadcastGeofenceTriggerIntent());
+        intent.putStringArrayListExtra(Constants.GEOFENCE_TRIGGED,
+                namesOfGeofencesTrigger(triggeringGeofences));
+        intent.putExtra(TRANSITION, geofenceTransition);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    public void startLocationService(List<Geofence> triggeringGeofences) {
+        Intent serviceIntent = new Intent(this, LocationUpdatesService.class);
+        serviceIntent.putStringArrayListExtra(Constants.GEOFENCE_TRIGGED,
+                namesOfGeofencesTrigger(triggeringGeofences));
+        startService(serviceIntent);
+    }
+
+    public void stopLocationService() {
+        Intent serviceIntent = new Intent(this, LocationUpdatesService.class);
+        stopService(serviceIntent);
+    }
+
+    public ArrayList<String> namesOfGeofencesTrigger(List<Geofence> triggeringGeofences){
         ArrayList<String> fencesTriggered = new ArrayList<>();
         if(triggeringGeofences != null){
             for(Geofence geofence : triggeringGeofences){
                 fencesTriggered.add(geofence.getRequestId());
             }
         }
-        Intent intent = new Intent(Constants.getBroadcastGeofenceTriggerIntent());
-        intent.putStringArrayListExtra(GEOFENCE_TRIGGED, fencesTriggered);
-        intent.putExtra(TRANSITION, geofenceTransition);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
-
-    public void startLocationService() {
-        Intent serviceIntent = new Intent(this, LocationUpdatesService.class);
-        startService(serviceIntent);
-        Log.i(LOG_TAG, "Geofencing Start Location Service");
-    }
-
-    public void stopLocationService() {
-        Intent serviceIntent = new Intent(this, LocationUpdatesService.class);
-        stopService(serviceIntent);
+        return fencesTriggered;
     }
 
 }

@@ -1,5 +1,12 @@
 package smarttraffic.smartparking.dataModels.Spots;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.google.android.gms.maps.model.LatLng;
+
+import org.osmdroid.views.overlay.Polygon;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,10 +18,13 @@ import smarttraffic.smartparking.dataModels.Point;
  * smarttraffic.smartparking.dataModels
  */
 
-public class PolygonGeometry {
+public class PolygonGeometry{
 
     private String type;
     private List<List<List<Double>>> coordinates;
+
+    public PolygonGeometry() {
+    }
 
     public List<List<List<Double>>> getCoordinates() {
         return coordinates;
@@ -43,4 +53,16 @@ public class PolygonGeometry {
          }
         return result;
     }
+
+    public List<LatLng> toLatLngList(){
+        List<Point> listOfSpots = getPolygonPoints();
+        List<LatLng> resultList = new ArrayList<LatLng>();
+        if(listOfSpots != null){
+            for(Point point : listOfSpots){
+                resultList.add(new LatLng(point.getLatitud(),point.getLongitud()));
+            }
+        }
+        return resultList;
+    }
+
 }

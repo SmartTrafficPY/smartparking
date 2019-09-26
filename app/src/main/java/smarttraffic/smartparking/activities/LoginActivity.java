@@ -44,7 +44,6 @@ public class LoginActivity extends AppCompatActivity {
     IntentFilter filter = new IntentFilter();
     LoginReceiver loginReceiver = new LoginReceiver();
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         setContentView(R.layout.login_layout);
