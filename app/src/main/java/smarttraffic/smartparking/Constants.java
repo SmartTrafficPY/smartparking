@@ -14,7 +14,8 @@ public class Constants {
      * Add here all variables used at width in the project...
      * **/
 
-    public Constants() {
+    private Constants() {
+        // Persistence Constructor
     }
 
     public static final String EVENT_TYPE_EXIT = "exit_lot";
@@ -25,7 +26,7 @@ public class Constants {
     public static final String SETTINGS = "SETTINGS";
     public static final String GEOFENCES_ADD = "GEOFENCES_ADD";
     public static final String GEOFENCES_SETUP = "GEOFENCES_SETUP";
-    public static final String USER_PASSWORD = "USER_PASSWORD";
+    public static final String USER_PASS = "USER_PASS";
     public static final String USER_TOKEN = "USER_TOKEN";
     public static final String CLIENT_NOT_LOGIN = "CLIENT_NOT_LOGIN";
     public static final String CLIENTE_DATA = "CLIENTE_DATA";
@@ -46,13 +47,13 @@ public class Constants {
     public static final String KEY_DETECTED_ACTIVITIES = "KEY_DETECTED_ACTIVITIES";
     public static final String KEY_ACTIVITY_UPDATES_REQUESTED = "KEY_ACTIVITY_UPDATES_REQUESTED";
     public static final String GEOFENCES_ADDED_KEY = "GEOFENCES_ADDED_KEY";
-    private static final long SECONDS_IN_MILLISECONDS = 1000 * 1;
+    private static final long SECONDS_IN_MILLISECONDS = (long) 1000 * 1;
     public static final String ACTIVITY_TYPE_TRANSITION = "ACTIVITY_TYPE_TRANSITION";
     public static final String ACTIVITY_CONFIDENCE_TRANSITION = "ACTIVITY_CONFIDENCE_TRANSITION";
     public static final long DETECTION_INTERVAL_IN_MILLISECONDS =  SECONDS_IN_MILLISECONDS; // 30 seconds
     private static final long MINUTES_IN_MILLISECONDS = SECONDS_IN_MILLISECONDS * 60;
     private static final long HOURS_IN_MILLISECONDS = MINUTES_IN_MILLISECONDS * 60;
-    public static final String BASE_URL = "http://192.168.100.5:8000/api/";
+    public static final String BASE_URL = "https://api.smarttraffic.com.py/api/";
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
     private static final String CHANNEL_ID = "SMARTPARKING_CHANNEL_ID";
     private static final String PROXIMITY_INTENT_ACTION = "SMARTPARKING_PROXIMITY_ALERT";

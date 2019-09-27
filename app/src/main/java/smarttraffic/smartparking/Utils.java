@@ -58,8 +58,6 @@ import static android.content.Context.ALARM_SERVICE;
 
 public class Utils {
 
-    private static final String LOG_TAG = "Utils class";
-
     public static final String LOTS_SYSTEM = "Lots in the System";
 
     public static final String KEY_REQUESTING_LOCATION_UPDATES = "requesting_locaction_updates";
@@ -419,11 +417,13 @@ public class Utils {
         SharedPreferences mPrefs = context.getSharedPreferences(Constants.GATEWAYS,
                 Context.MODE_PRIVATE);
         ArrayList<List<LatLng>> lotsPolygons = new ArrayList<>();
-        for(String geofenceName : geofencesName){
-            Gson gson = new Gson();
-            String json = mPrefs.getString(geofenceName, "");
-            List<LatLng> obj = gson.fromJson(json, List.class);
-            lotsPolygons.add(obj);
+        if(geofencesName != null){
+            for(String geofenceName : geofencesName){
+                Gson gson = new Gson();
+                String json = mPrefs.getString(geofenceName, "");
+                List<LatLng> obj = gson.fromJson(json, List.class);
+                lotsPolygons.add(obj);
+            }
         }
         return lotsPolygons;
     }

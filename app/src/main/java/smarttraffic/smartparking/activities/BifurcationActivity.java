@@ -1,6 +1,5 @@
 package smarttraffic.smartparking.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -20,8 +19,6 @@ import smarttraffic.smartparking.R;
  */
 
 public class BifurcationActivity extends AppCompatActivity {
-
-    private static final String LOG_TAG= "BifurcationActivity";
 
     @BindView(R.id.createAccountButton)
     Button goSignUp;

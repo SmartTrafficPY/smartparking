@@ -19,6 +19,18 @@ android {
     }
 }
 
+sonarqube {
+    properties {
+        property "sonar.projectName", "SmartParking"
+        property "sonar.projectKey", "smartparking0"
+        property "sonar.host.url", "http://192.168.100.5:9000"
+        property "sonar.language", "java"
+        property "sonar.sources", "src/main/"
+        property "sonar.login", "admin"
+        property "sonar.password", "admin"
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     //noinspection GradleCompatible

@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -45,9 +44,7 @@ import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
 
 public class ChangePasswordActivity extends AppCompatActivity {
 
-    private static final String LOG_TAG = "ChangePasswordActivity";
-
-    private static final String PASSWORDS_NOT_MATCH = "Las contraseñas no coinciden!";
+    private static final String PASS_NOT_MATCH = "Las contraseñas no coinciden!";
     private static final String CHANGE_SUCCESS = "EXITOSO!";
     private static final String CHANGE_NOT_SUCCESS = "La contraseña actual no coincide con la de su usuario!";
     private static final String SERVER_MISTAQUE = "Las contraseña no se ha podido cambiar.";
@@ -72,7 +69,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
         final SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
                 Constants.CLIENTE_DATA, Context.MODE_PRIVATE);
 
-        final String userPassword = sharedPreferences.getString(Constants.USER_PASSWORD, "");
+        final String userPassword = sharedPreferences.getString(Constants.USER_PASS, "");
 
         firstNewPassword.addTextChangedListener(new TextWatcher() {
             @Override
@@ -125,7 +122,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 if(currentPassword.getText().toString().equals(userPassword)){
                     changeProfileUser(sharedPreferences);
                 }else{
-                    showToast(PASSWORDS_NOT_MATCH);
+                    showToast(PASS_NOT_MATCH);
                 }
             }
         });
@@ -162,7 +159,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 switch (response.code()) {
                     case 200:
                         showToast(CHANGE_SUCCESS);
-                        editor.putString(Constants.USER_PASSWORD,
+                        editor.putString(Constants.USER_PASS,
                                 firstNewPassword.getText().toString());
                         Intent intent = new Intent(ChangePasswordActivity.this,
                                 HomeActivity.class);
@@ -208,14 +205,14 @@ public class ChangePasswordActivity extends AppCompatActivity {
     }
 
     public class Password {
-        private String password;
+        private String pass;
 
         public String getNewPassword() {
-            return password;
+            return pass;
         }
 
         public void setNewPassword(String newPassword) {
-            this.password = newPassword;
+            this.pass = newPassword;
         }
     }
 }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -64,16 +63,6 @@
             android:hint="Password"
             android:textColorHint="@color/divider"
             android:inputType="textPassword" />
-
-        <!--<TextView-->
-            <!--android:id="@+id/forgotPassword"-->
-            <!--android:focusable="false"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textIsSelectable="true"-->
-            <!--android:textColor="@color/smartparking_red"-->
-            <!--android:text="@string/forgotPassword" />-->
-
 
         <Button
             android:id="@+id/loginButton"

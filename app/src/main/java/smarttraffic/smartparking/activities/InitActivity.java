@@ -28,8 +28,6 @@ import smarttraffic.smartparking.R;
 
 public class InitActivity extends AppCompatActivity {
 
-    private boolean withInternetConnection;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,10 +44,8 @@ public class InitActivity extends AppCompatActivity {
                 new Runnable() {
                     public void run() {
                         if (isNetworkAvailable()) {
-                            setWithInternetConnection(true);
                             initializeFirstActivity(sharedPreferences);
                         } else {
-                            setWithInternetConnection(false);
                             showToast(getString(R.string.no_network_connection));
                         }
                         progressDialog.dismiss();
@@ -64,9 +60,6 @@ public class InitActivity extends AppCompatActivity {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public void setWithInternetConnection(boolean withInternetConnection) {
-        this.withInternetConnection = withInternetConnection;
-    }
 
     @Override
     public void onResume() {

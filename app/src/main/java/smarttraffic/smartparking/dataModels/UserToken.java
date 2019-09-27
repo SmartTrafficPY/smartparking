@@ -12,6 +12,7 @@ public class UserToken {
     private String url;
 
     public UserToken() {
+        // Persistence Constructor
     }
 
     @Override

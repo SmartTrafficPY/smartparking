@@ -30,7 +30,6 @@ public class RegistrationReceiver extends BroadcastReceiver {
     }
 
     private String errorMessage;
-    private static final String LOG_TAG = "RegistrationReceiver";
 
     @Override
     public void onReceive(Context context, Intent intent) {

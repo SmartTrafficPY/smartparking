@@ -130,8 +130,6 @@ import static smarttraffic.smartparking.Interceptors.ReceivedTimeStampIntercepto
 
 public class HomeActivity extends AppCompatActivity {
 
-    private static final String LOG_TAG = "HomeActivity";
-
     @BindView(R.id.mapFragment)
     MapView mapView;
     @BindView(R.id.toolbar)
@@ -434,8 +432,8 @@ public class HomeActivity extends AppCompatActivity {
                         spots = testSpots.getFeatures();
                         if(spots != null){
                             for (Spot spot : spots) {
-                                setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
-//                                drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+//                                setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
                             }
                         }
                         break;
@@ -495,9 +493,9 @@ public class HomeActivity extends AppCompatActivity {
                         List<Spot> spotsUpdated = Utils.updateSpots(changedSpots, spots);
                         if(spotsUpdated != null){
                             for (Spot spot : spotsUpdated) {
-                                setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
-//                                drawPolygon(Utils.spotToListOfGeoPoints(spot),
-//                                        spot.getProperties().getState());
+//                                setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                drawPolygon(Utils.spotToListOfGeoPoints(spot),
+                                        spot.getProperties().getState());
                             }
                         }
                         break;
@@ -600,7 +598,8 @@ public class HomeActivity extends AppCompatActivity {
                                     properties.getName(), false));
                         }
                         addGeofences(geofenceList);
-                        Utils.saveListOfGateways(HomeActivity.this, response.body());
+                        //TODO: uncomment to work with the gateway...
+//                        Utils.saveListOfGateways(HomeActivity.this, response.body());
                         break;
                     default:
                         break;
@@ -627,7 +626,7 @@ public class HomeActivity extends AppCompatActivity {
                         longitud,
                         radius
                 )
-                .setLoiteringDelay(1000 * 60 * 20)
+                .setLoiteringDelay(1000 * 60 * 10)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                         Geofence.GEOFENCE_TRANSITION_EXIT |
                         Geofence.GEOFENCE_TRANSITION_DWELL);
@@ -875,7 +874,7 @@ public class HomeActivity extends AppCompatActivity {
                 }
                 userNotResponse = true;
             }
-        }, Constants.getSecondsInMilliseconds() * 20);
+        }, Constants.getSecondsInMilliseconds() * 35);
         dialogtimer.schedule(new TimerTask() {
             public void run() {
                 dialogSendAllready = false;

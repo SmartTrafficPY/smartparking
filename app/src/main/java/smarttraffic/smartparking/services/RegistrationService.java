@@ -75,7 +75,6 @@ public class RegistrationService extends IntentService {
 
         try {
             Response<ProfileUser> result = call.execute();
-            Headers headers = result.headers();
             if(result.code() == 201){
                 registrationIntent.setAction(REGISTRATION_OK);
             }else{

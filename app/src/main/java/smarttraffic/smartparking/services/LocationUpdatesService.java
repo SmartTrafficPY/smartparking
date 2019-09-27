@@ -1,33 +1,30 @@
 package smarttraffic.smartparking.services;
 
-import android.app.ActivityManager;
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Looper;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.maps.android.PolyUtil;
 
@@ -39,7 +36,7 @@ import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.Utils;
 import smarttraffic.smartparking.activities.HomeActivity;
 
-public class LocationUpdatesService extends Service {
+public class LocationUpdatesService extends Service implements LocationListener{
 
     private static final String PACKAGE_NAME = "smarttraffic.smartparking.services";
 
@@ -55,17 +52,8 @@ public class LocationUpdatesService extends Service {
      * The fastest rate for active location updates. Updates will never be more frequent
      * than this value.
      */
-    private static final long FASTEST_UPDATE_INTERVAL =
+    private static final long UPDATE_INTERVAL =
             Constants.getSecondsInMilliseconds() * 5;
-    /**
-     * The desired interval for location updates. Inexact. Updates may be more or less frequent.
-     */
-    private static final long UPDATE_INTERVAL = 2 * FASTEST_UPDATE_INTERVAL;
-
-    private static final long UPDATE_INTERVAL_DWELL =
-            Constants.getMinutesInMilliseconds() * 10;
-    private static final long DWELL_INTERVAL = 2 * UPDATE_INTERVAL_DWELL;
-
     /**
      * The identifier for the notification displayed for the foreground service.
      */
@@ -78,47 +66,27 @@ public class LocationUpdatesService extends Service {
      * place.
      */
     private NotificationManager mNotificationManager;
-    /**
-     * Contains parameters used by {@link com.google.android.gms.location.FusedLocationProviderApi}.
-     */
-    private LocationRequest mLocationRequest;
-    /**
-     * Provides access to the Fused Location Provider API.
-     */
-    private FusedLocationProviderClient mFusedLocationClient;
-    /**
-     * Callback for changes in location.
-     */
-    private LocationCallback mLocationCallback;
 
     private Handler mServiceHandler;
     /**
      * The current location.
      */
-    private Location mLocation;
+    private Location mLocation = new Location(LocationManager.GPS_PROVIDER);
+
+    private LocationManager locationManager;
 
     List<List<LatLng>> lotsPolygons = new ArrayList<>();
 
-
     public LocationUpdatesService() {
+        // Persistence Constructor
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        mLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-                Log.i(LOG_TAG,locationResult.getLastLocation().toString());
-                broadcastLocation(locationResult.getLastLocation());
-                compareUncomingGateways(locationResult.getLastLocation());
-            }
-        };
+        locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
 
-        createLocationRequest();
         getLastLocation();
 
         HandlerThread handlerThread = new HandlerThread(LOG_TAG);
@@ -135,12 +103,11 @@ public class LocationUpdatesService extends Service {
             // Set the Notification Channel for the Notification Manager.
             mNotificationManager.createNotificationChannel(mChannel);
         }
-
     }
 
     private void compareUncomingGateways(Location currentLocation) {
-        if(lotsPolygons != null){
-            for(List linkedTrees: lotsPolygons){
+        if (lotsPolygons != null && !lotsPolygons.isEmpty()) {
+            for (List linkedTrees : lotsPolygons) {
                 compareToEntranceLot(currentLocation, toLatLngList(linkedTrees));
             }
         }
@@ -148,25 +115,27 @@ public class LocationUpdatesService extends Service {
 
     private List<LatLng> toLatLngList(List<LinkedTreeMap> linkedTrees) {
         List<LatLng> listToReturn = new ArrayList<>();
-        for(LinkedTreeMap tree: linkedTrees){
-            LatLng point = new LatLng(Double.valueOf(tree.get("latitude").toString()),
-                    Double.valueOf(tree.get("longitude").toString()));
-            listToReturn.add(point);
+        if (linkedTrees != null && !linkedTrees.isEmpty()) {
+            for (LinkedTreeMap tree : linkedTrees) {
+                LatLng point = new LatLng(Double.valueOf(tree.get("latitude").toString()),
+                        Double.valueOf(tree.get("longitude").toString()));
+                listToReturn.add(point);
+            }
         }
         return listToReturn;
     }
 
     private void compareToEntranceLot(Location location, List<LatLng> polygonEntrance) {
-        if(PolyUtil.containsLocation(location.getLatitude(),location.getLongitude(),
-                polygonEntrance, true)){
-            if(!Utils.returnEnterLotFlag(this)){
+        if (PolyUtil.containsLocation(location.getLatitude(), location.getLongitude(),
+                polygonEntrance, true)) {
+            if (!Utils.returnEnterLotFlag(this)) {
                 Utils.setEntranceEvent(this, location, Constants.EVENT_TYPE_ENTRACE);
-                Utils.hasEnterLotFlag(this,true);
+                Utils.hasEnterLotFlag(this, true);
             }
-        }else{
-            if(Utils.returnEnterLotFlag(this)){
+        } else {
+            if (Utils.returnEnterLotFlag(this)) {
                 Utils.setEntranceEvent(this, location, Constants.EVENT_TYPE_EXIT);
-                Utils.hasEnterLotFlag(this,false);
+                Utils.hasEnterLotFlag(this, false);
             }
         }
     }
@@ -182,49 +151,56 @@ public class LocationUpdatesService extends Service {
         if (startedFromNotification) {
             removeLocationUpdates();
             stopSelf();
-        }else{
+            Log.i(LOG_TAG, "Stop service");
+        } else {
             startForeground(NOTIFICATION_ID, getNotification());
             requestLocationUpdates();
         }
-
         // Tells the system to not try to recreate the service after it has been killed.
         return START_NOT_STICKY;
     }
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
+
     @Override
     public void onDestroy() {
         mServiceHandler.removeCallbacksAndMessages(null);
     }
+
     /**
      * Makes a request for location updates. Note that in this sample we merely log the
      * {@link SecurityException}.
      */
     public void requestLocationUpdates() {
         Utils.setRequestingLocationUpdates(this, true);
-        mNotificationManager.notify(NOTIFICATION_ID, getNotification());
-        try {
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                    mLocationCallback, Looper.myLooper());
-        } catch (SecurityException unlikely) {
-            Utils.setRequestingLocationUpdates(this, false);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
         }
+        if(locationManager != null){
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    UPDATE_INTERVAL, 0, this);
+        }
+
     }
+
     /**
      * Removes location updates. Note that in this sample we merely log the
      * {@link SecurityException}.
      */
     public void removeLocationUpdates() {
-        try {
-            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-            Utils.setRequestingLocationUpdates(this, false);
-            stopSelf();
-        } catch (SecurityException unlikely) {
-            Utils.setRequestingLocationUpdates(this, true);
-        }
+        locationManager.removeUpdates(this);
     }
+
     /**
      * Returns the {@link NotificationCompat} used as part of the foreground service.
      */
@@ -267,47 +243,19 @@ public class LocationUpdatesService extends Service {
     }
 
     private void getLastLocation() {
-        try {
-            mFusedLocationClient.getLastLocation()
-                    .addOnCompleteListener(new OnCompleteListener<Location>() {
-                        @Override
-                        public void onComplete(Task<Location> task) {
-                            if (task.isSuccessful() && task.getResult() != null) {
-                                mLocation = task.getResult();
-                            } else {
-                            }
-                        }
-                    });
-        } catch (SecurityException unlikely) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
         }
-    }
-
-    /**
-     * Sets the location request parameters.
-     */
-    private void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-    }
-    /**
-     * Returns true if this is a foreground service.
-     *
-     * @param context The {@link Context}.
-     */
-    public boolean serviceIsRunningInForeground(Context context) {
-        ActivityManager manager = (ActivityManager) context.getSystemService(
-                Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(
-                Integer.MAX_VALUE)) {
-            if (getClass().getName().equals(service.service.getClassName())) {
-                if (service.foreground) {
-                    return true;
-                }
-            }
+        if(locationManager != null){
+            locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         }
-        return false;
     }
 
     private void broadcastLocation(Location location) {
@@ -316,4 +264,27 @@ public class LocationUpdatesService extends Service {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
+        mLocation = location;
+        broadcastLocation(mLocation);
+        compareUncomingGateways(mLocation);
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        //No need to implement...
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+        //No need to implement...
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        startActivity(intent);
+    }
 }

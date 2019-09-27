@@ -15,6 +15,7 @@ import okhttp3.Response;
 public class AddGeoJsonInterceptor implements Interceptor {
 
     public AddGeoJsonInterceptor(){
+        // Persistence Constructor
     }
 
     @Override

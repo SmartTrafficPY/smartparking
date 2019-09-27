@@ -31,8 +31,6 @@ import smarttraffic.smartparking.services.LoginService;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private static final String LOG_TAG = "LoginActivity";
-
     // binds the elements of the login_layout
     @BindView(R.id.usernameLogin)
     EditText usernameText;

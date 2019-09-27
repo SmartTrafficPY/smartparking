@@ -13,6 +13,7 @@ public class ProfileUser {
     private SmartParkingProfile smartparkingprofile;
 
     public ProfileUser() {
+        // Persistence Constructor
     }
 
     @Override

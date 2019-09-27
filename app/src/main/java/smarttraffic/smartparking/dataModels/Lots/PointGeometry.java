@@ -19,6 +19,7 @@ public class PointGeometry {
     private List<Double> coordinates;
 
     public PointGeometry() {
+        // Persistence Constructor
     }
 
     @Override

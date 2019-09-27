@@ -24,6 +24,7 @@ public class PolygonGeometry{
     private List<List<List<Double>>> coordinates;
 
     public PolygonGeometry() {
+        // Persistence Constructor
     }
 
     public List<List<List<Double>>> getCoordinates() {

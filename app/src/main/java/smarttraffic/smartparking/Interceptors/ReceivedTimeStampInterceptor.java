@@ -18,8 +18,6 @@ import okhttp3.Response;
 
 public class ReceivedTimeStampInterceptor implements Interceptor {
 
-    private static final String LOG_TAG = "X-TimeStamp Interceptor";
-
     public static final String X_TIMESTAMP = "X-Timestamp";
 
     private Context context;
@@ -37,7 +35,6 @@ public class ReceivedTimeStampInterceptor implements Interceptor {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(X_TIMESTAMP, originalResponse.header(X_TIMESTAMP)).apply();
         editor.commit();
-
 
         return originalResponse;
 

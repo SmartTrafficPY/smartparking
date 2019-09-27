@@ -50,8 +50,6 @@ public class RegistryActivity extends AppCompatActivity {
      * The user register and get a profile on the system...
      * **/
 
-    private static final String LOG_TAG = "RegistryActivity";
-
     private static final String CERO = "0";
     private static final String GUION = "-";
 
@@ -79,7 +77,7 @@ public class RegistryActivity extends AppCompatActivity {
 
     public final Calendar calendar = Calendar.getInstance();
     private final int MAX_LENGTH = 10;
-    public static Random RANDOM = new Random();
+    public static final Random RANDOM = new Random();
     public static final String DATA = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     final int actuallMonth = calendar.get(Calendar.MONTH);
     final int actuallDay = calendar.get(Calendar.DAY_OF_MONTH);

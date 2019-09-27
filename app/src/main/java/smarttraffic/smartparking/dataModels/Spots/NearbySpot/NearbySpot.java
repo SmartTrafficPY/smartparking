@@ -15,6 +15,7 @@ public class NearbySpot {
     private PolygonGeometry geometry;
 
     public NearbySpot() {
+        // Persistence Constructor
     }
 
     @Override

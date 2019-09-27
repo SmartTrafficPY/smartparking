@@ -18,8 +18,6 @@ import smarttraffic.smartparking.activities.HomeActivity;
 
 public class DetectedActivitiesService extends IntentService {
 
-    private static final String LOG_TAG = "DetectedActivities";
-
     public DetectedActivitiesService() {
         super("DetectedActivitiesService");
     }

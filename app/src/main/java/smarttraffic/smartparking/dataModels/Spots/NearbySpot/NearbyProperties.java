@@ -19,6 +19,7 @@ public class NearbyProperties {
     private String lot;
 
     public NearbyProperties() {
+        // Persistence Constructor
     }
 
     @Override

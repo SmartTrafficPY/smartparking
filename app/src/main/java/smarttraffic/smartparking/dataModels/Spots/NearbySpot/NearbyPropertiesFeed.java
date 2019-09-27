@@ -11,6 +11,7 @@ public class NearbyPropertiesFeed {
     private String previous_timestamp;
 
     public NearbyPropertiesFeed() {
+        // Persistence Constructor
     }
 
     @Override

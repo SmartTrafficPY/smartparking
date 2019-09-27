@@ -14,6 +14,7 @@ public class SpotList {
     private List<Spot> features;
 
     public SpotList() {
+        // Persistence Constructor
     }
 
     @Override

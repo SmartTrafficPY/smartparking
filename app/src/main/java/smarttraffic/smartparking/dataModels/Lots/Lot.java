@@ -15,6 +15,7 @@ public class Lot {
     private PolygonGeometry geometry;
 
     public Lot() {
+        // Persistence Constructor
     }
 
     @Override

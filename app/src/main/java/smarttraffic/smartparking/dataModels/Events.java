@@ -15,6 +15,7 @@ public class Events {
     private PointGeometry geometry;
 
     public Events() {
+        // Persistence Constructor
     }
 
     @Override
