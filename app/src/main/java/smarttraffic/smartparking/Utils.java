@@ -50,6 +50,8 @@ import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbySpot;
 import smarttraffic.smartparking.dataModels.Spots.PolygonGeometry;
 import smarttraffic.smartparking.dataModels.Spots.Spot;
 import smarttraffic.smartparking.receivers.AlarmReceiver;
+import smarttraffic.smartparking.services.GeofenceTransitionsJobIntentService;
+import smarttraffic.smartparking.services.LocationUpdatesService;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -442,4 +444,29 @@ public class Utils {
         return sharedPreferences.getBoolean(Constants.HAS_ENTER_IN_LOT, false);
     }
 
+    public static void polygonWereDraw(Context context, boolean b) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(
+                Constants.SETTINGS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        if(b){
+            editor.putString(Constants.FIRST_DRAW_SHAPE, Constants.POLYGON_TO_DRAW_SETTINGS).apply();
+        }else{
+            editor.putString(Constants.FIRST_DRAW_SHAPE, Constants.POINT_TO_DRAW_SETTINGS).apply();
+        }
+        editor.commit();
+    }
+
+    public static String firstDrawShape(Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(
+                Constants.SETTINGS, Context.MODE_PRIVATE);
+        return sharedPreferences.getString(Constants.FIRST_DRAW_SHAPE, Constants.POLYGON_TO_DRAW_SETTINGS);
+    }
+
+    public static void settingsHasChanged(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.SETTINGS,
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(Constants.LOCATIONS_REQUEST_SETTINGS_CHANGE, true).apply();
+        editor.commit();
+    }
 }

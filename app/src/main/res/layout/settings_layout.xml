@@ -42,7 +42,7 @@
             android:layout_below="@+id/settingsImageView"
             android:layout_margin="15dp"
             android:textSize="20dp"
-            android:text="@string/settings_request_map_time_update"
+            android:text="@string/settings_request_location_update"
             android:textColor="@color/primary_text"
             android:textStyle="bold" />
 
@@ -57,7 +57,7 @@
             android:textStyle="bold">
 
             <RadioButton
-                android:id="@+id/superFastTimeGPS"
+                android:id="@+id/fastTimeGPS"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -65,20 +65,12 @@
                 android:text="Actualización ubicación muy alta(muy alto consumo batería, muy alta precisión): 1-2 sec" />
 
             <RadioButton
-                android:id="@+id/fastTimeGPS"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_margin="5dp"
-                android:text="Actualización ubicación alta(alto consumo batería, alta precisión): 3-6 sec" />
-
-            <RadioButton
                 android:id="@+id/normalTimeGPS"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_margin="5dp"
-                android:text="Actualización ubicación normal(predeterminado): 5-10 sec" />
+                android:text="Actualización ubicación normal: 5 sec" />
 
             <RadioButton
                 android:id="@+id/slowTimeGPS"
@@ -86,7 +78,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_margin="5dp"
-                android:text="Actualización ubicación baja(menor consumo de bateria, menor precisión): 10-15 sec" />
+                android:text="Actualización ubicación baja(bajo consumo batería, baja precisión): 10 sec" />
+
         </RadioGroup>
 
         <TextView
@@ -95,6 +88,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/gpsActualizationsTime"
             android:layout_margin="20dp"
+            android:textSize="20dp"
             android:text="@string/settings_request_map_time_update"
             android:textColor="@color/primary_text"
             android:textStyle="bold" />
@@ -123,7 +117,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_margin="5dp"
-                android:text="Actualización normal(predeterminado): 1 min" />
+                android:text="Actualización normal: 45 sec" />
 
             <RadioButton
                 android:id="@+id/slowUpdateRequest"
@@ -131,7 +125,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_weight="1"
-                android:text="Bajo consumo(menor gasto de paquetes de datos, menor fidelidad): 2 min" />
+                android:text="Actualización baja(bajo consumo de paquetes de datos, menor fidelidad): 1min" />
         </RadioGroup>
 
         <TextView
@@ -140,7 +134,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/requestActualizationsTime"
             android:layout_margin="20dp"
-            android:text="@string/settings_request_map_time_update"
+            android:textSize="20dp"
+            android:text="@string/settings_spots_drawing"
             android:textColor="@color/primary_text"
             android:textStyle="bold" />
 

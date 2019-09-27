@@ -18,6 +18,15 @@ public class Constants {
         // Persistence Constructor
     }
 
+    public static final String DRAW__SETTINGS_CHANGE = "DRAW__SETTINGS_CHANGE";
+    public static final String LOCATIONS_REQUEST_SETTINGS_CHANGE = "LOCATIONS_REQUEST_CHANGE";
+    public static final String MAP_REQUEST_SETTINGS_CHANGE = "MAP_REQUEST_SETTINGS_CHANGE";
+    public static final String FIRST_DRAW_SHAPE = "FIRST_DRAW_SHAPE";
+    public static final String LOCATION_TIME_UPDATE_SETTINGS = "LOCATION_TIME_UPDATE_SETTINGS";
+    public static final String MAP_SPOTS_TIME_UPDATE_SETTINGS = "MAP_SPOTS_TIME_UPDATE_SETTINGS";
+    public static final String DRAW_SETTINGS = "DRAW_SETTINGS";
+    public static final String POINT_TO_DRAW_SETTINGS = "POINT_TO_DRAW_SETTINGS";
+    public static final String POLYGON_TO_DRAW_SETTINGS = "POLYGON_TO_DRAW_SETTINGS";
     public static final String EVENT_TYPE_EXIT = "exit_lot";
     public static final String EVENT_TYPE_ENTRACE = "enter_lot";
     public static final String HAS_ENTER_IN_LOT = "HAS_ENTER_IN_LOT";

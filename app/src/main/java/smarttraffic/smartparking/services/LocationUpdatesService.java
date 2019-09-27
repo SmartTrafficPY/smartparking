@@ -7,6 +7,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -22,7 +23,6 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.internal.LinkedTreeMap;
@@ -39,8 +39,6 @@ import smarttraffic.smartparking.activities.HomeActivity;
 public class LocationUpdatesService extends Service implements LocationListener{
 
     private static final String PACKAGE_NAME = "smarttraffic.smartparking.services";
-
-    private static final String LOG_TAG = "LocationUpdatesService";
 
     private static final String CHANNEL_ID = "location_updates_channel";
 
@@ -89,7 +87,7 @@ public class LocationUpdatesService extends Service implements LocationListener{
 
         getLastLocation();
 
-        HandlerThread handlerThread = new HandlerThread(LOG_TAG);
+        HandlerThread handlerThread = new HandlerThread(LocationUpdatesService.class.getSimpleName());
         handlerThread.start();
         mServiceHandler = new Handler(handlerThread.getLooper());
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -151,7 +149,6 @@ public class LocationUpdatesService extends Service implements LocationListener{
         if (startedFromNotification) {
             removeLocationUpdates();
             stopSelf();
-            Log.i(LOG_TAG, "Stop service");
         } else {
             startForeground(NOTIFICATION_ID, getNotification());
             requestLocationUpdates();
@@ -175,6 +172,8 @@ public class LocationUpdatesService extends Service implements LocationListener{
      * {@link SecurityException}.
      */
     public void requestLocationUpdates() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences(
+                Constants.SETTINGS, MODE_PRIVATE);
         Utils.setRequestingLocationUpdates(this, true);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -187,10 +186,21 @@ public class LocationUpdatesService extends Service implements LocationListener{
             return;
         }
         if(locationManager != null){
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                    UPDATE_INTERVAL, 0, this);
-        }
+            if(sharedPreferences.getBoolean(Constants.LOCATIONS_REQUEST_SETTINGS_CHANGE, false)){
 
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean(Constants.LOCATIONS_REQUEST_SETTINGS_CHANGE,false).apply();
+                editor.commit();
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                        sharedPreferences.getLong(Constants.LOCATION_TIME_UPDATE_SETTINGS, UPDATE_INTERVAL)
+                        , 0, this);
+            }else{
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                        sharedPreferences.getLong(Constants.LOCATION_TIME_UPDATE_SETTINGS, UPDATE_INTERVAL)
+                        , 0, this);
+            }
+
+        }
     }
 
     /**
@@ -286,5 +296,9 @@ public class LocationUpdatesService extends Service implements LocationListener{
     public void onProviderDisabled(String provider) {
         Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         startActivity(intent);
+    }
+
+    public void restartService(){
+
     }
 }

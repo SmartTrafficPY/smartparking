@@ -149,6 +149,7 @@ public class HomeActivity extends AppCompatActivity {
     int confidence;
     boolean userNotResponse = true;
     boolean dialogSendAllready = false;
+    Polygon polygon = new Polygon();
     private Location mCurrentLocation;
     private List<Spot> spots = new ArrayList<Spot>();
     private ArrayList<String> geofencesTrigger = new ArrayList<>();
@@ -282,7 +283,6 @@ public class HomeActivity extends AppCompatActivity {
         setLocationOverlay();
 
         setCompassGestureOverlays();
-//        setMarkersOnMap();
         //add all overlays
         mapView.setBuiltInZoomControls(false);
         addOverlays();
@@ -350,7 +350,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void drawPolygon(List<GeoPoint> geoPoints, String status) {
-        Polygon polygon = new Polygon();
         String color = "#C0C0C0";
         if (status.equals(StatesEnumerations.FREE.getEstado())) {
             color = "#00FF00";
@@ -365,9 +364,12 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void managerOfTransitions() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences(
+                Constants.SETTINGS, MODE_PRIVATE);
         getSpotsFromGeofence(geofencesTrigger, false);
         final Handler handler = new Handler();
-        final long delay = Constants.getMinutesInMilliseconds();
+        final long delay = sharedPreferences.getLong(Constants.MAP_SPOTS_TIME_UPDATE_SETTINGS,
+                Constants.getSecondsInMilliseconds() * 45);
         Runnable cronJob = new Runnable() {
             public void run() {
                 getSpotsFromGeofence(geofencesTrigger, true);
@@ -402,6 +404,8 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void getSpotsGeographicValues(String geofencesTrigger) {
+        final SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.SETTINGS,
+                MODE_PRIVATE);
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -429,12 +433,22 @@ public class HomeActivity extends AppCompatActivity {
                 switch (response.code()) {
                     case 200:
                         SpotList testSpots = response.body();
-                        spots = testSpots.getFeatures();
+                        if(!testSpots.isEmpty()){
+                            spots = testSpots.getFeatures();
+                        }
                         if(spots != null){
+                            mapView.getOverlays().clear();
                             for (Spot spot : spots) {
-//                                setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
-                                drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                if(sharedPreferences.getString(Constants.DRAW_SETTINGS,
+                                        Constants.POLYGON_TO_DRAW_SETTINGS).equals(Constants.POLYGON_TO_DRAW_SETTINGS)){
+                                    drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                    Utils.polygonWereDraw(HomeActivity.this,true);
+                                }else{
+                                    setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                    Utils.polygonWereDraw(HomeActivity.this,false);
+                                }
                             }
+                            addOverlays();
                         }
                         break;
                     default:
@@ -449,6 +463,8 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void updatesSpotsFromGeofence() {
+        final SharedPreferences sharedPreferencesSettings = this.getSharedPreferences(Constants.SETTINGS,
+                MODE_PRIVATE);
         SharedPreferences sharedPreferences = this.getSharedPreferences(
                 X_TIMESTAMP,MODE_PRIVATE);
         NearbyLocation nearbyLocation = new NearbyLocation();
@@ -492,10 +508,31 @@ public class HomeActivity extends AppCompatActivity {
                         HashMap<String, String> changedSpots = response.body();
                         List<Spot> spotsUpdated = Utils.updateSpots(changedSpots, spots);
                         if(spotsUpdated != null){
-                            for (Spot spot : spotsUpdated) {
-//                                setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
-                                drawPolygon(Utils.spotToListOfGeoPoints(spot),
-                                        spot.getProperties().getState());
+                            if(Utils.firstDrawShape(HomeActivity.this) == Constants.POLYGON_TO_DRAW_SETTINGS){
+                                if(sharedPreferencesSettings.getString(Constants.DRAW_SETTINGS,
+                                        Constants.POLYGON_TO_DRAW_SETTINGS).equals(Constants.POLYGON_TO_DRAW_SETTINGS)){
+                                    for(Spot spot : spotsUpdated){
+                                        drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                    }
+                                }else{
+                                    mapView.getOverlayManager().remove(polygon);
+                                    for(Spot spot : spots){
+                                        setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                    }
+                                }
+                            }else{
+                                if(sharedPreferencesSettings.getString(Constants.DRAW_SETTINGS,
+                                        Constants.POLYGON_TO_DRAW_SETTINGS).equals(Constants.POLYGON_TO_DRAW_SETTINGS)){
+                                    mapView.getOverlays().clear();
+                                    for(Spot spot : spots){
+                                        drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                    }
+                                    addOverlays();
+                                }else{
+                                    for(Spot spot : spotsUpdated){
+                                        setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                    }
+                                }
                             }
                         }
                         break;
@@ -605,7 +642,6 @@ public class HomeActivity extends AppCompatActivity {
                         break;
                 }
             }
-
             @Override
             public void onFailure(Call<LotList> call, Throwable t) {
                 t.printStackTrace();

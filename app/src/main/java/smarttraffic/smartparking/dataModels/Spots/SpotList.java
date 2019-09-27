@@ -40,4 +40,12 @@ public class SpotList {
     public void setFeatures(List<Spot> features) {
         this.features = features;
     }
+
+    public boolean isEmpty() {
+        if(getFeatures().isEmpty()){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }
