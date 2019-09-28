@@ -1,5 +1,6 @@
 package smarttraffic.smartparking.activities;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -42,7 +43,7 @@ import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
  * @author joaquin
  */
 
-public class ChangePasswordActivity extends AppCompatActivity {
+public class ChangePasswordActivity extends Activity {
 
     private static final String PASS_NOT_MATCH = "Las contraseñas no coinciden!";
     private static final String CHANGE_SUCCESS = "EXITOSO!";

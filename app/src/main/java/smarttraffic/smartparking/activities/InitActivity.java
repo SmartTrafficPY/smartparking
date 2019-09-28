@@ -1,5 +1,6 @@
 package smarttraffic.smartparking.activities;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -26,7 +27,7 @@ import smarttraffic.smartparking.R;
  * @author joaquin
  */
 
-public class InitActivity extends AppCompatActivity {
+public class InitActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

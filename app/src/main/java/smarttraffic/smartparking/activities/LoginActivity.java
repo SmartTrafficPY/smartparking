@@ -1,5 +1,6 @@
 package smarttraffic.smartparking.activities;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -29,7 +30,7 @@ import smarttraffic.smartparking.services.LoginService;
  * @author joaquin
  */
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends Activity {
 
     // binds the elements of the login_layout
     @BindView(R.id.usernameLogin)

@@ -1,5 +1,6 @@
 package smarttraffic.smartparking.activities;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -24,7 +25,7 @@ import smarttraffic.smartparking.Utils;
  * smarttraffic.smartparking.activities
  */
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends Activity {
 
     @BindView(R.id.saveSettings)
     Button saveSettings;

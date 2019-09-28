@@ -133,7 +133,12 @@
             android:exported="true" />
 
         <receiver
-            android:name=".receivers.AlarmReceiver"
+            android:name=".receivers.AddAlarmReceiver"
+            android:enabled="true"
+            android:exported="true" />
+
+        <receiver
+            android:name=".receivers.RemoveAlarmReceiver"
             android:enabled="true"
             android:exported="true" />
 

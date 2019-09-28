@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.location.Location;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -17,7 +16,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Polygon;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -47,11 +45,9 @@ import smarttraffic.smartparking.dataModels.Lots.LotList;
 import smarttraffic.smartparking.dataModels.Lots.PointGeometry;
 import smarttraffic.smartparking.dataModels.Point;
 import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbySpot;
-import smarttraffic.smartparking.dataModels.Spots.PolygonGeometry;
 import smarttraffic.smartparking.dataModels.Spots.Spot;
-import smarttraffic.smartparking.receivers.AlarmReceiver;
-import smarttraffic.smartparking.services.GeofenceTransitionsJobIntentService;
-import smarttraffic.smartparking.services.LocationUpdatesService;
+import smarttraffic.smartparking.receivers.AddAlarmReceiver;
+import smarttraffic.smartparking.receivers.RemoveAlarmReceiver;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -342,11 +338,18 @@ public class Utils {
         return new GeoPoint(centroid[0], centroid[1]);
     }
 
-    public static void addAlarmGeofencingTask(Context context, Calendar calendar){
+    public static void addAlarmsGeofencingTask(Context context){
         AlarmManager alarmManager= (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        Intent intent = new Intent(context, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, Constants.ALARM_REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 7, pendingIntent);
+        Intent addAlarmIntent = new Intent(context, AddAlarmReceiver.class);
+        Intent removeAlarmIntent = new Intent(context, RemoveAlarmReceiver.class);
+        PendingIntent addAlarmPendingIntent = PendingIntent.getBroadcast(context,
+                Constants.ADD_ALARM_REQUEST_CODE, addAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent removeAlarmPendingIntent = PendingIntent.getBroadcast(context,
+                Constants.REMOVE_ALARM_REQUEST_CODE, removeAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeToAddGeofences().getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY * 7, addAlarmPendingIntent);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeToRemoveGeofences().getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY * 7, removeAlarmPendingIntent);
     }
 
     public static Calendar timeToAddGeofences(){
@@ -362,8 +365,8 @@ public class Utils {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(calendar.DAY_OF_WEEK, calendar.SATURDAY);
-        calendar.set(calendar.HOUR_OF_DAY, 6);
-        calendar.set(calendar.MINUTE, 30);
+        calendar.set(calendar.HOUR_OF_DAY, 12);
+        calendar.set(calendar.MINUTE, 0);
         return calendar;
     }
 

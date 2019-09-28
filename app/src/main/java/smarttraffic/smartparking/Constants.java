@@ -9,7 +9,6 @@ package smarttraffic.smartparking;
 public class Constants {
 
 
-
     /**
      * Add here all variables used at width in the project...
      * **/
@@ -18,6 +17,8 @@ public class Constants {
         // Persistence Constructor
     }
 
+    public static final int ADD_ALARM_REQUEST_CODE=130;
+    public static final int REMOVE_ALARM_REQUEST_CODE=131;
     public static final String DRAW__SETTINGS_CHANGE = "DRAW__SETTINGS_CHANGE";
     public static final String LOCATIONS_REQUEST_SETTINGS_CHANGE = "LOCATIONS_REQUEST_CHANGE";
     public static final String MAP_REQUEST_SETTINGS_CHANGE = "MAP_REQUEST_SETTINGS_CHANGE";
@@ -31,7 +32,6 @@ public class Constants {
     public static final String EVENT_TYPE_ENTRACE = "enter_lot";
     public static final String HAS_ENTER_IN_LOT = "HAS_ENTER_IN_LOT";
     public static final String ENTER_LOT_FLAG = "ENTER_LOT_FLAG";
-    public static final int ALARM_REQUEST_CODE=132;
     public static final String SETTINGS = "SETTINGS";
     public static final String GEOFENCES_ADD = "GEOFENCES_ADD";
     public static final String GEOFENCES_SETUP = "GEOFENCES_SETUP";

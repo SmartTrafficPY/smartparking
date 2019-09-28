@@ -5,29 +5,22 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentSender;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -40,21 +33,13 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ImageButton;
 import android.support.v7.widget.Toolbar;
-import android.widget.Toast;
 
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -114,8 +99,9 @@ import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbyPropertiesFee
 import smarttraffic.smartparking.dataModels.Spots.Spot;
 import smarttraffic.smartparking.dataModels.Spots.SpotList;
 import smarttraffic.smartparking.dataModels.Spots.SpotProperties;
-import smarttraffic.smartparking.receivers.AlarmReceiver;
+import smarttraffic.smartparking.receivers.AddAlarmReceiver;
 import smarttraffic.smartparking.receivers.GeofenceBroadcastReceiver;
+import smarttraffic.smartparking.receivers.RemoveAlarmReceiver;
 import smarttraffic.smartparking.services.DetectedActivitiesService;
 import smarttraffic.smartparking.services.GeofenceTransitionsJobIntentService;
 import smarttraffic.smartparking.services.LocationUpdatesService;
@@ -139,7 +125,8 @@ public class HomeActivity extends AppCompatActivity {
     @BindView(R.id.buttonAbout)
     ImageButton buttonAbout;
 
-    AlarmReceiver alarmReceiver = new AlarmReceiver();
+    AddAlarmReceiver addAlarmReceiver = new AddAlarmReceiver();
+    RemoveAlarmReceiver removeAlarmReceiver = new RemoveAlarmReceiver();
     IntentFilter filter = new IntentFilter();
 
     private ActivityRecognitionClient mActivityRecognitionClient;
@@ -173,15 +160,11 @@ public class HomeActivity extends AppCompatActivity {
         mActivityRecognitionClient = new ActivityRecognitionClient(this);
         geofencingClient = LocationServices.getGeofencingClient(this);
 
-        registerReceiver(alarmReceiver, filter);
-
-//        Utils.addAlarmGeofencingTask(HomeActivity.this, Utils.timeToAddGeofences());
+        registerReceiver(addAlarmReceiver, filter);
+        registerReceiver(removeAlarmReceiver, filter);
+        Utils.addAlarmsGeofencingTask(HomeActivity.this);
 
         setMapView();
-
-        if(Utils.isDayOfWeek()){
-            addParkingLotsGeofences();
-        }
 
         buttonRecenter.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -551,6 +534,9 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+        if(Utils.isDayOfWeek() && Utils.getGeofenceStatus(this)){
+            addParkingLotsGeofences();
+        }
         if (!checkPermissions()) {
             requestPermissions();
         }
@@ -571,7 +557,7 @@ public class HomeActivity extends AppCompatActivity {
                 new IntentFilter(Constants.getBroadcastGeofenceTriggerIntent()));
         LocalBroadcastManager.getInstance(this).registerReceiver(locationReceiver,
                 new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
-        registerReceiver(alarmReceiver, filter);
+        registerReceiver(addAlarmReceiver, filter);
         if(Utils.getGeofenceStatus(HomeActivity.this)){
             if(!Utils.isDayOfWeek()){
                 removeGeofences();
@@ -593,7 +579,8 @@ public class HomeActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(geofenceReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(locationReceiver);
-        unregisterReceiver(alarmReceiver);
+        unregisterReceiver(addAlarmReceiver);
+        unregisterReceiver(removeAlarmReceiver);
         removeActivityUpdates();
         mapView.onPause();
     }
@@ -635,6 +622,7 @@ public class HomeActivity extends AppCompatActivity {
                                     properties.getName(), false));
                         }
                         addGeofences(geofenceList);
+                        Utils.geofencesSetUp(HomeActivity.this,true);
                         //TODO: uncomment to work with the gateway...
 //                        Utils.saveListOfGateways(HomeActivity.this, response.body());
                         break;
@@ -782,7 +770,7 @@ public class HomeActivity extends AppCompatActivity {
      * permission.
      */
     @SuppressWarnings("MissingPermission")
-    private void removeGeofences() {
+    public void removeGeofences() {
         if (!checkPermissions()) {
             showSnackbar(getString(R.string.insufficient_permissions));
             return;

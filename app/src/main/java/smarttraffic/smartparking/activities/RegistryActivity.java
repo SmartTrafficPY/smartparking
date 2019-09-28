@@ -1,5 +1,6 @@
 package smarttraffic.smartparking.activities;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -44,7 +45,7 @@ import smarttraffic.smartparking.services.RegistrationService;
  * @author joaquin
  */
 
-public class RegistryActivity extends AppCompatActivity {
+public class RegistryActivity extends Activity {
 
     /**
      * The user register and get a profile on the system...
