@@ -15,6 +15,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -27,10 +28,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.support.v7.widget.Toolbar;
 
@@ -127,7 +130,6 @@ public class HomeActivity extends AppCompatActivity {
 
     AddAlarmReceiver addAlarmReceiver = new AddAlarmReceiver();
     RemoveAlarmReceiver removeAlarmReceiver = new RemoveAlarmReceiver();
-    IntentFilter filter = new IntentFilter();
 
     private ActivityRecognitionClient mActivityRecognitionClient;
 
@@ -160,8 +162,6 @@ public class HomeActivity extends AppCompatActivity {
         mActivityRecognitionClient = new ActivityRecognitionClient(this);
         geofencingClient = LocationServices.getGeofencingClient(this);
 
-        registerReceiver(addAlarmReceiver, filter);
-        registerReceiver(removeAlarmReceiver, filter);
         Utils.addAlarmsGeofencingTask(HomeActivity.this);
 
         setMapView();
@@ -243,9 +243,12 @@ public class HomeActivity extends AppCompatActivity {
 
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(
                 this));
+        Configuration.getInstance().setUserAgentValue(this.getPackageName());
+
+        Configuration.getInstance().setOsmdroidTileCache(Configuration.getInstance().getOsmdroidBasePath());
 
         mapView.setTileSource(new OnlineTileSourceBase("SMARTPARKING CartoDB",
-                16, 22, 256, ".png",
+                16, 25, 256, ".png",
                 new String[]{Constants.TILE_SERVER}) {
             @Override
             public String getTileURLString(long pMapTileIndex) {
@@ -258,6 +261,7 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         IMapController mapController = mapView.getController();
+
 
         setGralMapConfiguration(mapController);
         //scale bar
@@ -303,7 +307,7 @@ public class HomeActivity extends AppCompatActivity {
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
         mapView.setFlingEnabled(true);
-        mapController.setZoom(17);
+        mapController.setZoom(19);
     }
 
     private void setScaleBar() {
@@ -491,7 +495,7 @@ public class HomeActivity extends AppCompatActivity {
                         HashMap<String, String> changedSpots = response.body();
                         List<Spot> spotsUpdated = Utils.updateSpots(changedSpots, spots);
                         if(spotsUpdated != null){
-                            if(Utils.firstDrawShape(HomeActivity.this) == Constants.POLYGON_TO_DRAW_SETTINGS){
+                            if(Utils.firstDrawShape(HomeActivity.this).equals(Constants.POLYGON_TO_DRAW_SETTINGS)){
                                 if(sharedPreferencesSettings.getString(Constants.DRAW_SETTINGS,
                                         Constants.POLYGON_TO_DRAW_SETTINGS).equals(Constants.POLYGON_TO_DRAW_SETTINGS)){
                                     for(Spot spot : spotsUpdated){
@@ -557,7 +561,8 @@ public class HomeActivity extends AppCompatActivity {
                 new IntentFilter(Constants.getBroadcastGeofenceTriggerIntent()));
         LocalBroadcastManager.getInstance(this).registerReceiver(locationReceiver,
                 new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
-        registerReceiver(addAlarmReceiver, filter);
+        registerReceiver(addAlarmReceiver, new IntentFilter());
+        registerReceiver(removeAlarmReceiver, new IntentFilter());
         if(Utils.getGeofenceStatus(HomeActivity.this)){
             if(!Utils.isDayOfWeek()){
                 removeGeofences();
@@ -847,7 +852,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     /**
-     * Show a dialog tha could be:
+     * Show a custom_report_dialog tha could be:
      * OCCUPYING a spot OR FREEING ONE
      * **/
     @SuppressWarnings("MissingPermission")
@@ -882,7 +887,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int id) {
                 userNotResponse = false;
                 builder.create().dismiss();
-                // User cancelled the dialog
+                // User cancelled the custom_report_dialog
             }
         });
         final AlertDialog alertDialog = builder.create();
@@ -1020,18 +1025,67 @@ public class HomeActivity extends AppCompatActivity {
                     })
                     .setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            // User cancelled the dialog
+                            // User cancelled the custom_report_dialog
                         }
                     });
-            // Create the AlertDialog object and return it
             builder.create().show();
-
             return true;
         }else if(id == R.id.setting_menu){
             Intent settingsActivity = new Intent(HomeActivity.this, SettingsActivity.class);
             startActivity(settingsActivity);
+        }else if(id == R.id.report_menu){
+            //TODO: add send message to SmartParking team
+            messageDialogReport();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void requestStoragePermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                return;
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return;
+            }
+        }
+        else {
+            return;
+        }
+    }
+
+    public void messageDialogReport(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View mview = inflater.inflate(R.layout.custom_report_dialog, null);
+        final EditText text = (EditText) mview.findViewById(R.id.message_of_report);
+        builder.setView(mview);
+        // Set up the input
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                sendMessageReport(text.getText().toString());
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    public void sendMessageReport(String message){
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.setType("text/plain");
+        sendIntent.putExtra(Intent.EXTRA_TEXT, message);
+        startActivity(Intent.createChooser(sendIntent,"Send bug report"));
     }
 
 }

@@ -31,7 +31,6 @@ public class RemoveAlarmReceiver extends BroadcastReceiver {
         geofencingClient = LocationServices.getGeofencingClient(context);
         geofencingClient.removeGeofences(getGeofencePendingIntent(context));
         Utils.geofencesSetUp(context,false);
-        Log.i("RemoveAlarmWeakUp","alarm shout!");
     }
 
     private PendingIntent getGeofencePendingIntent(Context context) {

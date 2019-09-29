@@ -346,9 +346,9 @@ public class Utils {
                 Constants.ADD_ALARM_REQUEST_CODE, addAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent removeAlarmPendingIntent = PendingIntent.getBroadcast(context,
                 Constants.REMOVE_ALARM_REQUEST_CODE, removeAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeToAddGeofences().getTimeInMillis(),
+        alarmManager.setRepeating(AlarmManager.RTC, timeToAddGeofences().getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY * 7, addAlarmPendingIntent);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeToRemoveGeofences().getTimeInMillis(),
+        alarmManager.setRepeating(AlarmManager.RTC, timeToRemoveGeofences().getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY * 7, removeAlarmPendingIntent);
     }
 

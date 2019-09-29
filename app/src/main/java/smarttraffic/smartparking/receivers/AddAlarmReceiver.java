@@ -56,8 +56,9 @@ public class AddAlarmReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         //TODO: add geofences here...
         geofencingClient = LocationServices.getGeofencingClient(context);
-        addParkingLotsGeofences(context);
-        Log.i("AddAlarmWeakUp","alarm shout!");
+        if(Utils.getGeofenceStatus(context)){
+            addParkingLotsGeofences(context);
+        }
     }
 
     private void addParkingLotsGeofences(final Context context) {

@@ -180,7 +180,6 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
         serviceIntent.putStringArrayListExtra(Constants.GEOFENCE_TRIGGED,
                 namesOfGeofencesTrigger(triggeringGeofences));
         startService(serviceIntent);
-        Log.i(LOG_TAG, "Requesting location updates");
     }
 
     public void stopLocationService() {
