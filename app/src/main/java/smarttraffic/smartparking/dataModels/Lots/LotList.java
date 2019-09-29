@@ -16,6 +16,7 @@ public class LotList {
     private List<Lot> features;
 
     public LotList() {
+        // Persistence Constructor
     }
 
     @Override

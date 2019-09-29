@@ -12,6 +12,7 @@ public class Credentials {
     private String password;
 
     public Credentials() {
+        // Persistence Constructor
     }
 
     @Override

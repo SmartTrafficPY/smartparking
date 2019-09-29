@@ -1,6 +1,8 @@
 package smarttraffic.smartparking.activities;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +17,7 @@ import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -42,13 +45,11 @@ import smarttraffic.smartparking.services.RegistrationService;
  * @author joaquin
  */
 
-public class RegistryActivity extends AppCompatActivity {
+public class RegistryActivity extends Activity {
 
     /**
      * The user register and get a profile on the system...
      * **/
-
-    private static final String LOG_TAG = "RegistryActivity";
 
     private static final String CERO = "0";
     private static final String GUION = "-";
@@ -67,27 +68,25 @@ public class RegistryActivity extends AppCompatActivity {
     ImageButton datePickerButton;
     @BindView(R.id.sexRadioGroup)
     RadioGroup sexSelectRadioGroup;
-    @BindView(R.id.acceptTermsCheckBox)
-    CheckBox termsAndConditions;
-    @BindView(R.id.textInTermsAndCond)
-    TextView textInTermsAndCond;
     @BindView(R.id.signUpButton)
     Button signInButton;
-    @BindView(R.id.goToLogin)
-    Button goToLogin;
     @BindView(R.id.passModeButton)
     ImageButton passwordModeButton;
     @BindView(R.id.setRandomUser)
     ImageButton randomUser;
 
+
     public final Calendar calendar = Calendar.getInstance();
     private final int MAX_LENGTH = 10;
-    public static Random RANDOM = new Random();
+    public static final Random RANDOM = new Random();
     public static final String DATA = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     final int actuallMonth = calendar.get(Calendar.MONTH);
     final int actuallDay = calendar.get(Calendar.DAY_OF_MONTH);
     final int actuallYear = calendar.get(Calendar.YEAR);
     private boolean showPasswordText = false;
+    IntentFilter filter = new IntentFilter();
+    RegistrationReceiver registrationReceiver = new RegistrationReceiver();
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -95,20 +94,8 @@ public class RegistryActivity extends AppCompatActivity {
         setContentView(R.layout.registry_layout);
         ButterKnife.bind(this);
 
-//        signInButton.setEnabled(false);
-            //TODO:make EULAActivity...
-//        textInTermsAndCond.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(RegistryActivity.this, EulaActivity.class);
-//                startActivity(intent);
-//            }
-//        });
-
-        IntentFilter filter = new IntentFilter();
         filter.addAction(RegistrationService.REGISTRATION_OK);
         filter.addAction(RegistrationService.BAD_REGISTRATION);
-        RegistrationReceiver registrationReceiver = new RegistrationReceiver();
         registerReceiver(registrationReceiver, filter);
 
         datePickerButton.setOnClickListener(new View.OnClickListener() {
@@ -122,12 +109,6 @@ public class RegistryActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 createRegister();
-            }
-        });
-        goToLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                goToLoginActivity();
             }
         });
         passwordModeButton.setOnClickListener(new View.OnClickListener() {
@@ -158,9 +139,19 @@ public class RegistryActivity extends AppCompatActivity {
         });
     }
 
-    private void goToLoginActivity() {
-        Intent intent = new Intent(RegistryActivity.this, LoginActivity.class);
-        startActivity(intent);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        filter.addAction(RegistrationService.REGISTRATION_OK);
+        filter.addAction(RegistrationService.BAD_REGISTRATION);
+        registerReceiver(registrationReceiver,filter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(registrationReceiver);
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -201,7 +192,6 @@ public class RegistryActivity extends AppCompatActivity {
     }
 
     private boolean dataIsCorrectlyComplete() {
-        if(termsAndConditions.isChecked()){
             if(passwordInput.getText().toString().length() > 5){
                 if(maleRadButton.isChecked() || femaleRadButton.isChecked()){
                     if(!birthDate.getText().toString().isEmpty()){
@@ -218,10 +208,6 @@ public class RegistryActivity extends AppCompatActivity {
                 showToast("La CONTRASEÑA debe tener al menos 6 caracteres!");
                 return false;
             }
-        }else{
-            showToast("Tienes que aceptar los TERMINOS y CONDICIONES!");
-            return false;
-        }
     }
 
     private void sendRegistrationPetition() {

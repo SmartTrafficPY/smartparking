@@ -20,6 +20,7 @@ public class Spot {
     private PolygonGeometry geometry;
 
     public Spot() {
+        // Persistence Constructor
     }
 
     @Override

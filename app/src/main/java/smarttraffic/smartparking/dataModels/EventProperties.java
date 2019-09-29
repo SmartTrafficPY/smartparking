@@ -13,6 +13,7 @@ public class EventProperties {
     private String agent;
 
     public EventProperties() {
+        // Persistence Constructor
     }
 
     @Override

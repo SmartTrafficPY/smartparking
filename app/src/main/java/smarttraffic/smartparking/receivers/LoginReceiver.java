@@ -23,8 +23,6 @@ import smarttraffic.smartparking.services.LoginService;
 
 public class LoginReceiver extends BroadcastReceiver {
 
-    private static final String LOG_TAG = "LoginReceiver";
-
     private String sex;
     private Integer age;
     private Integer identifier;
@@ -35,12 +33,7 @@ public class LoginReceiver extends BroadcastReceiver {
             Intent i = new Intent(context, HomeActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(i);
-        }
-        else if(intent.getAction().equals(LoginService.BAD_LOGIN_ACTION)) {
-            setErrorMessage(intent.getStringExtra(LoginService.PROBLEM));
-            showToast(getErrorMessage(),context);
-        }
-        else if(intent.getAction().equals(LoginService.SERVER_PROBLEM)) {
+        }else{
             setErrorMessage(intent.getStringExtra(LoginService.PROBLEM));
             showToast(getErrorMessage(),context);
         }

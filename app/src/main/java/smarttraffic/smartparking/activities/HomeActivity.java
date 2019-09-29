@@ -2,20 +2,21 @@ package smarttraffic.smartparking.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -27,31 +28,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
 
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.DetectedActivity;
-import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -65,9 +56,7 @@ import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.util.MapTileIndex;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.ItemizedIconOverlay;
-import org.osmdroid.views.overlay.ItemizedOverlayWithFocus;
-import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
@@ -88,7 +77,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import okhttp3.OkHttpClient;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -111,14 +99,15 @@ import smarttraffic.smartparking.dataModels.Lots.PointGeometry;
 import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbyLocation;
 import smarttraffic.smartparking.dataModels.Point;
 import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbyPropertiesFeed;
-import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbySpot;
-import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbySpotList;
 import smarttraffic.smartparking.dataModels.Spots.Spot;
 import smarttraffic.smartparking.dataModels.Spots.SpotList;
 import smarttraffic.smartparking.dataModels.Spots.SpotProperties;
+import smarttraffic.smartparking.receivers.AddAlarmReceiver;
 import smarttraffic.smartparking.receivers.GeofenceBroadcastReceiver;
+import smarttraffic.smartparking.receivers.RemoveAlarmReceiver;
 import smarttraffic.smartparking.services.DetectedActivitiesService;
 import smarttraffic.smartparking.services.GeofenceTransitionsJobIntentService;
+import smarttraffic.smartparking.services.LocationUpdatesService;
 
 import static smarttraffic.smartparking.Interceptors.ReceivedTimeStampInterceptor.X_TIMESTAMP;
 
@@ -130,8 +119,6 @@ import static smarttraffic.smartparking.Interceptors.ReceivedTimeStampIntercepto
 
 public class HomeActivity extends AppCompatActivity {
 
-    private static final String LOG_TAG = "HomeActivity";
-
     @BindView(R.id.mapFragment)
     MapView mapView;
     @BindView(R.id.toolbar)
@@ -141,23 +128,23 @@ public class HomeActivity extends AppCompatActivity {
     @BindView(R.id.buttonAbout)
     ImageButton buttonAbout;
 
-    private FusedLocationProviderClient mFusedLocationClient;
+    AddAlarmReceiver addAlarmReceiver = new AddAlarmReceiver();
+    RemoveAlarmReceiver removeAlarmReceiver = new RemoveAlarmReceiver();
+
     private ActivityRecognitionClient mActivityRecognitionClient;
 
-    private SettingsClient mSettingsClient;
     int activityTransition;
     int geofenceTransition;
     int confidence;
     boolean userNotResponse = true;
     boolean dialogSendAllready = false;
-    private LocationRequest mLocationRequest;
-    private LocationSettingsRequest mLocationSettingsRequest;
-    private LocationCallback mLocationCallback;
+    Polygon polygon = new Polygon();
     private Location mCurrentLocation;
     private List<Spot> spots = new ArrayList<Spot>();
     private ArrayList<String> geofencesTrigger = new ArrayList<>();
     private BroadcastReceiver broadcastReceiver;
     private BroadcastReceiver geofenceReceiver;
+    private BroadcastReceiver locationReceiver;
     private GeofencingClient geofencingClient;
     private PendingIntent mGeofencePendingIntent;
     //MAP...
@@ -172,19 +159,12 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.home_layout);
         ButterKnife.bind(this);
 
-        mSettingsClient = LocationServices.getSettingsClient(this);
-        geofencingClient = LocationServices.getGeofencingClient(this);
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mActivityRecognitionClient = new ActivityRecognitionClient(this);
+        geofencingClient = LocationServices.getGeofencingClient(this);
+
+        Utils.addAlarmsGeofencingTask(HomeActivity.this);
 
         setMapView();
-
-        createLocationCallback();
-        createLocationRequest(Constants.getSecondsInMilliseconds() * 10,
-                Constants.getSecondsInMilliseconds() * 5);
-        buildLocationSettingsRequest();
-
-        addParkingLotsGeofences();
 
         buttonRecenter.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -195,13 +175,16 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-//        buttonAbout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(HomeActivity.this, AboutActivity.class);
-//                startActivity(intent);
-//            }
-//        });
+        buttonAbout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Dialog settingsDialog = new Dialog(HomeActivity.this);
+                settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+                settingsDialog.setContentView(getLayoutInflater().inflate(R.layout.about_layout
+                        , null));
+                settingsDialog.show();
+            }
+        });
 
         broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -213,13 +196,12 @@ public class HomeActivity extends AppCompatActivity {
             }
         };
 
-
         geofenceReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(Constants.getBroadcastGeofenceTriggerIntent())) {
                     geofencesTrigger = intent.getStringArrayListExtra(
-                            GeofenceTransitionsJobIntentService.GEOFENCE_TRIGGED);
+                            Constants.GEOFENCE_TRIGGED);
                     geofenceTransition = intent.getIntExtra(
                             GeofenceTransitionsJobIntentService.TRANSITION,
                             -1);
@@ -227,11 +209,25 @@ public class HomeActivity extends AppCompatActivity {
                 }
             }
         };
+
+        locationReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                mCurrentLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
+                if (mCurrentLocation != null) {
+                    checkForUserLocation(mCurrentLocation);
+                }
+            }
+        };
         setSupportActionBar(toolbar);
     }
 
-    private void setMapView() {
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
 
+    private void setMapView() {
         final String basic =
                 "Basic " + Base64.encodeToString(SmartParkingInitialData.getCredentials().getBytes(), Base64.NO_WRAP);
         final Map<String, String> AuthHeader = new HashMap<>();
@@ -247,9 +243,12 @@ public class HomeActivity extends AppCompatActivity {
 
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(
                 this));
+        Configuration.getInstance().setUserAgentValue(this.getPackageName());
+
+        Configuration.getInstance().setOsmdroidTileCache(Configuration.getInstance().getOsmdroidBasePath());
 
         mapView.setTileSource(new OnlineTileSourceBase("SMARTPARKING CartoDB",
-                16, 22, 256, ".png",
+                16, 25, 256, ".png",
                 new String[]{Constants.TILE_SERVER}) {
             @Override
             public String getTileURLString(long pMapTileIndex) {
@@ -263,6 +262,7 @@ public class HomeActivity extends AppCompatActivity {
 
         IMapController mapController = mapView.getController();
 
+
         setGralMapConfiguration(mapController);
         //scale bar
         setScaleBar();
@@ -270,34 +270,29 @@ public class HomeActivity extends AppCompatActivity {
         setLocationOverlay();
 
         setCompassGestureOverlays();
-//        setMarkersOnMap();
         //add all overlays
+        mapView.setBuiltInZoomControls(false);
         addOverlays();
     }
 
-    private void setMarkersOnMap() {
-        ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
-        OverlayItem overlayItem = new OverlayItem("Title1", "Description",
-                new GeoPoint(-25.30604186, -57.59168641));
-//        overlayItem.setMarker(getDrawable(R.drawable.about_menu));
-        items.add(overlayItem);
-        //the overlay
-        ItemizedOverlayWithFocus<OverlayItem> mOverlay = new ItemizedOverlayWithFocus<OverlayItem>(items,
-                new ItemizedIconOverlay.OnItemGestureListener<OverlayItem>() {
-                    @Override
-                    public boolean onItemSingleTapUp(final int index, final OverlayItem item) {
-                        //do something
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onItemLongPress(final int index, final OverlayItem item) {
-                        return false;
-                    }
-                }, this);
-        mOverlay.setFocusItemsOnTap(true);
-
-        mapView.getOverlays().add(mOverlay);
+    private void setMarkersOnMap(List<GeoPoint> geoPoints, String state) {
+        Drawable marker = getDrawable(R.drawable.unknown_marker);
+        Marker startMarker = new Marker(mapView);
+        String stateValue = "Desconocido";
+        startMarker.setPosition(Utils.getCentroid(geoPoints));
+        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        if (state.equals(StatesEnumerations.FREE.getEstado())) {
+            marker = getDrawable(R.drawable.free_marker);
+            stateValue = "Libre";
+        } else if (state.equals(StatesEnumerations.OCCUPIED.getEstado())) {
+            marker = getDrawable(R.drawable.occupied_marker);
+            stateValue = "Ocupado";
+        }
+        startMarker.setTitle(stateValue);
+        startMarker.setTextLabelBackgroundColor(R.color.white);
+        startMarker.setTextLabelForegroundColor(R.color.white);
+        startMarker.setIcon(marker);
+        mapView.getOverlays().add(startMarker);
     }
 
     private void addOverlays() {
@@ -312,7 +307,7 @@ public class HomeActivity extends AppCompatActivity {
         mapView.setBuiltInZoomControls(true);
         mapView.setMultiTouchControls(true);
         mapView.setFlingEnabled(true);
-        mapController.setZoom(17);
+        mapController.setZoom(19);
     }
 
     private void setScaleBar() {
@@ -324,6 +319,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setLocationOverlay() {
+        //TODO: set better movement icon...
         mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this), mapView);
         mLocationOverlay.enableMyLocation();
         mLocationOverlay.enableFollowLocation();
@@ -341,7 +337,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void drawPolygon(List<GeoPoint> geoPoints, String status) {
-        Polygon polygon = new Polygon();
         String color = "#C0C0C0";
         if (status.equals(StatesEnumerations.FREE.getEstado())) {
             color = "#00FF00";
@@ -356,9 +351,12 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void managerOfTransitions() {
+        SharedPreferences sharedPreferences = this.getSharedPreferences(
+                Constants.SETTINGS, MODE_PRIVATE);
         getSpotsFromGeofence(geofencesTrigger, false);
         final Handler handler = new Handler();
-        final long delay = Constants.getMinutesInMilliseconds();
+        final long delay = sharedPreferences.getLong(Constants.MAP_SPOTS_TIME_UPDATE_SETTINGS,
+                Constants.getSecondsInMilliseconds() * 45);
         Runnable cronJob = new Runnable() {
             public void run() {
                 getSpotsFromGeofence(geofencesTrigger, true);
@@ -367,20 +365,12 @@ public class HomeActivity extends AppCompatActivity {
         };
         switch (geofenceTransition) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
-                if (checkPermissions()) {
-                    startLocationUpdates(mLocationRequest);
-                } else if (!checkPermissions()) {
-                    requestPermissions();
-                }
                 handler.postDelayed(cronJob, delay);
                 requestActivityUpdates();
-                Utils.setEntranceEvent(this, mCurrentLocation, "enter_lot");
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
-                stopLocationUpdates();
                 removeActivityUpdates();
                 handler.removeCallbacks(cronJob);
-                Utils.setEntranceEvent(this, mCurrentLocation,"exit_lot");
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 break;
@@ -391,9 +381,7 @@ public class HomeActivity extends AppCompatActivity {
     private void getSpotsFromGeofence(ArrayList<String> geofencesTrigger, boolean isForUpdate) {
         if(geofencesTrigger != null) {
             if(isForUpdate){
-                for (String geofenceTrigger : geofencesTrigger) {
-                    updatesSpotsFromGeofence();
-                }
+                updatesSpotsFromGeofence();
             }else{
                 for (String geofenceTrigger : geofencesTrigger) {
                     getSpotsGeographicValues(geofenceTrigger);
@@ -403,6 +391,8 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void getSpotsGeographicValues(String geofencesTrigger) {
+        final SharedPreferences sharedPreferences = this.getSharedPreferences(Constants.SETTINGS,
+                MODE_PRIVATE);
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -430,18 +420,28 @@ public class HomeActivity extends AppCompatActivity {
                 switch (response.code()) {
                     case 200:
                         SpotList testSpots = response.body();
-                        spots = testSpots.getFeatures();
+                        if(!testSpots.isEmpty()){
+                            spots = testSpots.getFeatures();
+                        }
                         if(spots != null){
+                            mapView.getOverlays().clear();
                             for (Spot spot : spots) {
-                                drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                if(sharedPreferences.getString(Constants.DRAW_SETTINGS,
+                                        Constants.POLYGON_TO_DRAW_SETTINGS).equals(Constants.POLYGON_TO_DRAW_SETTINGS)){
+                                    drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                    Utils.polygonWereDraw(HomeActivity.this,true);
+                                }else{
+                                    setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                    Utils.polygonWereDraw(HomeActivity.this,false);
+                                }
                             }
+                            addOverlays();
                         }
                         break;
                     default:
                         break;
                 }
             }
-
             @Override
             public void onFailure(Call<SpotList> call, Throwable t) {
                 t.printStackTrace();
@@ -450,6 +450,8 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void updatesSpotsFromGeofence() {
+        final SharedPreferences sharedPreferencesSettings = this.getSharedPreferences(Constants.SETTINGS,
+                MODE_PRIVATE);
         SharedPreferences sharedPreferences = this.getSharedPreferences(
                 X_TIMESTAMP,MODE_PRIVATE);
         NearbyLocation nearbyLocation = new NearbyLocation();
@@ -493,9 +495,31 @@ public class HomeActivity extends AppCompatActivity {
                         HashMap<String, String> changedSpots = response.body();
                         List<Spot> spotsUpdated = Utils.updateSpots(changedSpots, spots);
                         if(spotsUpdated != null){
-                            for (Spot spot : spotsUpdated) {
-                                drawPolygon(Utils.spotToListOfGeoPoints(spot),
-                                        spot.getProperties().getState());
+                            if(Utils.firstDrawShape(HomeActivity.this).equals(Constants.POLYGON_TO_DRAW_SETTINGS)){
+                                if(sharedPreferencesSettings.getString(Constants.DRAW_SETTINGS,
+                                        Constants.POLYGON_TO_DRAW_SETTINGS).equals(Constants.POLYGON_TO_DRAW_SETTINGS)){
+                                    for(Spot spot : spotsUpdated){
+                                        drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                    }
+                                }else{
+                                    mapView.getOverlayManager().remove(polygon);
+                                    for(Spot spot : spots){
+                                        setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                    }
+                                }
+                            }else{
+                                if(sharedPreferencesSettings.getString(Constants.DRAW_SETTINGS,
+                                        Constants.POLYGON_TO_DRAW_SETTINGS).equals(Constants.POLYGON_TO_DRAW_SETTINGS)){
+                                    mapView.getOverlays().clear();
+                                    for(Spot spot : spots){
+                                        drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                    }
+                                    addOverlays();
+                                }else{
+                                    for(Spot spot : spotsUpdated){
+                                        setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                    }
+                                }
                             }
                         }
                         break;
@@ -514,6 +538,9 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+        if(Utils.isDayOfWeek() && Utils.getGeofenceStatus(this)){
+            addParkingLotsGeofences();
+        }
         if (!checkPermissions()) {
             requestPermissions();
         }
@@ -523,7 +550,6 @@ public class HomeActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         removeActivityUpdates();
-        stopLocationUpdates();
     }
 
     @Override
@@ -533,7 +559,17 @@ public class HomeActivity extends AppCompatActivity {
                 new IntentFilter(Constants.BROADCAST_TRANSITION_ACTIVITY_INTENT));
         LocalBroadcastManager.getInstance(this).registerReceiver(geofenceReceiver,
                 new IntentFilter(Constants.getBroadcastGeofenceTriggerIntent()));
-//        managerOfTransitions();
+        LocalBroadcastManager.getInstance(this).registerReceiver(locationReceiver,
+                new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
+        registerReceiver(addAlarmReceiver, new IntentFilter());
+        registerReceiver(removeAlarmReceiver, new IntentFilter());
+        if(Utils.getGeofenceStatus(HomeActivity.this)){
+            if(!Utils.isDayOfWeek()){
+                removeGeofences();
+            }
+        }else if(Utils.isDayOfWeek()){
+            addParkingLotsGeofences();
+        }
         mapView.onResume();
     }
 
@@ -543,16 +579,13 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
-
-    @Override
     protected void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(geofenceReceiver);
-        stopLocationUpdates();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(locationReceiver);
+        unregisterReceiver(addAlarmReceiver);
+        unregisterReceiver(removeAlarmReceiver);
         removeActivityUpdates();
         mapView.onPause();
     }
@@ -594,12 +627,14 @@ public class HomeActivity extends AppCompatActivity {
                                     properties.getName(), false));
                         }
                         addGeofences(geofenceList);
+                        Utils.geofencesSetUp(HomeActivity.this,true);
+                        //TODO: uncomment to work with the gateway...
+//                        Utils.saveListOfGateways(HomeActivity.this, response.body());
                         break;
                     default:
                         break;
                 }
             }
-
             @Override
             public void onFailure(Call<LotList> call, Throwable t) {
                 t.printStackTrace();
@@ -620,8 +655,10 @@ public class HomeActivity extends AppCompatActivity {
                         longitud,
                         radius
                 )
+                .setLoiteringDelay(1000 * 60 * 10)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                        Geofence.GEOFENCE_TRANSITION_EXIT);
+                        Geofence.GEOFENCE_TRANSITION_EXIT |
+                        Geofence.GEOFENCE_TRANSITION_DWELL);
         if(isSpotGeofence){
             builder.setExpirationDuration(Constants.getHoursInMilliseconds() * 24);
         }else{
@@ -632,23 +669,26 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     /**
-     * Return the current state of the permissions needed.
+     * Returns the current state of the permissions needed.
      */
     private boolean checkPermissions() {
-        int permissionState = ActivityCompat.checkSelfPermission(this,
+        return  PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION);
-        return permissionState == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestPermissions() {
         boolean shouldProvideRationale =
                 ActivityCompat.shouldShowRequestPermissionRationale(this,
                         Manifest.permission.ACCESS_FINE_LOCATION);
+
         // Provide an additional rationale to the user. This would happen if the user denied the
         // request previously, but didn't check the "Don't ask again" checkbox.
         if (shouldProvideRationale) {
-            showSnackbar(R.string.permission_rationale, android.R.string.ok,
-                    new View.OnClickListener() {
+            Snackbar.make(
+                    findViewById(R.id.home_layout),
+                    R.string.permission_rationale,
+                    Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.button_accept, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             // Request permission
@@ -656,7 +696,8 @@ public class HomeActivity extends AppCompatActivity {
                                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                                     Constants.getRequestPermissionsRequestCode());
                         }
-                    });
+                    })
+                    .show();
         } else {
             // Request permission. It's possible this can be auto answered if device policy
             // sets the permission in a given state or the user denied the permission
@@ -667,6 +708,42 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == Constants.getRequestPermissionsRequestCode()) {
+            if (grantResults.length <= 0) {
+                // If user interaction was interrupted, the permission request is cancelled and you
+                // receive empty arrays.
+            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission was granted.
+            } else {
+                // Permission denied.
+                Snackbar.make(
+                        findViewById(R.id.home_layout),
+                        R.string.permission_denied_explanation,
+                        Snackbar.LENGTH_INDEFINITE)
+                        .setAction(R.string.settings, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                // Build intent that displays the App settings screen.
+                                Intent intent = new Intent();
+                                intent.setAction(
+                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                Uri uri = Uri.fromParts("package",
+                                        BuildConfig.APPLICATION_ID, null);
+                                intent.setData(uri);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                            }
+                        })
+                        .show();
+            }
+        }
+    }
     /**
      * Shows a {@link Snackbar} using {@code text}.
      *
@@ -680,22 +757,6 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     /**
-     * Shows a {@link Snackbar}.
-     *
-     * @param mainTextStringId The id for the string resource for the Snackbar text.
-     * @param actionStringId   The text of the action item.
-     * @param listener         The listener associated with the Snackbar action.
-     */
-    private void showSnackbar(final int mainTextStringId, final int actionStringId,
-                              View.OnClickListener listener) {
-        Snackbar.make(
-                findViewById(android.R.id.content),
-                getString(mainTextStringId),
-                Snackbar.LENGTH_INDEFINITE)
-                .setAction(getString(actionStringId), listener).show();
-    }
-
-    /**
      * Adds geofences. This method should be called after the user has granted the location
      * permission.
      */
@@ -706,6 +767,7 @@ public class HomeActivity extends AppCompatActivity {
             return;
         }
         geofencingClient.addGeofences(getGeofencingRequest(geofenceArrayList), getGeofencePendingIntent());
+        Utils.geofencesSetUp(HomeActivity.this,true);
     }
 
     /**
@@ -713,12 +775,13 @@ public class HomeActivity extends AppCompatActivity {
      * permission.
      */
     @SuppressWarnings("MissingPermission")
-    private void removeGeofences() {
+    public void removeGeofences() {
         if (!checkPermissions()) {
             showSnackbar(getString(R.string.insufficient_permissions));
             return;
         }
         geofencingClient.removeGeofences(getGeofencePendingIntent());
+        Utils.geofencesSetUp(HomeActivity.this,false);
     }
 
     /**
@@ -729,13 +792,11 @@ public class HomeActivity extends AppCompatActivity {
      * @return A PendingIntent for the IntentService that handles geofence transitions.
      */
     private PendingIntent getGeofencePendingIntent() {
-        // Reuse the PendingIntent if we already have it.
         if (mGeofencePendingIntent != null) {
             return mGeofencePendingIntent;
         }
         Intent intent = new Intent(this, GeofenceBroadcastReceiver.class);
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
-        // addGeofences() and removeGeofences().
+
         mGeofencePendingIntent = PendingIntent.getBroadcast(this, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
         return mGeofencePendingIntent;
@@ -757,103 +818,15 @@ public class HomeActivity extends AppCompatActivity {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
         builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
         builder.addGeofence(generateGeofence(points.get(0).getLatitud(), points.get(0).getLongitud(),
-                15, "ParkinSpot" + spot.getProperties().getIdFromUrl(), true));
+                50, "Tu vehiculo en " + spot.getProperties().getIdFromUrl(), true));
         return builder.build();
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                           int[] grantResults) {
-        if (requestCode == Constants.getRequestPermissionsRequestCode()) {
-            if (grantResults.length <= 0) {
-                // If user interaction was interrupted, the permission request is cancelled and you
-                // receive empty arrays.
-            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            } else {
-                showSnackbar(R.string.permission_denied_explanation, R.string.settings,
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                // Build intent that displays the App settings screen.
-                                Intent intent = new Intent();
-                                intent.setAction(
-                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                Uri uri = Uri.fromParts("package",
-                                        BuildConfig.APPLICATION_ID, null);
-                                intent.setData(uri);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-                            }
-                        });
-            }
-        }
-    }
-
-    /**
-     * Removes location updates from the FusedLocationApi.
-     */
-    private void stopLocationUpdates() {
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback)
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(Task<Void> task) {
-                    }
-                });
-    }
-
-    /**
-     * Requests location updates from the FusedLocationApi. Note: we don't call this unless location
-     * runtime permission has been granted.
-     */
-    private void startLocationUpdates(LocationRequest locationRequest) {
-        // Begin by checking if the device has the necessary location settings.
-        mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
-                .addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
-                    @SuppressLint("MissingPermission")
-                    @Override
-                    public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                        mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                                mLocationCallback, Looper.myLooper());
-                    }
-                })
-                .addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        int statusCode = ((ApiException) e).getStatusCode();
-                        switch (statusCode) {
-                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                                try {
-                                    ResolvableApiException rae = (ResolvableApiException) e;
-                                    rae.startResolutionForResult(HomeActivity.this, Constants.REQUEST_CHECK_SETTINGS);
-                                } catch (IntentSender.SendIntentException sie) {
-                                }
-                                break;
-                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                                String errorMessage = "Location settings are inadequate, and cannot be " +
-                                        "fixed here. Fix in Settings.";
-                        }
-                    }
-                });
-    }
-
-    /**
-     * Creates a callback for receiving location events.
-     */
-    private void createLocationCallback() {
-        mLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-                mCurrentLocation = locationResult.getLastLocation();
-                checkForUserLocation(mCurrentLocation);
-            }
-        };
     }
 
     private void checkForUserLocation(Location mCurrentLocation) {
         int spotId = isPointInsideParkingSpot(spots, mCurrentLocation);
+        //TODO: add more activityTransition detail...
         if (spotId != Constants.NOT_IN_PARKINGSPOT &&
-                activityTransition != DetectedActivity.UNKNOWN) {
+                (activityTransition != DetectedActivity.UNKNOWN)) {
             Spot spot = getSpotFromId(spots, spotId);
             SpotProperties spotProperties = spot.getProperties();
             if (!spotProperties.getState().equals(StatesEnumerations.OCCUPIED.getEstado())) {
@@ -879,7 +852,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     /**
-     * Show a dialog tha could be:
+     * Show a custom_report_dialog tha could be:
      * OCCUPYING a spot OR FREEING ONE
      * **/
     @SuppressWarnings("MissingPermission")
@@ -893,6 +866,9 @@ public class HomeActivity extends AppCompatActivity {
                             userNotResponse = false;
                             geofencingClient.addGeofences(getGeofenceRequest(
                                     getSpotFromId(spots, spotIdIn)), getGeofencePendingIntent());
+                            Intent serviceIntent = new Intent(HomeActivity.this,
+                                    LocationUpdatesService.class);
+                            stopService(serviceIntent);
                         }
                     });
         }else{
@@ -902,7 +878,7 @@ public class HomeActivity extends AppCompatActivity {
                         Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
                         userNotResponse = false;
 //                        List<String> geofencesToRemove = new ArrayList<>();
-//                        geofencesToRemove.add("ParkinSpot" + spotIn.getId());
+//                        geofencesToRemove.add("Tu vehiculo en " + spotIn.getId());
 //                        geofencingClient.removeGeofences(geofencesToRemove);
                     }
                 });
@@ -911,25 +887,29 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int id) {
                 userNotResponse = false;
                 builder.create().dismiss();
-                // User cancelled the dialog
+                // User cancelled the custom_report_dialog
             }
         });
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
         dialogSendAllready = true;
 
-        final Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
+        final Timer dialogtimer = new Timer();
+        dialogtimer.schedule(new TimerTask() {
             public void run() {
                 alertDialog.dismiss();
                 if(userNotResponse){
                     Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
                 }
                 userNotResponse = true;
-                dialogSendAllready = false;
-                timer.cancel();
             }
-        }, Constants.getSecondsInMilliseconds() * 20);
+        }, Constants.getSecondsInMilliseconds() * 35);
+        dialogtimer.schedule(new TimerTask() {
+            public void run() {
+                dialogSendAllready = false;
+                dialogtimer.cancel();
+            }
+        }, Constants.getSecondsInMilliseconds() * 40);
     }
 
     public boolean isPointInsidePolygon(Spot spot, Location location){
@@ -945,35 +925,7 @@ public class HomeActivity extends AppCompatActivity {
         }
         return Constants.NOT_IN_PARKINGSPOT;
     }
-    /**
-     * Sets up the location request. Android has two location request settings:
-     * {@code ACCESS_COARSE_LOCATION} and {@code ACCESS_FINE_LOCATION}. These settings control
-     * the accuracy of the current location. This sample uses ACCESS_FINE_LOCATION, as defined in
-     * the AndroidManifest.xml.
-     * <p/>
-     * When the ACCESS_FINE_LOCATION setting is specified, combined with a fast update
-     * interval (5 seconds), the Fused Location Provider API returns location updates that are
-     * accurate to within a few feet.
-     * <p/>
-     * These settings are appropriate for mapping applications that show real-time location
-     * updates.
-     */
-    private void createLocationRequest(long interval, long fastestInterval) {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(interval);
-        mLocationRequest.setFastestInterval(fastestInterval);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-    }
-    /**
-     * Uses a {@link com.google.android.gms.location.LocationSettingsRequest.Builder} to build
-     * a {@link com.google.android.gms.location.LocationSettingsRequest} that is used for checking
-     * if a device has the needed location settings.
-     */
-    private void buildLocationSettingsRequest() {
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-        builder.addLocationRequest(mLocationRequest);
-        mLocationSettingsRequest = builder.build();
-    }
+
     /**
      * Registers for activity recognition updates using
      * {@link ActivityRecognitionClient#requestActivityUpdates(long, PendingIntent)}.
@@ -1043,7 +995,6 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -1066,22 +1017,75 @@ public class HomeActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int id) {
                             editor.putString(Constants.USER_TOKEN, Constants.CLIENT_NOT_LOGIN).apply();
                             editor.commit();
-                            Intent logoutIntent = new Intent(HomeActivity.this, LoginActivity.class);
+                            Intent logoutIntent = new Intent(HomeActivity.this,
+                                    BifurcationActivity.class);
                             logoutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(logoutIntent);
                         }
                     })
                     .setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            // User cancelled the dialog
+                            // User cancelled the custom_report_dialog
                         }
                     });
-            // Create the AlertDialog object and return it
             builder.create().show();
-
             return true;
+        }else if(id == R.id.setting_menu){
+            Intent settingsActivity = new Intent(HomeActivity.this, SettingsActivity.class);
+            startActivity(settingsActivity);
+        }else if(id == R.id.report_menu){
+            //TODO: add send message to SmartParking team
+            messageDialogReport();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void requestStoragePermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                return;
+            } else {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return;
+            }
+        }
+        else {
+            return;
+        }
+    }
+
+    public void messageDialogReport(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View mview = inflater.inflate(R.layout.custom_report_dialog, null);
+        final EditText text = (EditText) mview.findViewById(R.id.message_of_report);
+        builder.setView(mview);
+        // Set up the input
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                sendMessageReport(text.getText().toString());
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+
+    public void sendMessageReport(String message){
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.setType("text/plain");
+        sendIntent.putExtra(Intent.EXTRA_TEXT, message);
+        startActivity(Intent.createChooser(sendIntent,"Send bug report"));
     }
 
 }

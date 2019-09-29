@@ -1,16 +1,20 @@
 package smarttraffic.smartparking.activities;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 
@@ -23,14 +27,11 @@ import smarttraffic.smartparking.R;
  * @author joaquin
  */
 
-public class InitActivity extends AppCompatActivity {
-
-    private boolean withInternetConnection;
+public class InitActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.init_layout);
 
         final SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
                 Constants.CLIENTE_DATA, Context.MODE_PRIVATE);
@@ -40,20 +41,17 @@ public class InitActivity extends AppCompatActivity {
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Inicializando aplicación...");
         progressDialog.show();
-
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
                         if (isNetworkAvailable()) {
-                            setWithInternetConnection(true);
                             initializeFirstActivity(sharedPreferences);
                         } else {
-                            setWithInternetConnection(false);
                             showToast(getString(R.string.no_network_connection));
                         }
                         progressDialog.dismiss();
                     }
-                }, 2000);
+                }, 1000);
     }
 
     private boolean isNetworkAvailable() {
@@ -63,9 +61,6 @@ public class InitActivity extends AppCompatActivity {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    public void setWithInternetConnection(boolean withInternetConnection) {
-        this.withInternetConnection = withInternetConnection;
-    }
 
     @Override
     public void onResume() {
@@ -82,7 +77,7 @@ public class InitActivity extends AppCompatActivity {
                 Constants.CLIENT_NOT_LOGIN);
         if(userToken.equals(Constants.CLIENT_NOT_LOGIN)){
             Intent registration = new Intent(InitActivity.this,
-                    RegistryActivity.class);
+                    BifurcationActivity.class);
             startActivity(registration);
         }else{
             Intent registration = new Intent(InitActivity.this,

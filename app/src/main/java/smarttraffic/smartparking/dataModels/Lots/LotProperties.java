@@ -14,6 +14,7 @@ public class LotProperties {
     private PointGeometry center;
 
     public LotProperties() {
+        // Persistence Constructor
     }
 
     @Override

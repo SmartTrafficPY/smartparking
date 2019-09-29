@@ -12,6 +12,7 @@ public class SmartParkingProfile {
     private String sex;
 
     public SmartParkingProfile() {
+        // Persistence Constructor
     }
 
     @Override

@@ -16,6 +16,7 @@ import smarttraffic.smartparking.SmartParkingInitialData;
 public class AddSmartParkingTokenInterceptor implements Interceptor {
 
     public AddSmartParkingTokenInterceptor(){
+        // Persistence Constructor
     }
 
     @Override

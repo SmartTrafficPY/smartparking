@@ -13,6 +13,7 @@ public class SpotProperties {
     private String lot;
 
     public SpotProperties() {
+        // Persistence Constructor
     }
 
     @Override
@@ -53,8 +54,4 @@ public class SpotProperties {
         return Integer.parseInt(parts[parts.length - 1]);
     }
 
-    public int getLotId() {
-        String[] parts = this.lot.split("/");
-        return Integer.parseInt(parts[parts.length - 1]);
-    }
 }

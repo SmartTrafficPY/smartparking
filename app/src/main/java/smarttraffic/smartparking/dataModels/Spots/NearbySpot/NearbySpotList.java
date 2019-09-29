@@ -15,6 +15,7 @@ public class NearbySpotList {
     private List<NearbySpot> features;
 
     public NearbySpotList() {
+        // Persistence Constructor
     }
 
     @Override

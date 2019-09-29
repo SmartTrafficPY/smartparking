@@ -1,41 +1,29 @@
 package smarttraffic.smartparking.services;
 
 import android.annotation.SuppressLint;
-import android.app.ActivityManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
+
 import android.support.v4.app.JobIntentService;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+
 
 import smarttraffic.smartparking.Constants;
-import smarttraffic.smartparking.GeofenceErrorMessages;
 import smarttraffic.smartparking.R;
-import smarttraffic.smartparking.activities.HomeActivity;
 
 
 public class GeofenceTransitionsJobIntentService extends JobIntentService {
@@ -47,9 +35,6 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
     private static final String CHANNEL_ID = "channel_01";
 
     public static final String TRANSITION = "TRANSITION";
-    public static final String GEOFENCE_TRIGGED = "GEOFENCE_TRIGGED";
-    private static final String HAS_TRANSITION = "HAS_TRANSITION";
-
 
     /**
      * Convenience method for enqueuing work in to this service.
@@ -57,7 +42,6 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
     public static void enqueueWork(Context context, Intent intent) {
         enqueueWork(context, GeofenceTransitionsJobIntentService.class, JOB_ID, intent);
     }
-
     /**
      * Handles incoming intents.
      * @param intent sent by Location Services. This Intent is provided to Location
@@ -68,29 +52,31 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
     protected void onHandleWork(Intent intent) {
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         if (geofencingEvent.hasError()) {
-            String errorMessage = GeofenceErrorMessages.getErrorString(this,
-                    geofencingEvent.getErrorCode());
             return;
         }
         // Get the transition type.
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
-        // Test that the reported transition was of interest.
-        if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
-                geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ||
-                geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL) {
-            // Get the geofences that were triggered. A single event can trigger multiple geofences.
-            List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
-            // Get the transition details as a String.
-            String geofenceTransitionDetails = getGeofenceTransitionDetails(geofenceTransition,
-                    triggeringGeofences);
-            // Send notification and log the transition details.
-            broadcastGeofenceTransition(triggeringGeofences, geofenceTransition);
-            sendNotification(geofenceTransitionDetails, triggeringGeofences, geofenceTransition);
-        } else {
-            // Log the error.
-        }
-    }
+        List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
+        // Test that the reported transition was of interest.
+        switch (geofenceTransition) {
+            case Geofence.GEOFENCE_TRANSITION_ENTER:
+                startLocationService(triggeringGeofences);
+                break;
+            case Geofence.GEOFENCE_TRANSITION_EXIT:
+                stopLocationService();
+                break;
+            default:
+                break;
+        }
+        // Get the geofences that were triggered. A single event can trigger multiple geofences.
+        // Get the transition details as a String.
+        String geofenceTransitionDetails = getGeofenceTransitionDetails(geofenceTransition,
+                triggeringGeofences);
+        // Send notification and log the transition details.
+        broadcastGeofenceTransition(triggeringGeofences, geofenceTransition);
+        sendNotification(geofenceTransitionDetails, triggeringGeofences);
+    }
 
     /**
      * Gets transition details and returns them as a formatted string.
@@ -99,9 +85,8 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
      * @param triggeringGeofences   The geofence(s) triggered.
      * @return                      The transition details formatted as String.
      */
-    private String getGeofenceTransitionDetails(
-            int geofenceTransition,
-            List<Geofence> triggeringGeofences) {
+    private String getGeofenceTransitionDetails(int geofenceTransition,
+                                                List<Geofence> triggeringGeofences) {
 
         String geofenceTransitionString = getTransitionString(geofenceTransition);
 
@@ -119,7 +104,7 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
      * Posts a notification in the notification bar when a transition is detected.
      * If the user clicks the notification, control goes to the MainActivity.
      */
-    private void sendNotification(String notificationDetails, List<Geofence> geofenceList, int transition) {
+    private void sendNotification(String notificationDetails, List<Geofence> geofenceList) {
         ArrayList<String> fencesTriggersIdList = new ArrayList<>();
         // Get an instance of the Notification manager
         NotificationManager mNotificationManager =
@@ -127,18 +112,14 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
 
         createNotificationChannel();
 
-        // Create an explicit intent for an Activity in your app
-        Intent notificationIntent = new Intent(getApplicationContext(), HomeActivity.class);
         for(Geofence geofence : geofenceList){
             fencesTriggersIdList.add(geofence.getRequestId());
         }
-        notificationIntent.putExtra(HAS_TRANSITION, true);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.notifications_smart_parking)
                 .setLargeIcon(BitmapFactory.decodeResource(getResources(),
-                        R.drawable.notify_smart_parking))
+                        R.drawable.notifications_smart_parking))
                 .setTimeoutAfter(Constants.getMinutesInMilliseconds() * 5)
                 .setColor(Color.GREEN)
                 .setContentTitle(notificationDetails)
@@ -146,17 +127,10 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true);
 
-        if(transition == Geofence.GEOFENCE_TRANSITION_ENTER){
-            PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                    0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.addAction(R.drawable.notifications_smart_parking, "Ir a la aplicación",
-                    pendingIntent);
-        }
         // Set the Channel ID for Android O.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             builder.setChannelId(CHANNEL_ID); // Channel ID
         }
-
         // Issue the notification
         mNotificationManager.notify(0, builder.build());
     }
@@ -181,34 +155,46 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
     }
 
     private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.channel_name);
             String description = getString(R.string.channel_description);
-            int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name,
+                    NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
     }
 
-
     private void broadcastGeofenceTransition(List<Geofence> triggeringGeofences,
                                              int geofenceTransition) {
+        Intent intent = new Intent(Constants.getBroadcastGeofenceTriggerIntent());
+        intent.putStringArrayListExtra(Constants.GEOFENCE_TRIGGED,
+                namesOfGeofencesTrigger(triggeringGeofences));
+        intent.putExtra(TRANSITION, geofenceTransition);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    public void startLocationService(List<Geofence> triggeringGeofences) {
+        Intent serviceIntent = new Intent(this, LocationUpdatesService.class);
+        serviceIntent.putStringArrayListExtra(Constants.GEOFENCE_TRIGGED,
+                namesOfGeofencesTrigger(triggeringGeofences));
+        startService(serviceIntent);
+    }
+
+    public void stopLocationService() {
+        Intent serviceIntent = new Intent(this, LocationUpdatesService.class);
+        stopService(serviceIntent);
+    }
+
+    public ArrayList<String> namesOfGeofencesTrigger(List<Geofence> triggeringGeofences){
         ArrayList<String> fencesTriggered = new ArrayList<>();
         if(triggeringGeofences != null){
             for(Geofence geofence : triggeringGeofences){
                 fencesTriggered.add(geofence.getRequestId());
             }
         }
-        Intent intent = new Intent(Constants.getBroadcastGeofenceTriggerIntent());
-        intent.putStringArrayListExtra(GEOFENCE_TRIGGED, fencesTriggered);
-        intent.putExtra(TRANSITION, geofenceTransition);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        return fencesTriggered;
     }
 
 }

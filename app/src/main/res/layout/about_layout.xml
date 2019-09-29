@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -23,6 +23,7 @@
                 android:layout_height="250dp"
                 android:layout_gravity="center"
                 android:layout_centerInParent="true"
+                android:layout_alignParentTop="true"
                 android:src="@mipmap/smart_parking_logo" />
 
             <TextView
@@ -30,7 +31,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/version_number"
-                android:layout_marginBottom="50dp"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="#ff397aa3"
                 android:layout_gravity="center"
@@ -51,4 +51,4 @@
 
     </FrameLayout>
 
-</LinearLayout>
+</ScrollView>

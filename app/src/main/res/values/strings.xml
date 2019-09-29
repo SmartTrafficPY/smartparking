@@ -1,13 +1,21 @@
 <resources>
     <string name="app_name">SmartParking</string>
-    <string name="register">Sin cuenta? Regístrate!</string>
+    <string name="register">Ya tenés una cuenta? Iniciar sesión</string>
     <string name="loginButton">Login</string>
     <string name="toLoginButton">Tengo cuenta</string>
     <string name="sendButton">Enviar</string>
-    <string name="welcome">Welcome</string>
+    <string name="welcome">Bienvenido !</string>
     <string name="loginText">Credenciales</string>
-    <string name="signUpButton">Registrarse!</string>
+    <string name="signUpButton">Registrar cuenta</string>
+    <string name="createAccount">Crear cuenta</string>
+    <string name="settings_gps_time">Tiempo de actualizaciones de localización</string>
+    <string name="settings_request_map_time_update">Actualizaciones del mapa de lugares</string>
+    <string name="settings_request_location_update">Actualización de la ubicación</string>
+    <string name="settings_spots_drawing">Representación de los lugares</string>
+    <string name="settings_descriptions">Configurar tiempos de la aplicación</string>
     <string name="version_number">v1.0 Beta</string>
+    <string name="report_bug">Reportar problema</string>
+    report_bug
     <string name="conacytThanks">
         Esta aplicación es uno de los casos de estudio del proyecto SmartTraffic que es cofinanciado
         por el CONACYT a través del programa PROCIENCIA- FEEI, FONACIDE.</string>
@@ -23,10 +31,10 @@
     <string name="eula_URL">http://example.com/</string>
     <string name="server_address"></string>
     <string name="eula_warning_title"></string>
-    <string name="eula_title">Aviso Legal de Responsabilidades</string>
-    <string name="eula_checkbox">I Accept the terms and Conditions</string>
+    <string name="eula_title">Aviso de responsabilidades</string>
+    <string name="eula_checkbox">Acepto los términos y condiciones</string>
     <string name="eula_body">El uso de esta aplicación es completamente voluntario por parte del usuario.
-        Los proveedores de esta aplicación se comprometen en usar los datos recolectados de los
+        Los proveedores de esta aplicación se comprometen en usar los datos de los
         usuarios de forma responsable y de manera privada.
     </string>
     <string name="passwords_not_match">Las contraseñas no coinciden!</string>
@@ -35,12 +43,14 @@
     <string name="button_afirmative">Si</string>
     <string name="button_send">Enviar</string>
     <string name="init_text">SmartParking</string>
-    <string name="no_network_connection">Sin conexion a Internet !</string>
+    <string name="no_network_connection">Sin conexión a Internet !</string>
     <string name="credentials">credenciales</string>
     <string name="username_key">username</string>
     <string name="password_key">password</string>
     <string name="age_key">age</string>
     <string name="sex_key">sexo</string>
+    <string name="not_login_message">Accede a un mapa con información sobre la disponibilidad
+        de lugares de estacionamiento.</string>
     <string name="id_key">identificador</string>
     <string name="preference_file_key">ProfileSharedPreferencesPrivateData</string>
     <string name="terms_conditions">Acepto los <u>términos y condiciones</u>.</string>
@@ -53,9 +63,6 @@
     <string name="other_optiones">Otros...</string>
     <string name="opcion_log_out">Cerrar sesión</string>
     <string name="opcion_about_smartparking">Acerca de SmartParking</string>
-    <string name="fragment1">f1</string>
-    <string name="fragment2">f2</string>
-    <string name="fragment3">f3</string>
     <!--Navigation Drawable-->
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
@@ -102,4 +109,6 @@
     <string name="parked_successfull">Has estacionado!</string>
     <string name="unsuccessful">Actividad no procesada!</string>
     <string name="free_successfull">Has liberado un lugar!</string>
+    <string name="foreground_notification">Servicio SmartParking en ejecución</string>
+    <string name="new_configurations_accepted">Nueva configuración guardada</string>
 </resources>
