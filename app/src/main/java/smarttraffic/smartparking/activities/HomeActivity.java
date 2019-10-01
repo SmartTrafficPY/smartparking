@@ -744,6 +744,7 @@ public class HomeActivity extends AppCompatActivity {
             }
         }
     }
+
     /**
      * Shows a {@link Snackbar} using {@code text}.
      *
@@ -915,7 +916,7 @@ public class HomeActivity extends AppCompatActivity {
                 dialogSendAllready = false;
                 dialogtimer.cancel();
             }
-        }, Constants.getSecondsInMilliseconds() * 40);
+        }, Constants.getSecondsInMilliseconds() * 10);
     }
 
     public boolean isPointInsidePolygon(Spot spot, Location location){
