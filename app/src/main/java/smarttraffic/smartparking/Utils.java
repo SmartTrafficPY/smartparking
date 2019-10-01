@@ -346,27 +346,28 @@ public class Utils {
                 Constants.ADD_ALARM_REQUEST_CODE, addAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent removeAlarmPendingIntent = PendingIntent.getBroadcast(context,
                 Constants.REMOVE_ALARM_REQUEST_CODE, removeAlarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.setRepeating(AlarmManager.RTC, timeToAddGeofences().getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY * 7, addAlarmPendingIntent);
-        alarmManager.setRepeating(AlarmManager.RTC, timeToRemoveGeofences().getTimeInMillis(),
+        alarmManager.setInexactRepeating(AlarmManager.RTC, timeToRemoveGeofences().getTimeInMillis(),
                 AlarmManager.INTERVAL_DAY * 7, removeAlarmPendingIntent);
+        alarmManager.setInexactRepeating(AlarmManager.RTC, timeToAddGeofences().getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY * 7, addAlarmPendingIntent);
     }
 
     public static Calendar timeToAddGeofences(){
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(calendar.DAY_OF_WEEK, calendar.MONDAY);
-        calendar.set(calendar.HOUR_OF_DAY, 6);
-        calendar.set(calendar.MINUTE, 30);
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        calendar.set(Calendar.HOUR_OF_DAY, 6);
+        calendar.set(Calendar.MINUTE, 30);
+        long milli = calendar.getTimeInMillis();
         return calendar;
     }
 
     public static Calendar timeToRemoveGeofences(){
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(calendar.DAY_OF_WEEK, calendar.SATURDAY);
-        calendar.set(calendar.HOUR_OF_DAY, 12);
-        calendar.set(calendar.MINUTE, 0);
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
+        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.set(Calendar.MINUTE, 0);
+        long milli = calendar.getTimeInMillis();
         return calendar;
     }
 
@@ -412,9 +413,11 @@ public class Utils {
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
         for(Lot lot : lotList.getFeatures()){
             Gson gson = new Gson();
-            String json = gson.toJson(lot.getGeometry().toLatLngList());
-            prefsEditor.putString(lot.getProperties().getName(), json).apply();
-            prefsEditor.commit();
+            if(lot.getGeometry() != null){
+                String json = gson.toJson(lot.getGeometry().toLatLngList());
+                prefsEditor.putString(lot.getProperties().getName(), json).apply();
+                prefsEditor.commit();
+            }
         }
     }
 

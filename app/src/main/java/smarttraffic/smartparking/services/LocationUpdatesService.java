@@ -298,7 +298,4 @@ public class LocationUpdatesService extends Service implements LocationListener{
         startActivity(intent);
     }
 
-    public void restartService(){
-
-    }
 }

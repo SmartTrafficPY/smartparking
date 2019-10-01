@@ -24,6 +24,7 @@ import java.util.List;
 
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
+import smarttraffic.smartparking.Utils;
 
 
 public class GeofenceTransitionsJobIntentService extends JobIntentService {
@@ -64,6 +65,7 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
                 startLocationService(triggeringGeofences);
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
+                Utils.hasEnterLotFlag(this, false);
                 stopLocationService();
                 break;
             default:

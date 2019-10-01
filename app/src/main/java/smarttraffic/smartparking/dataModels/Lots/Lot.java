@@ -12,7 +12,7 @@ public class Lot {
 
     private String type;
     private LotProperties properties;
-    private PolygonGeometry geometry;
+    private LineStringGeometry geometry;
 
     public Lot() {
         // Persistence Constructor
@@ -43,11 +43,11 @@ public class Lot {
         this.properties = properties;
     }
 
-    public PolygonGeometry getGeometry() {
+    public LineStringGeometry getGeometry() {
         return geometry;
     }
 
-    public void setGeometry(PolygonGeometry geometry) {
+    public void setGeometry(LineStringGeometry geometry) {
         this.geometry = geometry;
     }
 }

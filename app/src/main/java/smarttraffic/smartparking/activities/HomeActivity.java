@@ -28,6 +28,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -138,7 +139,6 @@ public class HomeActivity extends AppCompatActivity {
     int confidence;
     boolean userNotResponse = true;
     boolean dialogSendAllready = false;
-    Polygon polygon = new Polygon();
     private Location mCurrentLocation;
     private List<Spot> spots = new ArrayList<Spot>();
     private ArrayList<String> geofencesTrigger = new ArrayList<>();
@@ -161,6 +161,8 @@ public class HomeActivity extends AppCompatActivity {
 
         mActivityRecognitionClient = new ActivityRecognitionClient(this);
         geofencingClient = LocationServices.getGeofencingClient(this);
+
+        Utils.geofencesSetUp(this,false);
 
         Utils.addAlarmsGeofencingTask(HomeActivity.this);
 
@@ -337,6 +339,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void drawPolygon(List<GeoPoint> geoPoints, String status) {
+        Polygon polygon = new Polygon();
         String color = "#C0C0C0";
         if (status.equals(StatesEnumerations.FREE.getEstado())) {
             color = "#00FF00";
@@ -502,10 +505,11 @@ public class HomeActivity extends AppCompatActivity {
                                         drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
                                     }
                                 }else{
-                                    mapView.getOverlayManager().remove(polygon);
+                                    mapView.getOverlays().clear();
                                     for(Spot spot : spots){
                                         setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
                                     }
+                                    addOverlays();
                                 }
                             }else{
                                 if(sharedPreferencesSettings.getString(Constants.DRAW_SETTINGS,
@@ -538,7 +542,11 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        if(Utils.isDayOfWeek() && Utils.getGeofenceStatus(this)){
+        if(!Utils.isDayOfWeek()){
+            if(Utils.getGeofenceStatus(HomeActivity.this)){
+                removeGeofences();
+            }
+        }else if(!Utils.getGeofenceStatus(HomeActivity.this)){
             addParkingLotsGeofences();
         }
         if (!checkPermissions()) {
@@ -563,13 +571,6 @@ public class HomeActivity extends AppCompatActivity {
                 new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
         registerReceiver(addAlarmReceiver, new IntentFilter());
         registerReceiver(removeAlarmReceiver, new IntentFilter());
-        if(Utils.getGeofenceStatus(HomeActivity.this)){
-            if(!Utils.isDayOfWeek()){
-                removeGeofences();
-            }
-        }else if(Utils.isDayOfWeek()){
-            addParkingLotsGeofences();
-        }
         mapView.onResume();
     }
 
@@ -627,9 +628,7 @@ public class HomeActivity extends AppCompatActivity {
                                     properties.getName(), false));
                         }
                         addGeofences(geofenceList);
-                        Utils.geofencesSetUp(HomeActivity.this,true);
-                        //TODO: uncomment to work with the gateway...
-//                        Utils.saveListOfGateways(HomeActivity.this, response.body());
+                        Utils.saveListOfGateways(HomeActivity.this, response.body());
                         break;
                     default:
                         break;
@@ -637,6 +636,7 @@ public class HomeActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<LotList> call, Throwable t) {
+                Log.i("Home",t.toString());
                 t.printStackTrace();
             }
         });
@@ -864,8 +864,14 @@ public class HomeActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int id) {
                             Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
                             userNotResponse = false;
-                            geofencingClient.addGeofences(getGeofenceRequest(
-                                    getSpotFromId(spots, spotIdIn)), getGeofencePendingIntent());
+                            final Timer geofencetimer = new Timer();
+                            geofencetimer.schedule(new TimerTask() {
+                                public void run() {
+                                    geofencingClient.addGeofences(getGeofenceRequest(
+                                            getSpotFromId(spots, spotIdIn)),
+                                            getGeofencePendingIntent());
+                                }
+                            }, Constants.getMinutesInMilliseconds() * 5);
                             Intent serviceIntent = new Intent(HomeActivity.this,
                                     LocationUpdatesService.class);
                             stopService(serviceIntent);

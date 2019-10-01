@@ -56,7 +56,7 @@ public class AddAlarmReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         //TODO: add geofences here...
         geofencingClient = LocationServices.getGeofencingClient(context);
-        if(Utils.getGeofenceStatus(context)){
+        if(!Utils.getGeofenceStatus(context)){
             addParkingLotsGeofences(context);
         }
     }
@@ -98,9 +98,7 @@ public class AddAlarmReceiver extends BroadcastReceiver {
                                     properties.getName(), false));
                         }
                         addGeofences(context, geofenceList);
-                        Utils.geofencesSetUp(context,true);
-                        //TODO: uncomment to work with the gateway...
-//                        Utils.saveListOfGateways(HomeActivity.this, response.body());
+                        Utils.saveListOfGateways(context, response.body());
                         break;
                     default:
                         break;

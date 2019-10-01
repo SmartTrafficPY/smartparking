@@ -46,12 +46,12 @@ public class PolygonGeometry{
     public List<Point> getPolygonPoints(){
         List<Point> result = new ArrayList<>();
         List<List<Double>> cordenadas = getCoordinates().get(0);
-         if(cordenadas != null){
-             for(List<Double> point : cordenadas){
-                 Point newPoint = new Point(point.get(1), point.get(0));
-                 result.add(newPoint);
-             }
-         }
+        if(cordenadas != null){
+            for(List<Double> point : cordenadas){
+                Point newPoint = new Point(point.get(1), point.get(0));
+                result.add(newPoint);
+            }
+        }
         return result;
     }
 
