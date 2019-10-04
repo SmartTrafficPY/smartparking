@@ -37,6 +37,7 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.support.v7.widget.Toolbar;
+import android.widget.Toast;
 
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.DetectedActivity;
@@ -264,16 +265,16 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setMarkersOnMap(List<GeoPoint> geoPoints, String state) {
-        Drawable marker = getDrawable(R.drawable.unknown_marker);
+        Drawable marker = getDrawable(R.drawable.unknown_location);
         Marker startMarker = new Marker(mapView);
         String stateValue = "Desconocido";
         startMarker.setPosition(Utils.getCentroid(geoPoints));
         startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
         if (state.equals(StatesEnumerations.FREE.getEstado())) {
-            marker = getDrawable(R.drawable.free_marker);
+            marker = getDrawable(R.drawable.free_location);
             stateValue = "Libre";
         } else if (state.equals(StatesEnumerations.OCCUPIED.getEstado())) {
-            marker = getDrawable(R.drawable.occupied_marker);
+            marker = getDrawable(R.drawable.occupied_location);
             stateValue = "Ocupado";
         }
         startMarker.setTitle(stateValue);
@@ -333,7 +334,7 @@ public class HomeActivity extends AppCompatActivity {
             color = "#FF0000";
         }
         polygon.setFillColor(Color.parseColor(color));
-        polygon.setStrokeColor(Color.parseColor(color));
+        polygon.setStrokeColor(Color.parseColor("#000000"));
         geoPoints.add(geoPoints.get(0));    //forces the loop to close
         polygon.setPoints(geoPoints);
         mapView.getOverlayManager().add(polygon);
