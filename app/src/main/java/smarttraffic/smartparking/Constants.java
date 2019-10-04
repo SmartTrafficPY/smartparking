@@ -19,7 +19,7 @@ public class Constants {
 
     public static final int ADD_ALARM_REQUEST_CODE=130;
     public static final int REMOVE_ALARM_REQUEST_CODE=131;
-    public static final String DRAW__SETTINGS_CHANGE = "DRAW__SETTINGS_CHANGE";
+    public static final String DRAW_SETTINGS_CHANGE = "DRAW_SETTINGS_CHANGE";
     public static final String LOCATIONS_REQUEST_SETTINGS_CHANGE = "LOCATIONS_REQUEST_CHANGE";
     public static final String MAP_REQUEST_SETTINGS_CHANGE = "MAP_REQUEST_SETTINGS_CHANGE";
     public static final String FIRST_DRAW_SHAPE = "FIRST_DRAW_SHAPE";
@@ -52,7 +52,6 @@ public class Constants {
     public static final String BROADCAST_TRANSITION_LOCATION_INTENT = "BROADCAST_TRANSITION_LOCATION_INTENT";
     public static final String GEOFENCE_TRIGGER_ID = "geofenceTriggerId";
     public static final String GEOFENCE_TRANSITION_TYPE = "GEOFENCE_TRANSITION_TYPE";
-
     public static final String KEY_DETECTED_ACTIVITIES = "KEY_DETECTED_ACTIVITIES";
     public static final String KEY_ACTIVITY_UPDATES_REQUESTED = "KEY_ACTIVITY_UPDATES_REQUESTED";
     public static final String GEOFENCES_ADDED_KEY = "GEOFENCES_ADDED_KEY";

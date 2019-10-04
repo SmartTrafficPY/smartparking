@@ -33,7 +33,7 @@
             android:layout_toRightOf="@+id/settingsLabel"
             android:layout_alignParentRight="true"
             android:layout_gravity="center"
-            android:src="@mipmap/smart_parking_logo_round" />
+            android:src="@mipmap/smart_parking_logo" />
 
         <TextView
             android:id="@+id/textGpsTimeActualizations"

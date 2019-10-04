@@ -43,7 +43,7 @@
     <string name="button_afirmative">Si</string>
     <string name="button_send">Enviar</string>
     <string name="init_text">SmartParking</string>
-    <string name="no_network_connection">Sin conexión a Internet !</string>
+    <string name="no_network_connection">Sin conexión a Internet ! Es necesario para acceder</string>
     <string name="credentials">credenciales</string>
     <string name="username_key">username</string>
     <string name="password_key">password</string>
@@ -71,7 +71,7 @@
     <string name="logout_smartparking">Salir de SmartParking?</string>
     <string name="geofence_transition_invalid_type">Geofence: Tipo de transición invalida</string>
     <string name="geofence_transition_notification_text">Transición SmartParking</string>
-    <string name="geofence_transition_entered">Entrada a estacionamiento</string>
+    <string name="geofence_transition_entered">Entrada a zona</string>
     <string name="geofence_transition_exited">Salida de estacionamiento</string>
     <string name="unknown_geofence_transition">Transición desconocida</string>
     <string name="unknown_geofence_error">Geofence: Error desconocido</string>
@@ -111,4 +111,7 @@
     <string name="free_successfull">Has liberado un lugar!</string>
     <string name="foreground_notification">Servicio SmartParking en ejecución</string>
     <string name="new_configurations_accepted">Nueva configuración guardada</string>
+    <string name="not_get_spot_free">No, ocupando</string>
+    <string name="yes">Si</string>
+    <string name="no">No</string>
 </resources>

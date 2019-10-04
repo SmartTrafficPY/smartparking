@@ -115,8 +115,6 @@ public class RegistryActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Context context = getApplicationContext();
-                //TODO: if image is showText set TO don't ShowText
-                // and set password text Visual for user...
                 if(!showPasswordText){
                     passwordModeButton.setImageDrawable(
                             context.getDrawable(R.drawable.dontshowtext));

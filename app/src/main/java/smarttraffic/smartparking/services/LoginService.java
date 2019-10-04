@@ -13,12 +13,14 @@ import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 
+import okhttp3.internal.Util;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.SmartParkingAPI;
+import smarttraffic.smartparking.Utils;
 import smarttraffic.smartparking.dataModels.Credentials;
 import smarttraffic.smartparking.dataModels.UserToken;
 import smarttraffic.smartparking.receivers.LoginReceiver;
@@ -91,8 +93,7 @@ public class LoginService extends IntentService {
                 editor.putString(Constants.USER_URL, result.body().getUrl()).apply();
                 editor.commit();
             }else if (result.code() == 400){
-                loginIntent.putExtra(PROBLEM, "No se puede iniciar sesión " +
-                        "con las credenciales proporcionadas");
+                loginIntent.putExtra(PROBLEM, "No se puede iniciar sesión con las credenciales proporcionadas");
                 loginIntent.setAction(BAD_LOGIN_ACTION);
             }
             else {

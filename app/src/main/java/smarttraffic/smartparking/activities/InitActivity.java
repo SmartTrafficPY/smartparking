@@ -51,7 +51,7 @@ public class InitActivity extends Activity {
                         }
                         progressDialog.dismiss();
                     }
-                }, 1000);
+                }, Constants.getSecondsInMilliseconds());
     }
 
     private boolean isNetworkAvailable() {

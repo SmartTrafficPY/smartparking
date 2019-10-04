@@ -13,7 +13,6 @@ import android.support.v4.app.JobIntentService;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
@@ -24,13 +23,12 @@ import java.util.List;
 
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
+import smarttraffic.smartparking.Utils;
 
 
 public class GeofenceTransitionsJobIntentService extends JobIntentService {
 
     private static final int JOB_ID = 573;
-
-    private static final String LOG_TAG = "GeofenceJobService";
 
     private static final String CHANNEL_ID = "channel_01";
 
@@ -64,6 +62,9 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
                 startLocationService(triggeringGeofences);
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
+                Utils.hasEnterLotFlag(this, false);
+                break;
+            case Geofence.GEOFENCE_TRANSITION_DWELL:
                 stopLocationService();
                 break;
             default:
