@@ -20,7 +20,9 @@ import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
+import smarttraffic.smartparking.Utils;
 import smarttraffic.smartparking.receivers.LoginReceiver;
 import smarttraffic.smartparking.services.LoginService;
 
@@ -48,6 +50,8 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.login_layout);
         super.onCreate(savedInstanceState);
         ButterKnife.bind(this);
+
+        Utils.setTileServerCredentials(this);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,7 +105,7 @@ public class LoginActivity extends Activity {
                         loginButton.setEnabled(true);
                         progressDialog.dismiss();
                     }
-                }, 2000);
+                }, 20 * Constants.getSecondsInMilliseconds());
         eraseCredentials();
     }
 

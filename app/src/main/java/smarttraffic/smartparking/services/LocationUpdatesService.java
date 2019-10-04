@@ -126,7 +126,6 @@ public class LocationUpdatesService extends Service implements LocationListener{
     private void compareToEntranceLot(Location location, List<LatLng> polygonEntrance) {
         if (PolyUtil.containsLocation(location.getLatitude(), location.getLongitude(),
                 polygonEntrance, true)) {
-            boolean v = Utils.returnEnterLotFlag(this);
             if (!Utils.returnEnterLotFlag(this)) {
                 Utils.setEntranceEvent(this, location, Constants.EVENT_TYPE_ENTRACE);
                 Utils.hasEnterLotFlag(this, true);
@@ -135,6 +134,7 @@ public class LocationUpdatesService extends Service implements LocationListener{
             if (Utils.returnEnterLotFlag(this)) {
                 Utils.setEntranceEvent(this, location, Constants.EVENT_TYPE_EXIT);
                 Utils.hasEnterLotFlag(this, false);
+                stopSelf();
             }
         }
     }
@@ -145,7 +145,9 @@ public class LocationUpdatesService extends Service implements LocationListener{
                 false);
         ArrayList<String> namesOfGeofencesTrigger =
                 intent.getStringArrayListExtra(Constants.GEOFENCE_TRIGGED);
-        lotsPolygons = Utils.returnListOfGateways(this, namesOfGeofencesTrigger);
+        if(!Utils.returnListOfGateways(this, namesOfGeofencesTrigger).isEmpty()){
+            lotsPolygons = Utils.returnListOfGateways(this, namesOfGeofencesTrigger);
+        }
         // We got here because the user decided to remove location updates from the notification.
         if (startedFromNotification) {
             removeLocationUpdates();
@@ -188,7 +190,6 @@ public class LocationUpdatesService extends Service implements LocationListener{
         }
         if(locationManager != null){
             if(sharedPreferences.getBoolean(Constants.LOCATIONS_REQUEST_SETTINGS_CHANGE, false)){
-
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean(Constants.LOCATIONS_REQUEST_SETTINGS_CHANGE,false).apply();
                 editor.commit();
@@ -200,7 +201,6 @@ public class LocationUpdatesService extends Service implements LocationListener{
                         sharedPreferences.getLong(Constants.LOCATION_TIME_UPDATE_SETTINGS, UPDATE_INTERVAL)
                         , 0, this);
             }
-
         }
     }
 

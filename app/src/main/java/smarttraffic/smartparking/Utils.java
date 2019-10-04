@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.location.Location;
 import android.preference.PreferenceManager;
+import android.util.Base64;
 import android.view.Gravity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -22,6 +23,7 @@ import com.google.gson.reflect.TypeToken;
 
 import org.osmdroid.util.GeoPoint;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -38,6 +40,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
+import smarttraffic.smartparking.activities.HomeActivity;
 import smarttraffic.smartparking.dataModels.EventProperties;
 import smarttraffic.smartparking.dataModels.Events;
 import smarttraffic.smartparking.dataModels.Lots.Lot;
@@ -357,7 +360,6 @@ public class Utils {
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
         calendar.set(Calendar.HOUR_OF_DAY, 6);
         calendar.set(Calendar.MINUTE, 30);
-        long milli = calendar.getTimeInMillis();
         return calendar;
     }
 
@@ -367,7 +369,6 @@ public class Utils {
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
         calendar.set(Calendar.HOUR_OF_DAY, 12);
         calendar.set(Calendar.MINUTE, 0);
-        long milli = calendar.getTimeInMillis();
         return calendar;
     }
 
@@ -411,12 +412,14 @@ public class Utils {
         SharedPreferences mPrefs = context.getSharedPreferences(Constants.GATEWAYS,
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor prefsEditor = mPrefs.edit();
-        for(Lot lot : lotList.getFeatures()){
-            Gson gson = new Gson();
-            if(lot.getGeometry() != null){
-                String json = gson.toJson(lot.getGeometry().toLatLngList());
-                prefsEditor.putString(lot.getProperties().getName(), json).apply();
-                prefsEditor.commit();
+        if(lotList != null){
+            for(Lot lot : lotList.getFeatures()){
+                Gson gson = new Gson();
+                if(lot.getGeometry() != null){
+                    String json = gson.toJson(lot.getGeometry().toLatLngList());
+                    prefsEditor.putString(lot.getProperties().getName(), json).apply();
+                    prefsEditor.commit();
+                }
             }
         }
     }
@@ -429,8 +432,10 @@ public class Utils {
             for(String geofenceName : geofencesName){
                 Gson gson = new Gson();
                 String json = mPrefs.getString(geofenceName, "");
-                List<LatLng> obj = gson.fromJson(json, List.class);
-                lotsPolygons.add(obj);
+                if(!json.equals("")){
+                    List<LatLng> obj = gson.fromJson(json, List.class);
+                    lotsPolygons.add(obj);
+                }
             }
         }
         return lotsPolygons;
@@ -475,4 +480,39 @@ public class Utils {
         editor.putBoolean(Constants.LOCATIONS_REQUEST_SETTINGS_CHANGE, true).apply();
         editor.commit();
     }
+
+    public static void changeStatusOfSpot(int spotIdIn, List<Spot> spots, String status) {
+        if(spots != null && !spots.isEmpty()){
+            for(Spot spot : spots){
+                if(spot.getProperties().getIdFromUrl() == spotIdIn){
+                    spot.getProperties().setState(status);
+                }
+            }
+        }
+    }
+
+    public static void setTileServerCredentials(Context context){
+        final String basic =
+                "Basic " + Base64.encodeToString(SmartParkingInitialData.getCredentials().getBytes(), Base64.NO_WRAP);
+        final Map<String, String> AuthHeader = new HashMap<>();
+        AuthHeader.put("Authorization", basic);
+        SharedPreferences preferencesManager = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = preferencesManager.edit();
+        for (final Map.Entry<String, String> entry : AuthHeader.entrySet()) {
+            final String key = "osmdroid.additionalHttpRequestProperty." + entry.getKey();
+            editor.putString(key, entry.getValue()).apply();
+        }
+
+        editor.commit();
+    }
+
+    public static String getTileServerCredentials(Context context) throws UnsupportedEncodingException {
+        SharedPreferences preferencesManager = PreferenceManager.getDefaultSharedPreferences(context);
+        String prefString = preferencesManager.getString("osmdroid.additionalHttpRequestProperty.Authorization", "");
+        String[] basic = prefString.split(" ");
+        byte[] data = Base64.decode(basic[1], Base64.NO_WRAP);
+        String credentials = new String(data, "UTF-8");
+        return credentials;
+    }
+
 }

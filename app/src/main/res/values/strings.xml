@@ -43,7 +43,7 @@
     <string name="button_afirmative">Si</string>
     <string name="button_send">Enviar</string>
     <string name="init_text">SmartParking</string>
-    <string name="no_network_connection">Sin conexión a Internet !</string>
+    <string name="no_network_connection">Sin conexión a Internet ! Es necesario para acceder</string>
     <string name="credentials">credenciales</string>
     <string name="username_key">username</string>
     <string name="password_key">password</string>
@@ -111,4 +111,7 @@
     <string name="free_successfull">Has liberado un lugar!</string>
     <string name="foreground_notification">Servicio SmartParking en ejecución</string>
     <string name="new_configurations_accepted">Nueva configuración guardada</string>
+    <string name="not_get_spot_free">No, ocupando</string>
+    <string name="yes">Si</string>
+    <string name="no">No</string>
 </resources>

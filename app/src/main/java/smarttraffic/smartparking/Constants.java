@@ -19,7 +19,7 @@ public class Constants {
 
     public static final int ADD_ALARM_REQUEST_CODE=130;
     public static final int REMOVE_ALARM_REQUEST_CODE=131;
-    public static final String DRAW__SETTINGS_CHANGE = "DRAW__SETTINGS_CHANGE";
+    public static final String DRAW_SETTINGS_CHANGE = "DRAW_SETTINGS_CHANGE";
     public static final String LOCATIONS_REQUEST_SETTINGS_CHANGE = "LOCATIONS_REQUEST_CHANGE";
     public static final String MAP_REQUEST_SETTINGS_CHANGE = "MAP_REQUEST_SETTINGS_CHANGE";
     public static final String FIRST_DRAW_SHAPE = "FIRST_DRAW_SHAPE";

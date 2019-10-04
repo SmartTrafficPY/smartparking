@@ -33,8 +33,8 @@
             android:layout_marginTop="20dp"
             android:layout_width="match_parent"
             android:layout_height="274dp"
-            android:src="@mipmap/smart_parking_logo_round"
-            tools:srcCompat="@mipmap/smart_parking_logo_round" />
+            android:src="@mipmap/smart_parking_logo"
+            tools:srcCompat="@mipmap/smart_parking_logo" />
 
         <TextView
             android:id="@+id/usernameTextView"
