@@ -126,14 +126,14 @@ public class LocationUpdatesService extends Service implements LocationListener{
     private void compareToEntranceLot(Location location, List<LatLng> polygonEntrance) {
         if (PolyUtil.containsLocation(location.getLatitude(), location.getLongitude(),
                 polygonEntrance, true)) {
-            if (!Utils.returnEnterLotFlag(this)) {
-                Utils.setEntranceEvent(this, location, Constants.EVENT_TYPE_ENTRACE);
-                Utils.hasEnterLotFlag(this, true);
+            if (!Utils.returnEnterLotFlag(LocationUpdatesService.this)) {
+                Utils.setEntranceEvent(LocationUpdatesService.this, location, Constants.EVENT_TYPE_ENTRACE);
+                Utils.hasEnterLotFlag(LocationUpdatesService.this, true);
             }
         }else{
-            if (Utils.returnEnterLotFlag(this)) {
-                Utils.setEntranceEvent(this, location, Constants.EVENT_TYPE_EXIT);
-                Utils.hasEnterLotFlag(this, false);
+            if (Utils.returnEnterLotFlag(LocationUpdatesService.this)) {
+                Utils.setEntranceEvent(LocationUpdatesService.this, location, Constants.EVENT_TYPE_EXIT);
+                Utils.hasEnterLotFlag(LocationUpdatesService.this, false);
                 stopSelf();
             }
         }

@@ -358,6 +358,12 @@ public class HomeActivity extends AppCompatActivity {
                 handler.postDelayed(cronJob, delay);
                 requestActivityUpdates();
                 break;
+            case Geofence.GEOFENCE_TRANSITION_EXIT:
+                if(Utils.returnEnterLotFlag(this)){
+                    Utils.hasEnterLotFlag(this, false);
+                    Utils.setEntranceEvent(this, mCurrentLocation, Constants.EVENT_TYPE_EXIT);
+                }
+                break;
             default:
                 removeActivityUpdates();
                 handler.removeCallbacks(cronJob);

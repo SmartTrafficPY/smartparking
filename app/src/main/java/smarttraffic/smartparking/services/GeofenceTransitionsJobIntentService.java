@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Build;
 
 import android.support.v4.app.JobIntentService;
@@ -55,14 +56,18 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
         // Get the transition type.
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
         List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
-
+        // Get the geofences that were triggered. A single event can trigger multiple geofences.
+        // Get the transition details as a String.
+        String geofenceTransitionDetails = getGeofenceTransitionDetails(geofenceTransition,
+                triggeringGeofences);
         // Test that the reported transition was of interest.
         switch (geofenceTransition) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
+                sendNotification(geofenceTransitionDetails, triggeringGeofences);
                 startLocationService(triggeringGeofences);
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
-                Utils.hasEnterLotFlag(this, false);
+                stopLocationService();
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
                 stopLocationService();
@@ -70,13 +75,8 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
             default:
                 break;
         }
-        // Get the geofences that were triggered. A single event can trigger multiple geofences.
-        // Get the transition details as a String.
-        String geofenceTransitionDetails = getGeofenceTransitionDetails(geofenceTransition,
-                triggeringGeofences);
         // Send notification and log the transition details.
         broadcastGeofenceTransition(triggeringGeofences, geofenceTransition);
-        sendNotification(geofenceTransitionDetails, triggeringGeofences);
     }
 
     /**
