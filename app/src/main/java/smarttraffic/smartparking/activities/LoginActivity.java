@@ -51,8 +51,6 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         ButterKnife.bind(this);
 
-        Utils.setTileServerCredentials(this);
-
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

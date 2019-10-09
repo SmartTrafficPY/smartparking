@@ -90,6 +90,7 @@ public class LoginService extends IntentService {
                 editor.putString(Constants.USER_PASS,
                         intent.getStringExtra("password")).apply();
                 editor.putInt(Constants.USER_ID, result.body().getIdFromUrl()).apply();
+                editor.putString(Constants.USERNAME,intent.getStringExtra("username")).apply();
                 editor.putString(Constants.USER_URL, result.body().getUrl()).apply();
                 editor.commit();
             }else if (result.code() == 400){

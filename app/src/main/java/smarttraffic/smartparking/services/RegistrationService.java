@@ -35,6 +35,7 @@ public class RegistrationService extends IntentService {
     public static final String PROBLEM = "Found some Problem in Login";
     private static final String CANNOT_CONNECT_SERVER = "No se pudo conectar con el servidor," +
             " favor revisar conexion!";
+    private static final String ALREADY_EXISTS = "Ya existe el perfil!";
 
     public static final String REGISTRATION_OK = "Registro correcto";
     public static final String BAD_REGISTRATION = "Registro no realizado";
@@ -78,7 +79,7 @@ public class RegistrationService extends IntentService {
             if(result.code() == 201){
                 registrationIntent.setAction(REGISTRATION_OK);
             }else{
-                registrationIntent.putExtra("exists", "Profile already exists");
+                registrationIntent.putExtra(PROBLEM, ALREADY_EXISTS);
                 registrationIntent.setAction(BAD_REGISTRATION);
             }
         } catch (IOException e) {

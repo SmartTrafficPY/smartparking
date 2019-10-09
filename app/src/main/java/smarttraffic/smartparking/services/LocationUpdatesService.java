@@ -36,6 +36,8 @@ import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.Utils;
 import smarttraffic.smartparking.activities.HomeActivity;
 
+import static smarttraffic.smartparking.Utils.getGeofencesTrigger;
+
 public class LocationUpdatesService extends Service implements LocationListener{
 
     private static final String PACKAGE_NAME = "smarttraffic.smartparking.services";
@@ -144,7 +146,7 @@ public class LocationUpdatesService extends Service implements LocationListener{
         boolean startedFromNotification = intent.getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION,
                 false);
         ArrayList<String> namesOfGeofencesTrigger =
-                intent.getStringArrayListExtra(Constants.GEOFENCE_TRIGGED);
+                getGeofencesTrigger(this);
         if(!Utils.returnListOfGateways(this, namesOfGeofencesTrigger).isEmpty()){
             lotsPolygons = Utils.returnListOfGateways(this, namesOfGeofencesTrigger);
         }

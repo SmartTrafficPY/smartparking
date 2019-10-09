@@ -19,12 +19,24 @@
 
             <ImageView
                 android:id="@+id/imageViewHelp"
-                android:layout_width="250dp"
-                android:layout_height="250dp"
+                android:layout_width="225dp"
+                android:layout_height="225dp"
                 android:layout_gravity="center"
                 android:layout_centerInParent="true"
                 android:layout_alignParentTop="true"
                 android:src="@mipmap/smart_parking_logo" />
+
+            <TextView
+                android:id="@+id/userName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="userName"
+                android:layout_below="@+id/imageViewHelp"
+                android:textColor="@color/smartparking_red"
+                android:layout_gravity="center"
+                android:layout_centerInParent="true"
+                android:layout_alignParentTop="true"
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/version_number"

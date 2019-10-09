@@ -36,6 +36,7 @@ import java.util.Random;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import smarttraffic.smartparking.R;
+import smarttraffic.smartparking.Utils;
 import smarttraffic.smartparking.receivers.RegistrationReceiver;
 import smarttraffic.smartparking.services.RegistrationService;
 

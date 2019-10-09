@@ -34,6 +34,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.SmartParkingAPI;
+import smarttraffic.smartparking.dataModels.Credentials;
 import smarttraffic.smartparking.dataModels.ProfileUser;
 import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
 
@@ -46,8 +47,8 @@ import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
 public class ChangePasswordActivity extends Activity {
 
     private static final String PASS_NOT_MATCH = "Las contraseñas no coinciden!";
-    private static final String CHANGE_SUCCESS = "EXITOSO!";
-    private static final String CHANGE_NOT_SUCCESS = "La contraseña actual no coincide con la de su usuario!";
+    private static final String CHANGE_SUCCESS = "Cambio de contraseña exitoso!";
+    private static final String CHANGE_NOT_SUCCESS = "Cambio de contraseña NO exitoso!";
     private static final String SERVER_MISTAQUE = "Las contraseña no se ha podido cambiar.";
 
     @BindView(R.id.changePasswordButton)
@@ -130,8 +131,8 @@ public class ChangePasswordActivity extends Activity {
     }
 
     private void changeProfileUser(SharedPreferences sharedPreferences) {
-        Password password = new Password();
-        password.setNewPassword(firstNewPassword.getText().toString());
+        Credentials credentials = new Credentials();
+        credentials.setPassword(firstNewPassword.getText().toString());
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -152,7 +153,7 @@ public class ChangePasswordActivity extends Activity {
         int userId = sharedPreferences.getInt(Constants.USER_ID, -1);
         final SharedPreferences.Editor editor = sharedPreferences.edit();
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
-        Call<ProfileUser> call = smartParkingAPI.updateUserProfile(userId, password);
+        Call<ProfileUser> call = smartParkingAPI.updateUserProfile(userId, credentials);
 
         call.enqueue(new Callback<ProfileUser>() {
             @Override
@@ -164,7 +165,7 @@ public class ChangePasswordActivity extends Activity {
                                 firstNewPassword.getText().toString());
                         Intent intent = new Intent(ChangePasswordActivity.this,
                                 HomeActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
                         break;
                     case 400:
@@ -205,15 +206,4 @@ public class ChangePasswordActivity extends Activity {
         toast.show();
     }
 
-    public class Password {
-        private String pass;
-
-        public String getNewPassword() {
-            return pass;
-        }
-
-        public void setNewPassword(String newPassword) {
-            this.pass = newPassword;
-        }
-    }
 }
