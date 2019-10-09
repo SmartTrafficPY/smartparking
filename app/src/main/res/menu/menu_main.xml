@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/setting_menu"
+        android:title="@string/settings"
+        android:icon="@drawable/settings_menu"
+        app:showAsAction="ifRoom"
+        android:contentDescription="@string/settings_descriptions">
+    </item>
+
+    <item
+        android:id="@+id/report_menu"
+        android:title="@string/report_bug"
+        android:icon="@drawable/report_bug"
+        app:showAsAction="ifRoom"
+        android:contentDescription="@string/report_bug">
+    </item>
+
+    <group>
+        <item
+            android:id="@+id/menu_changepass"
+            android:title="@string/seccion_change_pass"></item>
+        <item
+            android:id="@+id/menu_logout"
+            android:title="@string/opcion_log_out"></item>
+    </group>
+</menu>

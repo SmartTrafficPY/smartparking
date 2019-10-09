@@ -1,0 +1,118 @@
+<resources>
+    <string name="app_name">SmartParking</string>
+    <string name="register">Ya tenés una cuenta? Iniciar sesión</string>
+    <string name="loginButton">Login</string>
+    <string name="toLoginButton">Tengo cuenta</string>
+    <string name="sendButton">Enviar</string>
+    <string name="welcome">Bienvenido !</string>
+    <string name="loginText">Credenciales</string>
+    <string name="signUpButton">Registrar cuenta</string>
+    <string name="createAccount">Crear cuenta</string>
+    <string name="settings_gps_time">Tiempo de actualizaciones de localización</string>
+    <string name="settings_request_map_time_update">Actualizaciones del mapa de lugares</string>
+    <string name="settings_request_location_update">Actualización de la ubicación</string>
+    <string name="settings_spots_drawing">Representación de los lugares</string>
+    <string name="settings_descriptions">Configurar tiempos de la aplicación</string>
+    <string name="version_number">v1.0 Beta</string>
+    <string name="report_bug">Reportar problema</string>
+    report_bug
+    <string name="conacytThanks">
+        Esta aplicación es uno de los casos de estudio del proyecto SmartTraffic que es cofinanciado
+        por el CONACYT a través del programa PROCIENCIA- FEEI, FONACIDE.</string>
+    <string name="current_password">Contraseña actual</string>
+    <string name="settings_password">Nueva contraseña</string>
+    <string name="settings_password2">Repita nueva contraseña</string>
+    <string name="button_save">Guardar</string>
+    <string name="button_back">Atras</string>
+    <string name="eula_warning_body">Ud. no aceptó aún los términos de uso de la aplicación.
+        Por favor lea hasta el final y marque la casilla de aceptación si está de acuerdo
+        con las condiciones
+    </string>
+    <string name="eula_URL">http://example.com/</string>
+    <string name="server_address"></string>
+    <string name="eula_warning_title"></string>
+    <string name="eula_title">Aviso de responsabilidades</string>
+    <string name="eula_checkbox">Acepto los términos y condiciones</string>
+    <string name="eula_body">El uso de esta aplicación es completamente voluntario por parte del usuario.
+        Los proveedores de esta aplicación se comprometen en usar los datos de los
+        usuarios de forma responsable y de manera privada.
+    </string>
+    <string name="passwords_not_match">Las contraseñas no coinciden!</string>
+    <string name="button_accept">Acepto</string>
+    <string name="button_cancel">Cancelar</string>
+    <string name="button_afirmative">Si</string>
+    <string name="button_send">Enviar</string>
+    <string name="init_text">SmartParking</string>
+    <string name="no_network_connection">Sin conexión a Internet ! Es necesario para acceder</string>
+    <string name="credentials">credenciales</string>
+    <string name="username_key">username</string>
+    <string name="password_key">password</string>
+    <string name="age_key">age</string>
+    <string name="sex_key">sexo</string>
+    <string name="not_login_message">Accede a un mapa con información sobre la disponibilidad
+        de lugares de estacionamiento.</string>
+    <string name="id_key">identificador</string>
+    <string name="preference_file_key">ProfileSharedPreferencesPrivateData</string>
+    <string name="terms_conditions">Acepto los <u>términos y condiciones</u>.</string>
+    <string name="forgotPassword">Has olvidado la contraseña?</string>
+    <!--Menu String values...-->
+    <string name="usuario">Name of user profile</string>
+    <string name="seccion_ajustes">Ajustes</string>
+    <string name="seccion_change_pass">Cambio de contraseña</string>
+    <string name="back_home">Home</string>
+    <string name="other_optiones">Otros...</string>
+    <string name="opcion_log_out">Cerrar sesión</string>
+    <string name="opcion_about_smartparking">Acerca de SmartParking</string>
+    <!--Navigation Drawable-->
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="cancel">Cancel</string>
+    <string name="dialog_logout">Está seguro de querer cerrar sesión?</string>
+    <string name="logout_smartparking">Salir de SmartParking?</string>
+    <string name="geofence_transition_invalid_type">Geofence: Tipo de transición invalida</string>
+    <string name="geofence_transition_notification_text">Transición SmartParking</string>
+    <string name="geofence_transition_entered">Entrada a zona</string>
+    <string name="geofence_transition_exited">Salida de estacionamiento</string>
+    <string name="unknown_geofence_transition">Transición desconocida</string>
+    <string name="unknown_geofence_error">Geofence: Error desconocido</string>
+    <string name="geofence_not_available">Geofence: No disponible</string>
+    <string name="geofence_too_many_geofences">Muchos predios registrados</string>
+    <string name="geofence_too_many_pending_intents">Muchos intents pendientes</string>
+    <string name="geofences_removed">Geofences eliminadas</string>
+    <string name="geofences_added">Geofences agregadas</string>
+    <string name="permission_rationale">Se necesita permiso de ubicación para la funcionar</string>
+    <string name="insufficient_permissions">Permisos insuficientes</string>
+    <string name="settings">Configuraciones</string>
+    <string name="permission_denied_explanation">Se denegó el permiso, pero es necesario para el núcleo funcionalidad</string>
+    <string name="geofence_transition_dwell">Geofence: transición de permanencia</string>
+    <string name="launch_activity">Empezar</string>
+    <string name="remove_location_updates">Eliminar actualizaciones de ubicación</string>
+    <string name="location_updated">Ubicacion actualizada</string>
+    <string name="in_vehicle">En vehículo</string>
+    <string name="on_bicycle">Bicicleta</string>
+    <string name="on_foot">A pie</string>
+    <string name="running">Corriendo</string>
+    <string name="still">Quieto</string>
+    <string name="tilting">Inclinación</string>
+    <string name="walking">Caminando</string>
+    <string name="unidentifiable_activity">Actividad no identificada</string>
+    <string name="activity_updates_enabled">Actualizaciones de actividad habilitadas</string>
+    <string name="activity_updates_not_enabled">Actualizaciones de actividades NO habilitadas</string>
+    <string name="activity_updates_removed">Actualizaciones de actividades eliminadas</string>
+    <string name="activity_updates_not_removed">Actualizaciones de actividades NO eliminadas</string>
+    <string name="are_you_parking">¿Estás estacionando el vehículo?</string>
+    <string name="are_you_vacating_a_place">¿Estás desocupando un lugar?</string>
+    <string name="channel_name">SmartParking Channel</string>
+    <string name="channel_description">SmartParking Notifications</string>
+    <string name="go_to_app">Ir a la aplicación</string>
+    <string name="are_you_sure_logout">¿Seguro que quieres cerrar sesión?</string>
+    <string name="parked_successfull">Has estacionado!</string>
+    <string name="unsuccessful">Actividad no procesada!</string>
+    <string name="free_successfull">Has liberado un lugar!</string>
+    <string name="foreground_notification">Servicio SmartParking en ejecución</string>
+    <string name="new_configurations_accepted">Nueva configuración guardada</string>
+    <string name="not_get_spot_free">No, ocupando</string>
+    <string name="yes">Si</string>
+    <string name="no">No</string>
+    <string name="warning_already_parked">Ya tienes un lugar estacionado ! Volverás a estacionar?</string>
+</resources>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/registryProfile"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/settingsLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="26dp"
+            android:text="Configuraciones"
+            android:textColor="@color/colorPrimary"
+            android:textFontWeight="2500"
+            android:textSize="24dp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/settingsImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/settingsLabel"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="center"
+            android:src="@mipmap/smart_parking_logo" />
+
+        <TextView
+            android:id="@+id/textGpsTimeActualizations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/settingsImageView"
+            android:layout_margin="15dp"
+            android:textSize="20dp"
+            android:text="@string/settings_request_location_update"
+            android:textColor="@color/primary_text"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/gpsActualizationsTime"
+            android:layout_below="@+id/textGpsTimeActualizations"
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/primary_text"
+            android:text="@string/settings_gps_time"
+            android:textStyle="bold">
+
+            <RadioButton
+                android:id="@+id/fastTimeGPS"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:text="Actualización ubicación muy alta(muy alto consumo batería, muy alta precisión): 1-2 sec" />
+
+            <RadioButton
+                android:id="@+id/normalTimeGPS"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:text="Actualización ubicación normal: 5 sec" />
+
+            <RadioButton
+                android:id="@+id/slowTimeGPS"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:text="Actualización ubicación baja(bajo consumo batería, baja precisión): 10 sec" />
+
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/textRequestActualizationsTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/gpsActualizationsTime"
+            android:layout_margin="20dp"
+            android:textSize="20dp"
+            android:text="@string/settings_request_map_time_update"
+            android:textColor="@color/primary_text"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/requestActualizationsTime"
+            android:layout_below="@+id/textRequestActualizationsTime"
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/primary_text"
+            android:text="@string/settings_gps_time"
+            android:textStyle="bold">
+
+            <RadioButton
+                android:id="@+id/fastUpdateRequest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:text="Actualización rapida(mayor gasto de paquetes de datos, mayor fidelidad): 30 sec" />
+
+            <RadioButton
+                android:id="@+id/normalUpdateRequest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="5dp"
+                android:text="Actualización normal: 45 sec" />
+
+            <RadioButton
+                android:id="@+id/slowUpdateRequest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:text="Actualización baja(bajo consumo de paquetes de datos, menor fidelidad): 1min" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/textDrawGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/requestActualizationsTime"
+            android:layout_margin="20dp"
+            android:textSize="20dp"
+            android:text="@string/settings_spots_drawing"
+            android:textColor="@color/primary_text"
+            android:textStyle="bold" />
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/drawGroup"
+            android:layout_below="@+id/textDrawGroup"
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/primary_text"
+            android:text="@string/settings_gps_time"
+            android:textStyle="bold">
+
+        <RadioButton
+            android:id="@+id/pointsDraw"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="5dp"
+            android:text="Dibujar lugares como puntos"/>
+
+        <RadioButton
+            android:id="@+id/polygonDraw"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="5dp"
+            android:text="Dibujar lugares como polígonos" />
+
+    </RadioGroup>
+
+        <Button
+            android:id="@+id/saveSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="15dp"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="center"
+            android:layout_below="@+id/drawGroup"
+            android:background="@drawable/btn_rectangle"
+            android:shadowColor="@color/cardview_shadow_end_color"
+            android:text="@string/button_save"
+            android:textColor="@color/icons" />
+
+    </RelativeLayout>
+
+</ScrollView>

@@ -1,0 +1,25 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <ImageView
+        android:src="@mipmap/smart_parking_logo"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:scaleType="center"
+        android:background="@color/white"
+        android:contentDescription="@string/app_name" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Qué problema tuviste?"
+        android:textStyle="bold"
+        android:textSize="18dp"
+        android:gravity="center"/>
+    <EditText
+        android:id="@+id/message_of_report"
+        android:inputType="textAutoCorrect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Describí aquí el error..."/>
+</LinearLayout>
