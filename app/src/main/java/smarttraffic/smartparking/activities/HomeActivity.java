@@ -192,7 +192,9 @@ public class HomeActivity extends AppCompatActivity {
                 LayoutInflater inflater = getLayoutInflater();
                 View mView = inflater.inflate(R.layout.about_layout, null);
                 final TextView username = (TextView) mView.findViewById(R.id.userName);
+                final TextView version = (TextView) mView.findViewById(R.id.version_number);
                 username.setText(Utils.getCurrentUsername(HomeActivity.this));
+                version.setText(BuildConfig.VERSION_NAME);
                 settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
                 settingsDialog.setContentView(mView);
                 settingsDialog.show();
