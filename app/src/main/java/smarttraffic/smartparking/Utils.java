@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.location.Location;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Base64;
 import android.view.Gravity;
@@ -28,8 +29,10 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -40,7 +43,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
-import smarttraffic.smartparking.activities.HomeActivity;
 import smarttraffic.smartparking.dataModels.EventProperties;
 import smarttraffic.smartparking.dataModels.Events;
 import smarttraffic.smartparking.dataModels.Lots.Lot;
@@ -70,42 +72,10 @@ public class Utils {
      */
 
     @SuppressLint("StringFormatInvalid")
-    public static String getActivityString(Context context, int detectedActivityType) {
-        Resources resources = context.getResources();
-        switch(detectedActivityType) {
-            case DetectedActivity.IN_VEHICLE:
-                return resources.getString(R.string.in_vehicle);
-            case DetectedActivity.ON_BICYCLE:
-                return resources.getString(R.string.on_bicycle);
-            case DetectedActivity.ON_FOOT:
-                return resources.getString(R.string.on_foot);
-            case DetectedActivity.RUNNING:
-                return resources.getString(R.string.running);
-            case DetectedActivity.STILL:
-                return resources.getString(R.string.still);
-            case DetectedActivity.TILTING:
-                return resources.getString(R.string.tilting);
-            case DetectedActivity.UNKNOWN:
-                return resources.getString(R.string.unknown);
-            case DetectedActivity.WALKING:
-                return resources.getString(R.string.walking);
-            default:
-                return resources.getString(R.string.unidentifiable_activity, detectedActivityType);
-        }
-    }
 
     public static String detectedActivitiesToJson(ArrayList<DetectedActivity> detectedActivitiesList) {
         Type type = new TypeToken<ArrayList<DetectedActivity>>() {}.getType();
         return new Gson().toJson(detectedActivitiesList, type);
-    }
-
-    static ArrayList<DetectedActivity> detectedActivitiesFromJson(String jsonArray) {
-        Type listType = new TypeToken<ArrayList<DetectedActivity>>(){}.getType();
-        ArrayList<DetectedActivity> detectedActivities = new Gson().fromJson(jsonArray, listType);
-        if (detectedActivities == null) {
-            detectedActivities = new ArrayList<>();
-        }
-        return detectedActivities;
     }
 
     public static void saveLotInSharedPreferences(Context context, List<Lot> lots) {
@@ -262,17 +232,6 @@ public class Utils {
         return polygon;
     }
 
-    public static List<GeoPoint> nearbySpotToListOfGeoPoints(NearbySpot spot) {
-        List<GeoPoint> polygon = new ArrayList<>();
-        List<Point> polygonPoints = spot.getGeometry().getPolygonPoints();
-        if (polygonPoints != null) {
-            for (Point point : polygonPoints) {
-                polygon.add(new GeoPoint(point.getLatitud(), point.getLongitud()));
-            }
-        }
-        return polygon;
-    }
-
     public static List<Spot> updateSpots(HashMap<String, String> changedSpots, List<Spot> spots) {
         List<Spot> spotsUpdated = new ArrayList<>();
         if(changedSpots != null && spots != null){
@@ -372,30 +331,12 @@ public class Utils {
         return calendar;
     }
 
-    /**
-     * Returns the {@code location} object as a human readable string.
-     * @param location  The {@link Location}.
-     */
-    public static String getLocationText(Location location) {
-        return location == null ? "Unknown location" :
-                "(" + location.getLatitude() + ", " + location.getLongitude() + ")";
-    }
-
     @SuppressLint("StringFormatInvalid")
     public static String getLocationTitle(Context context) {
         return context.getString(R.string.location_updated,
                 DateFormat.getDateTimeInstance().format(new Date()));
     }
 
-    /**
-     * Returns true if requesting location updates, otherwise returns false.
-     *
-     * @param context The {@link Context}.
-     */
-    public static boolean requestingLocationUpdates(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(KEY_REQUESTING_LOCATION_UPDATES, false);
-    }
 
     /**
      * Stores the location updates state in SharedPreferences.
@@ -502,17 +443,27 @@ public class Utils {
             final String key = "osmdroid.additionalHttpRequestProperty." + entry.getKey();
             editor.putString(key, entry.getValue()).apply();
         }
-
         editor.commit();
     }
 
-    public static String getTileServerCredentials(Context context) throws UnsupportedEncodingException {
-        SharedPreferences preferencesManager = PreferenceManager.getDefaultSharedPreferences(context);
-        String prefString = preferencesManager.getString("osmdroid.additionalHttpRequestProperty.Authorization", "");
-        String[] basic = prefString.split(" ");
-        byte[] data = Base64.decode(basic[1], Base64.NO_WRAP);
-        String credentials = new String(data, "UTF-8");
-        return credentials;
+    public static String getCurrentUsername(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(
+                Constants.CLIENTE_DATA, Context.MODE_PRIVATE);
+        return sharedPreferences.getString(Constants.USERNAME, "");
     }
 
+    public static void saveGeofencesTrigger(Context context, ArrayList<String> namesOfGeofencesTrigger) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.GEOFENCES_TRIGGER, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Set<String> set = new HashSet<String>(namesOfGeofencesTrigger);
+        editor.putStringSet(Constants.GEOFENCES_TRIGGER, set).apply();
+        editor.commit();
+    }
+
+    public static ArrayList<String> getGeofencesTrigger(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.GEOFENCES_TRIGGER, Context.MODE_PRIVATE);
+        ArrayList<String> list = new ArrayList<String>(sharedPreferences.getStringSet(
+                Constants.GEOFENCES_TRIGGER, new HashSet<String>()));
+        return list;
+    }
 }

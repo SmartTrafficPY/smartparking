@@ -24,7 +24,6 @@ import smarttraffic.smartparking.dataModels.UserToken;
 public interface SmartParkingAPI {
 
     /**USERS**/
-
     @POST("smartparking/auth-token/")
     Call<UserToken> getUserToken(@Body Credentials userCredentials);
 
@@ -33,10 +32,9 @@ public interface SmartParkingAPI {
 
     @PATCH("smartparking/users/{identifier}/")
     Call<ProfileUser> updateUserProfile(@Path("identifier") Integer userId,
-                                        @Body ChangePasswordActivity.Password newProfile);
+                                        @Body Credentials newProfile);
 
     /**SPOTS**/
-
     @POST("smartparking/spots/{spotId}/reset/")
     Call<ResponseBody> resetFreeSpot(@Path("spotId") Integer spotId);
 
@@ -56,7 +54,6 @@ public interface SmartParkingAPI {
                                                @Body NearbyLocation nearbyLocation);
 
     /**LOTS**/
-
     @GET("smartparking/lots/")
     Call<LotList> getAllLots();
 
@@ -67,8 +64,6 @@ public interface SmartParkingAPI {
     Call<SpotList> getAllGeoJsonSpotsInLot(@Path("lotId") Integer lotId);
 
     /**EVENTS**/
-
     @POST("events/")
     Call<ResponseBody> setUserEvent(@Header("Content-Type") String content_type, @Body Events event);
-
 }

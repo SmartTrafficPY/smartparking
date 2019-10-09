@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
+import smarttraffic.smartparking.Utils;
 
 /**
  * Created by Joaquin Olivera on july 19.
@@ -32,7 +33,6 @@ public class InitActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         final SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
                 Constants.CLIENTE_DATA, Context.MODE_PRIVATE);
 

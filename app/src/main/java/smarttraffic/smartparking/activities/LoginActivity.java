@@ -51,8 +51,6 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         ButterKnife.bind(this);
 
-        Utils.setTileServerCredentials(this);
-
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,7 +103,7 @@ public class LoginActivity extends Activity {
                         loginButton.setEnabled(true);
                         progressDialog.dismiss();
                     }
-                }, 20 * Constants.getSecondsInMilliseconds());
+                }, 5 * Constants.getSecondsInMilliseconds());
         eraseCredentials();
     }
 

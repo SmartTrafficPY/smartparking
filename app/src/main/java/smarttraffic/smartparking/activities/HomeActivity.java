@@ -11,7 +11,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
@@ -37,6 +41,8 @@ import android.view.Window;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.support.v7.widget.Toolbar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.DetectedActivity;
@@ -158,8 +164,8 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home_layout);
-        ButterKnife.bind(this);
         Utils.setTileServerCredentials(this);
+        ButterKnife.bind(this);
         mActivityRecognitionClient = new ActivityRecognitionClient(this);
         geofencingClient = LocationServices.getGeofencingClient(this);
 
@@ -183,9 +189,14 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Dialog settingsDialog = new Dialog(HomeActivity.this);
+                LayoutInflater inflater = getLayoutInflater();
+                View mView = inflater.inflate(R.layout.about_layout, null);
+                final TextView username = (TextView) mView.findViewById(R.id.userName);
+                final TextView version = (TextView) mView.findViewById(R.id.version_number);
+                username.setText(Utils.getCurrentUsername(HomeActivity.this));
+                version.setText(BuildConfig.VERSION_NAME);
                 settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-                settingsDialog.setContentView(getLayoutInflater().inflate(R.layout.about_layout
-                        , null));
+                settingsDialog.setContentView(mView);
                 settingsDialog.show();
             }
         });
@@ -264,16 +275,16 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setMarkersOnMap(List<GeoPoint> geoPoints, String state) {
-        Drawable marker = getDrawable(R.drawable.unknown_marker);
+        Drawable marker = getDrawable(R.drawable.unknown_location);
         Marker startMarker = new Marker(mapView);
         String stateValue = "Desconocido";
         startMarker.setPosition(Utils.getCentroid(geoPoints));
         startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
         if (state.equals(StatesEnumerations.FREE.getEstado())) {
-            marker = getDrawable(R.drawable.free_marker);
+            marker = getDrawable(R.drawable.free_location);
             stateValue = "Libre";
         } else if (state.equals(StatesEnumerations.OCCUPIED.getEstado())) {
-            marker = getDrawable(R.drawable.occupied_marker);
+            marker = getDrawable(R.drawable.occupied_location);
             stateValue = "Ocupado";
         }
         startMarker.setTitle(stateValue);
@@ -307,10 +318,20 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setLocationOverlay() {
-        //TODO: set better movement icon...
         mLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(this), mapView);
         mLocationOverlay.enableMyLocation();
         mLocationOverlay.enableFollowLocation();
+        Drawable person = getDrawable(R.drawable.person);
+        Drawable arrow = getDrawable(R.drawable.arrow_map);
+        Bitmap personBitmap = Bitmap.createBitmap(person.getIntrinsicWidth(),person.getIntrinsicHeight(),Bitmap.Config.ARGB_8888);
+        Bitmap arrowBitmap = Bitmap.createBitmap(arrow.getIntrinsicWidth(),arrow.getIntrinsicHeight(),Bitmap.Config.ARGB_8888);
+        Canvas personCanvas = new Canvas(personBitmap);
+        person.setBounds(0, 0, personCanvas.getWidth(), personCanvas.getHeight());
+        person.draw(personCanvas);
+        Canvas arrowCanvas = new Canvas(arrowBitmap);
+        arrow.setBounds(0, 0, arrowCanvas.getWidth(), arrowCanvas.getHeight());
+        arrow.draw(arrowCanvas);
+        mLocationOverlay.setDirectionArrow(personBitmap, arrowBitmap);
         mLocationOverlay.setOptionsMenuEnabled(true);
     }
 
@@ -333,7 +354,7 @@ public class HomeActivity extends AppCompatActivity {
             color = "#FF0000";
         }
         polygon.setFillColor(Color.parseColor(color));
-        polygon.setStrokeColor(Color.parseColor(color));
+        polygon.setStrokeColor(Color.parseColor("#000000"));
         geoPoints.add(geoPoints.get(0));    //forces the loop to close
         polygon.setPoints(geoPoints);
         mapView.getOverlayManager().add(polygon);
@@ -356,6 +377,13 @@ public class HomeActivity extends AppCompatActivity {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 handler.postDelayed(cronJob, delay);
                 requestActivityUpdates();
+                break;
+            case Geofence.GEOFENCE_TRANSITION_EXIT:
+                if(Utils.returnEnterLotFlag(this)){
+                    Utils.hasEnterLotFlag(this, false);
+                    Utils.setEntranceEvent(this, mCurrentLocation, Constants.EVENT_TYPE_EXIT);
+                }
+                handler.removeCallbacks(cronJob);
                 break;
             default:
                 removeActivityUpdates();
@@ -838,36 +866,40 @@ public class HomeActivity extends AppCompatActivity {
      * **/
     @SuppressWarnings("MissingPermission")
     private void confirmationOfActionDialog(final int spotIdIn, final boolean isParking) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog.Builder builder;
         if (isParking) {
-            builder.setMessage(R.string.are_you_parking)
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
-                            userNotResponse = false;
-                            final Timer geofencetimer = new Timer();
-                            Utils.changeStatusOfSpot(spotIdIn, spots, "O");
-                            geofencetimer.schedule(new TimerTask() {
-                                public void run() {
-                                    geofencingClient.addGeofences(getGeofenceRequest(
-                                            getSpotFromId(spots, spotIdIn)),
-                                            getGeofencePendingIntent());
-                                }
-                            }, Constants.getMinutesInMilliseconds() * 5);
-                            Intent serviceIntent = new Intent(HomeActivity.this,
-                                    LocationUpdatesService.class);
-                            stopService(serviceIntent);
-                        }
-                    });
-            builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    userNotResponse = false;
-                    builder.create().dismiss();
-                    // User cancelled the custom_report_dialog
-                }
-            });
+            final AlertDialog.Builder ocupationBuilder = new AlertDialog.Builder(this,
+                    R.style.AppTheme_SmartParking_DialogOccupation);
+            ocupationBuilder.setMessage(R.string.are_you_parking)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
+                                userNotResponse = false;
+                                final Timer geofencetimer = new Timer();
+                                Utils.changeStatusOfSpot(spotIdIn, spots, "O");
+                                geofencetimer.schedule(new TimerTask() {
+                                    public void run() {
+                                        geofencingClient.addGeofences(getGeofenceRequest(
+                                                getSpotFromId(spots, spotIdIn)),
+                                                getGeofencePendingIntent());
+                                    }
+                                }, Constants.getMinutesInMilliseconds() * 5);
+                                Intent serviceIntent = new Intent(HomeActivity.this,
+                                        LocationUpdatesService.class);
+                                stopService(serviceIntent);
+                            }
+                        });
+            ocupationBuilder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        userNotResponse = false;
+                        dialog.dismiss();
+                    }
+                });
+            builder = ocupationBuilder;
         }else{
-            builder.setMessage(R.string.are_you_vacating_a_place)
+            final AlertDialog.Builder freeBuilder = new AlertDialog.Builder(this,
+                    R.style.AppTheme_SmartParking_DialogLiberation);
+            freeBuilder.setMessage(R.string.are_you_vacating_a_place)
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
@@ -878,7 +910,7 @@ public class HomeActivity extends AppCompatActivity {
                         geofencingClient.removeGeofences(geofencesToRemove);
                     }
                 });
-            builder.setNegativeButton(R.string.not_get_spot_free, new DialogInterface.OnClickListener() {
+            freeBuilder.setNegativeButton(R.string.not_get_spot_free, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     Utils.setNewStateOnSpot(HomeActivity.this, true, spotIdIn);
                     final Timer geofencetimer = new Timer();
@@ -895,18 +927,18 @@ public class HomeActivity extends AppCompatActivity {
                     userNotResponse = false;
                 }
             });
-            builder.setNeutralButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
+            freeBuilder.setNeutralButton(R.string.no, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     userNotResponse = false;
                     dialog.dismiss();
                 }
             });
+            builder = freeBuilder;
         }
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
         dialogSendAllready = true;
-
         final Timer dialogtimer = new Timer();
         dialogtimer.schedule(new TimerTask() {
             public void run() {

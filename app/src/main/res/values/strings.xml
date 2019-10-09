@@ -49,6 +49,9 @@
     <string name="password_key">password</string>
     <string name="age_key">age</string>
     <string name="sex_key">sexo</string>
+    <string name="free_spot_meaning">Este color indica un lugar LIBRE</string>
+    <string name="occupied_spot_meaning">Este color indica un lugar OCUPADO</string>
+    <string name="unknown_spot_meaning">Este color indica un lugar DESCONOCIDO</string>
     <string name="not_login_message">Accede a un mapa con información sobre la disponibilidad
         de lugares de estacionamiento.</string>
     <string name="id_key">identificador</string>
@@ -114,4 +117,5 @@
     <string name="not_get_spot_free">No, ocupando</string>
     <string name="yes">Si</string>
     <string name="no">No</string>
+    <string name="warning_already_parked">Ya tienes un lugar estacionado ! Volverás a estacionar?</string>
 </resources>

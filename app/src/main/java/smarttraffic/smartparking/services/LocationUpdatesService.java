@@ -36,6 +36,8 @@ import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.Utils;
 import smarttraffic.smartparking.activities.HomeActivity;
 
+import static smarttraffic.smartparking.Utils.getGeofencesTrigger;
+
 public class LocationUpdatesService extends Service implements LocationListener{
 
     private static final String PACKAGE_NAME = "smarttraffic.smartparking.services";
@@ -126,14 +128,14 @@ public class LocationUpdatesService extends Service implements LocationListener{
     private void compareToEntranceLot(Location location, List<LatLng> polygonEntrance) {
         if (PolyUtil.containsLocation(location.getLatitude(), location.getLongitude(),
                 polygonEntrance, true)) {
-            if (!Utils.returnEnterLotFlag(this)) {
-                Utils.setEntranceEvent(this, location, Constants.EVENT_TYPE_ENTRACE);
-                Utils.hasEnterLotFlag(this, true);
+            if (!Utils.returnEnterLotFlag(LocationUpdatesService.this)) {
+                Utils.setEntranceEvent(LocationUpdatesService.this, location, Constants.EVENT_TYPE_ENTRACE);
+                Utils.hasEnterLotFlag(LocationUpdatesService.this, true);
             }
         }else{
-            if (Utils.returnEnterLotFlag(this)) {
-                Utils.setEntranceEvent(this, location, Constants.EVENT_TYPE_EXIT);
-                Utils.hasEnterLotFlag(this, false);
+            if (Utils.returnEnterLotFlag(LocationUpdatesService.this)) {
+                Utils.setEntranceEvent(LocationUpdatesService.this, location, Constants.EVENT_TYPE_EXIT);
+                Utils.hasEnterLotFlag(LocationUpdatesService.this, false);
                 stopSelf();
             }
         }
@@ -144,7 +146,7 @@ public class LocationUpdatesService extends Service implements LocationListener{
         boolean startedFromNotification = intent.getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION,
                 false);
         ArrayList<String> namesOfGeofencesTrigger =
-                intent.getStringArrayListExtra(Constants.GEOFENCE_TRIGGED);
+                getGeofencesTrigger(this);
         if(!Utils.returnListOfGateways(this, namesOfGeofencesTrigger).isEmpty()){
             lotsPolygons = Utils.returnListOfGateways(this, namesOfGeofencesTrigger);
         }
