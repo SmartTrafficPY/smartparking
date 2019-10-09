@@ -182,7 +182,9 @@ public class HomeActivity extends AppCompatActivity {
                 if(mLocationOverlay != null){
                     mapView.getController().setCenter(mLocationOverlay.getMyLocation());
                 }
-                mLocationOverlay.enableFollowLocation();
+                if(mLocationOverlay != null){
+                    mLocationOverlay.enableFollowLocation();
+                }
             }
         });
 
