@@ -182,6 +182,7 @@ public class HomeActivity extends AppCompatActivity {
                 if(mLocationOverlay != null){
                     mapView.getController().setCenter(mLocationOverlay.getMyLocation());
                 }
+                mLocationOverlay.enableFollowLocation();
             }
         });
 
@@ -261,16 +262,15 @@ public class HomeActivity extends AppCompatActivity {
 
         IMapController mapController = mapView.getController();
 
-
         setGralMapConfiguration(mapController);
         //scale bar
         setScaleBar();
 
-        setLocationOverlay();
-
         setCompassGestureOverlays();
         //add all overlays
         mapView.setBuiltInZoomControls(false);
+        setLocationOverlay();
+
         addOverlays();
     }
 
@@ -297,8 +297,8 @@ public class HomeActivity extends AppCompatActivity {
     private void addOverlays() {
         mapView.getOverlays().add(mRotationGestureOverlay);
         mapView.getOverlays().add(mCompassOverlay);
-        mapView.getOverlays().add(mLocationOverlay);
         mapView.getOverlays().add(mScaleBarOverlay);
+        mapView.getOverlays().add(mLocationOverlay);
     }
 
     private void setGralMapConfiguration(IMapController mapController) {
