@@ -118,4 +118,5 @@
     <string name="yes">Si</string>
     <string name="no">No</string>
     <string name="warning_already_parked">Ya tienes un lugar estacionado ! Volverás a estacionar?</string>
+    <string name="internet_connection_required">Se requiere conexión a internet para el funcionamiento de SmartParking</string>
 </resources>

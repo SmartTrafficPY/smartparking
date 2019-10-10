@@ -9,7 +9,6 @@ package smarttraffic.smartparking;
 public class Constants {
 
 
-
     /**
      * Add here all variables used at width in the project...
      * **/
@@ -18,7 +17,8 @@ public class Constants {
         // Persistence Constructor
     }
 
-    public static final String PARKING_COUNTER = "PARKING_COUNTER";
+
+    public static final String CONNECTION_FAILED = "Es necesaria una conexión a internet!";
     public static final int ADD_ALARM_REQUEST_CODE=130;
     public static final int REMOVE_ALARM_REQUEST_CODE=131;
     public static final String GEOFENCES_TRIGGER = "GEOFENCES_TRIGGER";
