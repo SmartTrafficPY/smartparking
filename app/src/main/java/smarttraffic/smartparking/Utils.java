@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.location.Location;
+import android.net.ConnectivityManager;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Base64;
@@ -26,6 +27,7 @@ import org.osmdroid.util.GeoPoint;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -465,5 +467,22 @@ public class Utils {
         ArrayList<String> list = new ArrayList<String>(sharedPreferences.getStringSet(
                 Constants.GEOFENCES_TRIGGER, new HashSet<String>()));
         return list;
+    }
+
+    public static boolean isInternetAvailable() {
+        try {
+            InetAddress ipAddr = InetAddress.getByName("google.com");
+            //You can replace it with your name
+            return !ipAddr.equals("");
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static boolean isNetworkConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
     }
 }

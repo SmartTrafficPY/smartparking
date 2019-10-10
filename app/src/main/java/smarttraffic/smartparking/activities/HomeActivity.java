@@ -347,7 +347,7 @@ public class HomeActivity extends AppCompatActivity {
         mRotationGestureOverlay.setEnabled(true);
     }
 
-    public void drawPolygon(List<GeoPoint> geoPoints, String status) {
+    public void drawPolygon(List<GeoPoint> geoPoints, String status){
         Polygon polygon = new Polygon();
         String color = "#C0C0C0";
         if (status.equals(StatesEnumerations.FREE.getEstado())) {
@@ -444,7 +444,8 @@ public class HomeActivity extends AppCompatActivity {
                             for (Spot spot : spots) {
                                 if(sharedPreferences.getString(Constants.DRAW_SETTINGS,
                                         Constants.POLYGON_TO_DRAW_SETTINGS).equals(Constants.POLYGON_TO_DRAW_SETTINGS)){
-                                    drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                    drawPolygon(Utils.spotToListOfGeoPoints(spot),
+                                            spot.getProperties().getState());
                                     Utils.polygonWereDraw(HomeActivity.this,true);
                                 }else{
                                     setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
@@ -460,6 +461,9 @@ public class HomeActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<SpotList> call, Throwable t) {
+                if(!Utils.isInternetAvailable()){
+                    Utils.showToast(Constants.CONNECTION_FAILED, HomeActivity.this);
+                }
                 t.printStackTrace();
             }
         });
@@ -516,7 +520,8 @@ public class HomeActivity extends AppCompatActivity {
                                 if(preferencesSettings.getString(Constants.DRAW_SETTINGS,
                                         Constants.POLYGON_TO_DRAW_SETTINGS).equals(Constants.POLYGON_TO_DRAW_SETTINGS)){
                                     for(Spot spot : spotsUpdated){
-                                        drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                        drawPolygon(Utils.spotToListOfGeoPoints(spot),
+                                                spot.getProperties().getState());
                                     }
                                 }else{
                                     mapView.getOverlays().clear();
@@ -530,7 +535,8 @@ public class HomeActivity extends AppCompatActivity {
                                         Constants.POLYGON_TO_DRAW_SETTINGS).equals(Constants.POLYGON_TO_DRAW_SETTINGS)){
                                     mapView.getOverlays().clear();
                                     for(Spot spot : spots){
-                                        drawPolygon(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                        drawPolygon(Utils.spotToListOfGeoPoints(spot),
+                                                spot.getProperties().getState());
                                     }
                                     addOverlays();
                                 }else{
@@ -548,6 +554,9 @@ public class HomeActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
+                if(!Utils.isInternetAvailable()){
+                    Utils.showToast(Constants.CONNECTION_FAILED, HomeActivity.this);
+                }
                 t.printStackTrace();
             }
         });
@@ -646,7 +655,9 @@ public class HomeActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<LotList> call, Throwable t) {
-                Log.i("Home",t.toString());
+                if(!Utils.isInternetAvailable()){
+                    Utils.showToast(Constants.CONNECTION_FAILED, HomeActivity.this);
+                }
                 t.printStackTrace();
             }
         });
@@ -665,7 +676,7 @@ public class HomeActivity extends AppCompatActivity {
                         longitud,
                         radius
                 )
-                .setLoiteringDelay(1000 * 60 * 25)
+                .setLoiteringDelay(1000 * 60 * 20)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                         Geofence.GEOFENCE_TRANSITION_EXIT |
                         Geofence.GEOFENCE_TRANSITION_DWELL);
@@ -1084,21 +1095,6 @@ public class HomeActivity extends AppCompatActivity {
             messageDialogReport();
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void requestStoragePermission() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED) {
-                return;
-            } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-                return;
-            }
-        }
-        else {
-            return;
-        }
     }
 
     public void messageDialogReport(){

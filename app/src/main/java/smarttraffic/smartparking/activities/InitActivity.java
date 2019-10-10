@@ -44,23 +44,11 @@ public class InitActivity extends Activity {
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
-                        if (isNetworkAvailable()) {
-                            initializeFirstActivity(sharedPreferences);
-                        } else {
-                            showToast(getString(R.string.no_network_connection));
-                        }
+                        initializeFirstActivity(sharedPreferences);
                         progressDialog.dismiss();
                     }
                 }, Constants.getSecondsInMilliseconds());
     }
-
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-
 
     @Override
     public void onResume() {
