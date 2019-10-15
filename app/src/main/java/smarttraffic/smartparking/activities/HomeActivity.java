@@ -12,14 +12,11 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -30,9 +27,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,7 +37,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.DetectedActivity;
@@ -72,11 +66,9 @@ import org.osmdroid.views.overlay.gestures.RotationGestureOverlay;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -97,7 +89,6 @@ import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
 import smarttraffic.smartparking.Interceptors.ReceivedTimeStampInterceptor;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.SmartParkingAPI;
-import smarttraffic.smartparking.SmartParkingInitialData;
 import smarttraffic.smartparking.StatesEnumerations;
 import smarttraffic.smartparking.Utils;
 import smarttraffic.smartparking.dataModels.Lots.Lot;
@@ -146,6 +137,7 @@ public class HomeActivity extends AppCompatActivity {
     int confidence;
     boolean userNotResponse = true;
     boolean dialogSendAllready = false;
+    Marker myCarMarker = new Marker(mapView);
     private Location mCurrentLocation;
     private List<Spot> spots = new ArrayList<Spot>();
     private ArrayList<String> geofencesTrigger = new ArrayList<>();
@@ -170,9 +162,6 @@ public class HomeActivity extends AppCompatActivity {
         geofencingClient = LocationServices.getGeofencingClient(this);
 
         removeGeofences();
-        Utils.geofencesSetUp(this, false);
-
-        Utils.addAlarmsGeofencingTask(HomeActivity.this);
 
         setMapView();
 
@@ -276,7 +265,7 @@ public class HomeActivity extends AppCompatActivity {
         addOverlays();
     }
 
-    private void setMarkersOnMap(List<GeoPoint> geoPoints, String state) {
+    private void setSpotsPointOnMap(List<GeoPoint> geoPoints, String state) {
         Drawable marker = getDrawable(R.drawable.unknown_location);
         Marker startMarker = new Marker(mapView);
         String stateValue = "Desconocido";
@@ -294,6 +283,17 @@ public class HomeActivity extends AppCompatActivity {
         startMarker.setTextLabelForegroundColor(R.color.white);
         startMarker.setIcon(marker);
         mapView.getOverlays().add(startMarker);
+    }
+
+    private void setParkerSpotOnMap(GeoPoint carPosition) {
+        Drawable myCar = getDrawable(R.drawable.car_location);
+        myCarMarker.setPosition(carPosition);
+        myCarMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        myCarMarker.setTitle("Tu auto");
+        myCarMarker.setTextLabelBackgroundColor(R.color.white);
+        myCarMarker.setTextLabelForegroundColor(R.color.white);
+        myCarMarker.setIcon(myCar);
+        mapView.getOverlays().add(myCarMarker);
     }
 
     private void addOverlays() {
@@ -448,11 +448,12 @@ public class HomeActivity extends AppCompatActivity {
                                             spot.getProperties().getState());
                                     Utils.polygonWereDraw(HomeActivity.this,true);
                                 }else{
-                                    setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                    setSpotsPointOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
                                     Utils.polygonWereDraw(HomeActivity.this,false);
                                 }
                             }
                             addOverlays();
+                            setParkerSpotOnMap(Utils.loadLocationOfParkedCar(HomeActivity.this));
                         }
                         break;
                     default:
@@ -526,7 +527,7 @@ public class HomeActivity extends AppCompatActivity {
                                 }else{
                                     mapView.getOverlays().clear();
                                     for(Spot spot : spots){
-                                        setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                        setSpotsPointOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
                                     }
                                     addOverlays();
                                 }
@@ -541,11 +542,12 @@ public class HomeActivity extends AppCompatActivity {
                                     addOverlays();
                                 }else{
                                     for(Spot spot : spotsUpdated){
-                                        setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                        setSpotsPointOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
                                     }
                                 }
                             }
                         }
+                        setParkerSpotOnMap(Utils.loadLocationOfParkedCar(HomeActivity.this));
                         break;
                     default:
                         break;
@@ -853,11 +855,11 @@ public class HomeActivity extends AppCompatActivity {
                 if(!(activityTransition == DetectedActivity.RUNNING ||
                         activityTransition == DetectedActivity.ON_FOOT ||
                         activityTransition == DetectedActivity.WALKING) && !dialogSendAllready){
-                    confirmationOfActionDialog(spotId, true);
+                    confirmationOfActionDialog(spotId, true, mCurrentLocation);
                 }
             } else {
                 if(!dialogSendAllready){
-                    confirmationOfActionDialog(spotId, false);
+                    confirmationOfActionDialog(spotId, false, mCurrentLocation);
                 }
             }
         }
@@ -878,7 +880,7 @@ public class HomeActivity extends AppCompatActivity {
      * OCCUPYING a spot OR FREEING ONE
      * **/
     @SuppressWarnings("MissingPermission")
-    private void confirmationOfActionDialog(final int spotIdIn, final boolean isParking) {
+    private void confirmationOfActionDialog(final int spotIdIn, final boolean isParking, final Location currentLocation) {
         final AlertDialog.Builder builder;
         if (isParking) {
             final AlertDialog.Builder ocupationBuilder = new AlertDialog.Builder(this,
@@ -888,6 +890,10 @@ public class HomeActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int id) {
                                 Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
                                 userNotResponse = false;
+                                if(currentLocation != null){
+                                    Utils.saveLocationOfParkedCar(HomeActivity.this,currentLocation);
+                                    setParkerSpotOnMap(Utils.getGeopointsFromLocation(currentLocation));
+                                }
                                 final Timer geofencetimer = new Timer();
                                 Utils.changeStatusOfSpot(spotIdIn, spots, "O");
                                 geofencetimer.schedule(new TimerTask() {
@@ -902,12 +908,24 @@ public class HomeActivity extends AppCompatActivity {
                                 stopService(serviceIntent);
                             }
                         });
-            ocupationBuilder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        userNotResponse = false;
-                        dialog.dismiss();
-                    }
-                });
+            ocupationBuilder.setNegativeButton(R.string.not_get_spot_occupied, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    Utils.setNewStateOnSpot(HomeActivity.this, false, spotIdIn);
+                    Utils.changeStatusOfSpot(spotIdIn, spots, "F");
+                    userNotResponse = false;
+                    Utils.deleteLocationOfParkedCar(HomeActivity.this);
+                    mapView.getOverlayManager().remove(myCarMarker);
+                    List<String> geofencesToRemove = new ArrayList<>();
+                    geofencesToRemove.add("Tu vehiculo en " + spotIdIn);
+                    geofencingClient.removeGeofences(geofencesToRemove);
+                }
+            });
+            ocupationBuilder.setNeutralButton(R.string.no, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    userNotResponse = false;
+                    dialog.dismiss();
+                }
+            });
             builder = ocupationBuilder;
         }else{
             final AlertDialog.Builder freeBuilder = new AlertDialog.Builder(this,
@@ -918,6 +936,8 @@ public class HomeActivity extends AppCompatActivity {
                         Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
                         Utils.changeStatusOfSpot(spotIdIn, spots, "F");
                         userNotResponse = false;
+                        Utils.deleteLocationOfParkedCar(HomeActivity.this);
+                        mapView.getOverlayManager().remove(myCarMarker);
                         List<String> geofencesToRemove = new ArrayList<>();
                         geofencesToRemove.add("Tu vehiculo en " + spotIdIn);
                         geofencingClient.removeGeofences(geofencesToRemove);
@@ -938,6 +958,10 @@ public class HomeActivity extends AppCompatActivity {
                             LocationUpdatesService.class);
                     stopService(serviceIntent);
                     userNotResponse = false;
+                    if(currentLocation != null){
+                        Utils.saveLocationOfParkedCar(HomeActivity.this,currentLocation);
+                        setParkerSpotOnMap(Utils.getGeopointsFromLocation(currentLocation));
+                    }
                 }
             });
             freeBuilder.setNeutralButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -957,7 +981,32 @@ public class HomeActivity extends AppCompatActivity {
             public void run() {
                 alertDialog.dismiss();
                 if(userNotResponse){
-                    Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
+                    if(isParking){
+                        Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
+                        if(currentLocation != null){
+                            Utils.saveLocationOfParkedCar(HomeActivity.this,currentLocation);
+                            setParkerSpotOnMap(Utils.getGeopointsFromLocation(currentLocation));
+                        }                       final Timer geofencetimer = new Timer();
+                        Utils.changeStatusOfSpot(spotIdIn, spots, "O");
+                        geofencetimer.schedule(new TimerTask() {
+                            public void run() {
+                                geofencingClient.addGeofences(getGeofenceRequest(
+                                        getSpotFromId(spots, spotIdIn)),
+                                        getGeofencePendingIntent());
+                            }
+                        }, Constants.getMinutesInMilliseconds() * 5);
+                        Intent serviceIntent = new Intent(HomeActivity.this,
+                                LocationUpdatesService.class);
+                        stopService(serviceIntent);
+                    }else{
+                        Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
+                        Utils.changeStatusOfSpot(spotIdIn, spots, "F");
+                        Utils.deleteLocationOfParkedCar(HomeActivity.this);
+                        mapView.getOverlayManager().remove(myCarMarker);
+                        List<String> geofencesToRemove = new ArrayList<>();
+                        geofencesToRemove.add("Tu vehiculo en " + spotIdIn);
+                        geofencingClient.removeGeofences(geofencesToRemove);
+                    }
                 }
                 userNotResponse = true;
             }

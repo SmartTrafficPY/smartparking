@@ -17,7 +17,8 @@ public class Constants {
         // Persistence Constructor
     }
 
-
+    public static final String CAR_PARKED_LOCATION_LATITUD = "CAR_PARKED_LOCATION_LATITUD";
+    public static final String CAR_PARKED_LOCATION_LONGITUD = "CAR_PARKED_LOCATION_LATITUD";
     public static final String CONNECTION_FAILED = "Es necesaria una conexión a internet!";
     public static final int ADD_ALARM_REQUEST_CODE=130;
     public static final int REMOVE_ALARM_REQUEST_CODE=131;

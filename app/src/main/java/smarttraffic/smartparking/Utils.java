@@ -485,4 +485,33 @@ public class Utils {
 
         return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
     }
+
+    public static GeoPoint getGeopointsFromLocation(Location currentLocation) {
+        GeoPoint point = new GeoPoint(currentLocation.getLatitude(),currentLocation.getLongitude());
+        return point;
+    }
+
+    public static final void saveLocationOfParkedCar(Context context, Location myCarLocation){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.CLIENTE_DATA, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Constants.CAR_PARKED_LOCATION_LATITUD, String.valueOf(myCarLocation.getLatitude())).apply();
+        editor.putString(Constants.CAR_PARKED_LOCATION_LONGITUD, String.valueOf(myCarLocation.getLongitude())).apply();
+        editor.commit();
+    }
+
+    public static final void deleteLocationOfParkedCar(Context context){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.CLIENTE_DATA, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(Constants.CAR_PARKED_LOCATION_LATITUD, "").apply();
+        editor.putString(Constants.CAR_PARKED_LOCATION_LONGITUD, "").apply();
+        editor.commit();
+    }
+
+    public static final GeoPoint loadLocationOfParkedCar(Context context){
+        Location myCarParkedLocation = new Location("UserProvider");
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.CLIENTE_DATA, Context.MODE_PRIVATE);
+        myCarParkedLocation.setLatitude(Double.valueOf(sharedPreferences.getString(Constants.CAR_PARKED_LOCATION_LATITUD, "")));
+        myCarParkedLocation.setLongitude(Double.valueOf(sharedPreferences.getString(Constants.CAR_PARKED_LOCATION_LONGITUD, "")));
+        return getGeopointsFromLocation(myCarParkedLocation);
+    }
 }
