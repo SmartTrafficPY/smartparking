@@ -35,6 +35,7 @@ import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.Utils;
 import smarttraffic.smartparking.receivers.RegistrationReceiver;
@@ -186,7 +187,7 @@ public class RegistryActivity extends Activity {
                             signInButton.setEnabled(true);
                             progressDialog.dismiss();
                         }
-                    }, 3000);
+                    }, 5 * Constants.getSecondsInMilliseconds());
         }
     }
 
