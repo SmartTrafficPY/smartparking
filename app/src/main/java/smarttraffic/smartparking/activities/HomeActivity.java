@@ -462,7 +462,7 @@ public class HomeActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<SpotList> call, Throwable t) {
-                if(!Utils.isInternetAvailable()){
+                if(!Utils.isNetworkConnected(HomeActivity.this)){
                     Utils.showToast(Constants.CONNECTION_FAILED, HomeActivity.this);
                 }
                 t.printStackTrace();
@@ -555,7 +555,7 @@ public class HomeActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
-                if(!Utils.isInternetAvailable()){
+                if(!Utils.isNetworkConnected(HomeActivity.this)){
                     Utils.showToast(Constants.CONNECTION_FAILED, HomeActivity.this);
                 }
                 t.printStackTrace();
@@ -656,7 +656,7 @@ public class HomeActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<LotList> call, Throwable t) {
-                if(!Utils.isInternetAvailable()){
+                if(!Utils.isNetworkConnected(HomeActivity.this)){
                     Utils.showToast(Constants.CONNECTION_FAILED, HomeActivity.this);
                 }
                 t.printStackTrace();
