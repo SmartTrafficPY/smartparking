@@ -73,7 +73,7 @@
         android:id="@+id/initSession"
         android:focusable="false"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:layout_marginTop="25dp"
         android:textIsSelectable="true"
         android:textColor="@color/blue"
