@@ -97,7 +97,6 @@ import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
 import smarttraffic.smartparking.Interceptors.ReceivedTimeStampInterceptor;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.SmartParkingAPI;
-import smarttraffic.smartparking.SmartParkingInitialData;
 import smarttraffic.smartparking.StatesEnumerations;
 import smarttraffic.smartparking.Utils;
 import smarttraffic.smartparking.dataModels.Lots.Lot;
@@ -246,6 +245,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setMapView(){
+        Utils.setTileServerCredentials(this);
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(
                 this));
 
