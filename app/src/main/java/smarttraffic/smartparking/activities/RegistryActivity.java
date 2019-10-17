@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -89,7 +90,6 @@ public class RegistryActivity extends Activity {
     IntentFilter filter = new IntentFilter();
     RegistrationReceiver registrationReceiver = new RegistrationReceiver();
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,6 +137,7 @@ public class RegistryActivity extends Activity {
                 usernameInput.setText(randomString());
             }
         });
+
     }
 
     @Override
@@ -151,7 +152,6 @@ public class RegistryActivity extends Activity {
     protected void onStop() {
         super.onStop();
         unregisterReceiver(registrationReceiver);
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -171,7 +171,6 @@ public class RegistryActivity extends Activity {
 
     private void createRegister() {
         signInButton.setEnabled(false);
-
         final ProgressDialog progressDialog = new ProgressDialog(RegistryActivity.this,
                 R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
@@ -187,7 +186,7 @@ public class RegistryActivity extends Activity {
                             signInButton.setEnabled(true);
                             progressDialog.dismiss();
                         }
-                    }, 5 * Constants.getSecondsInMilliseconds());
+                    }, 10 * Constants.getSecondsInMilliseconds());
         }
     }
 

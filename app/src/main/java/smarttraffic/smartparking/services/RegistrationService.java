@@ -71,7 +71,7 @@ public class RegistrationService extends IntentService {
 
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
         Call<ProfileUser> call = smartParkingAPI.signUpUser(profileRegistry);
-        Intent registrationIntent = new Intent("registrationIntent");
+        final Intent registrationIntent = new Intent("registrationIntent");
         registrationIntent.setClass(this, RegistrationReceiver.class);
 
         try {
