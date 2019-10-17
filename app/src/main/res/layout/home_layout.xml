@@ -45,7 +45,8 @@
             android:layout_alignParentBottom="true"
             android:adjustViewBounds="true"
             android:layout_alignParentRight="true"
-            android:layout_marginBottom="25dp">
+            android:layout_marginBottom="25dp"
+            android:layout_marginRight="15dp">
         </ImageButton>
 
         <ImageButton android:id="@+id/buttonAbout"
@@ -55,6 +56,7 @@
             android:background="@drawable/btn_rectangle"
             android:adjustViewBounds="true"
             android:layout_marginBottom="15dp"
+            android:layout_marginRight="15dp"
             android:layout_above="@+id/buttonRecenter"
             android:layout_alignParentRight="true">
         </ImageButton>

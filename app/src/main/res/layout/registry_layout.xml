@@ -145,6 +145,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_weight="1"
+                android:textAllCaps="true"
                 android:text="Hombre"/>
 
             <RadioButton
@@ -152,6 +153,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_weight="1"
+                android:textAllCaps="true"
                 android:text="Mujer"
                 android:layout_marginBottom="25dp"/>
         </RadioGroup>
