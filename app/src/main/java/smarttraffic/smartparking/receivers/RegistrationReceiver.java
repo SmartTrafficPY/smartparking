@@ -43,7 +43,7 @@ public class RegistrationReceiver extends BroadcastReceiver {
             Intent i = new Intent(context, LoginActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(i);
-        } else if (intent.getAction().equals(RegistrationService.BAD_REGISTRATION)) {
+        }else{
             setErrorMessage(intent.getStringExtra(RegistrationService.PROBLEM));
             new android.os.Handler().postDelayed(
                     new Runnable() {

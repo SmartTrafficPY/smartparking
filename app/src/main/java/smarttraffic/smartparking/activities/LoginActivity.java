@@ -102,7 +102,7 @@ public class LoginActivity extends Activity {
                         loginButton.setEnabled(true);
                         progressDialog.dismiss();
                     }
-                }, 5 * Constants.getSecondsInMilliseconds());
+                }, 10 * Constants.getSecondsInMilliseconds());
         eraseCredentials();
     }
 
