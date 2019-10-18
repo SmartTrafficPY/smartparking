@@ -58,7 +58,7 @@ public class RegistryActivity extends Activity {
     private static final String GUION = "-";
 
     @BindView(R.id.usernameSignUp)
-    TextView usernameInput;
+    EditText usernameInput;
     @BindView(R.id.passwordSignUp)
     EditText passwordInput;
     @BindView(R.id.birthDate)
@@ -77,6 +77,8 @@ public class RegistryActivity extends Activity {
     ImageButton passwordModeButton;
     @BindView(R.id.setRandomUser)
     ImageButton randomUser;
+    @BindView(R.id.not_spaces_in_username)
+    TextView usernameWarning;
 
 
     public final Calendar calendar = Calendar.getInstance();
@@ -175,7 +177,6 @@ public class RegistryActivity extends Activity {
                 R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Creando el registro...");
-
         if(dataIsCorrectlyComplete()){
             sendRegistrationPetition();
             progressDialog.show();
@@ -187,10 +188,14 @@ public class RegistryActivity extends Activity {
                             progressDialog.dismiss();
                         }
                     }, 10 * Constants.getSecondsInMilliseconds());
+        }else{
+            signInButton.setEnabled(true);
         }
+        deleteAllFields();
     }
 
     private boolean dataIsCorrectlyComplete() {
+        if(usernameAllowed(usernameInput.getText().toString())){
             if(passwordInput.getText().toString().length() > 5){
                 if(maleRadButton.isChecked() || femaleRadButton.isChecked()){
                     if(!birthDate.getText().toString().isEmpty()){
@@ -207,6 +212,10 @@ public class RegistryActivity extends Activity {
                 showToast("La CONTRASEÑA debe tener al menos 6 caracteres!");
                 return false;
             }
+        }else{
+            showToast("username solo puede tener letras, numeros y (@/./+/-/_)");
+            return false;
+        }
     }
 
     private void sendRegistrationPetition() {
@@ -248,6 +257,23 @@ public class RegistryActivity extends Activity {
             sb.append(DATA.charAt(RANDOM.nextInt(DATA.length())));
         }
         return sb.toString();
+    }
+
+    private boolean usernameAllowed(String username){
+        if(username.matches("^[a-zA-Z0-9_.+@-]*$")){
+            usernameWarning.setVisibility(View.INVISIBLE);
+            return true;
+        }else{
+            usernameWarning.setVisibility(View.VISIBLE);
+            return false;
+        }
+    }
+
+    private void deleteAllFields(){
+        passwordInput.setText("");
+        usernameInput.setText("");
+        sexSelectRadioGroup.clearCheck();
+        birthDate.setText("");
     }
 
 }

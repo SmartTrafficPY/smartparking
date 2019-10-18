@@ -59,6 +59,7 @@
                     android:textColor="@color/smartparking_red"
                     android:fontFamily="sans-serif-light"
                     android:text="@string/without_spaces"
+                    android:visibility="invisible"
                     android:inputType="text"/>
 
                 <ImageButton

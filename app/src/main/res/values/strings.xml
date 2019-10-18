@@ -117,7 +117,7 @@
     <string name="foreground_notification">Servicio SmartParking en ejecución</string>
     <string name="new_configurations_accepted">Nueva configuración guardada</string>
     <string name="not_get_spot_free">No, ocupando</string>
-    <string name="without_spaces">*Sin espacio</string>
+    <string name="without_spaces">*Sin espacios</string>
     <string name="yes">Si</string>
     <string name="no">No</string>
     <string name="warning_already_parked">Ya tienes un lugar estacionado ! Volverás a estacionar?</string>

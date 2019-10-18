@@ -18,6 +18,15 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.security.ProviderInstaller;
+
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.net.ssl.SSLContext;
+
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.Utils;
@@ -35,6 +44,18 @@ public class InitActivity extends Activity {
         super.onCreate(savedInstanceState);
         final SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
                 Constants.CLIENTE_DATA, Context.MODE_PRIVATE);
+
+        try {
+            // Google Play will install latest OpenSSL
+            ProviderInstaller.installIfNeeded(getApplicationContext());
+            SSLContext sslContext;
+            sslContext = SSLContext.getInstance("TLSv1.2");
+            sslContext.init(null, null, null);
+            sslContext.createSSLEngine();
+        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException
+                | NoSuchAlgorithmException | KeyManagementException e) {
+            e.printStackTrace();
+        }
 
         final ProgressDialog progressDialog = new ProgressDialog(InitActivity.this,
                 R.style.AppTheme_Dark_Dialog);

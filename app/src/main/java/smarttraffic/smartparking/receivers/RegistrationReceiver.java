@@ -37,7 +37,6 @@ public class RegistrationReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(final Context context, Intent intent) {
-
         if (intent.getAction().equals(RegistrationService.REGISTRATION_OK)) {
             showToast(RegistrationService.REGISTRATION_OK, context);
             Intent i = new Intent(context, LoginActivity.class);

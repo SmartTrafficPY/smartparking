@@ -8,8 +8,6 @@ package smarttraffic.smartparking;
 
 public class Constants {
 
-
-
     /**
      * Add here all variables used at width in the project...
      * **/

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="AppTheme" parent="@style/Theme.AppCompat.DayNight.DarkActionBar">
         <!-- Customize your theme here. -->
@@ -46,6 +46,10 @@
 
     <style name="HeaderBar">
         <item name="android:background">@color/colorPrimary</item>
+    </style>
+
+    <style name="TextAppearance.Design.Snackbar.Message" parent="android:TextAppearance" tools:override="true">
+        <item name="android:textColor">@color/colorPrimary</item>
     </style>
 
 </resources>
