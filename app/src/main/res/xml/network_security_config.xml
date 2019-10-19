@@ -3,6 +3,5 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">smarttraffic.com.py</domain>
         <domain includeSubdomains="true">api.smarttraffic.com.py</domain>
-        <domain includeSubdomains="true">10.50.225.75</domain>
     </domain-config>
 </network-security-config>

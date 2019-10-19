@@ -76,7 +76,6 @@ import java.util.concurrent.TimeUnit;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -269,7 +268,7 @@ public class HomeActivity extends AppCompatActivity {
         addOverlays();
     }
 
-    private void setSpotsPointOnMap(List<GeoPoint> geoPoints, String state) {
+    private void setMarkersOnMap(List<GeoPoint> geoPoints, String state) {
         Drawable marker = getDrawable(R.drawable.unknown_location);
         Marker startMarker = new Marker(mapView);
         String stateValue = "Desconocido";
@@ -407,8 +406,8 @@ public class HomeActivity extends AppCompatActivity {
                 .create();
 
         final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(new AddGeoJsonInterceptor())
                 .addInterceptor(new AddUserTokenInterceptor(this))
@@ -441,7 +440,7 @@ public class HomeActivity extends AppCompatActivity {
                                             spot.getProperties().getState());
                                     Utils.polygonWereDraw(HomeActivity.this,true);
                                 }else{
-                                    setSpotsPointOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                    setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
                                     Utils.polygonWereDraw(HomeActivity.this,false);
                                 }
                             }
@@ -484,8 +483,8 @@ public class HomeActivity extends AppCompatActivity {
                 .create();
 
         final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(new ReceivedTimeStampInterceptor(this))
                 .addInterceptor(new AddUserTokenInterceptor(this))
@@ -519,7 +518,7 @@ public class HomeActivity extends AppCompatActivity {
                                 }else{
                                     mapView.getOverlays().clear();
                                     for(Spot spot : spots){
-                                        setSpotsPointOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                        setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
                                     }
                                     addOverlays();
                                 }
@@ -534,7 +533,7 @@ public class HomeActivity extends AppCompatActivity {
                                     addOverlays();
                                 }else{
                                     for(Spot spot : spotsUpdated){
-                                        setSpotsPointOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
+                                        setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
                                     }
                                 }
                             }
@@ -609,8 +608,8 @@ public class HomeActivity extends AppCompatActivity {
                 .create();
 
         final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(20, TimeUnit.SECONDS)
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(new AddUserTokenInterceptor(this))
                 .build();
@@ -835,11 +834,11 @@ public class HomeActivity extends AppCompatActivity {
                 if(!(activityTransition == DetectedActivity.RUNNING ||
                         activityTransition == DetectedActivity.ON_FOOT ||
                         activityTransition == DetectedActivity.WALKING) && !dialogSendAllready){
-                    confirmationOfActionDialog(spotId, true, mCurrentLocation);
+                    confirmationOfActionDialog(spotId, true);
                 }
             } else {
                 if(!dialogSendAllready){
-                    confirmationOfActionDialog(spotId, false, mCurrentLocation);
+                    confirmationOfActionDialog(spotId, false);
                 }
             }
         }
@@ -860,7 +859,7 @@ public class HomeActivity extends AppCompatActivity {
      * OCCUPYING a spot OR FREEING ONE
      * **/
     @SuppressWarnings("MissingPermission")
-    private void confirmationOfActionDialog(final int spotIdIn, final boolean isParking, final Location currentLocation) {
+    private void confirmationOfActionDialog(final int spotIdIn, final boolean isParking) {
         final AlertDialog.Builder builder;
         if (isParking) {
             final AlertDialog.Builder ocupationBuilder = new AlertDialog.Builder(this,
@@ -897,12 +896,12 @@ public class HomeActivity extends AppCompatActivity {
                 }
             });
             ocupationBuilder.setNeutralButton(R.string.no, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    userNotResponse = false;
-                    delayResponse = 10;
-                    dialog.dismiss();
-                }
-            });
+                    public void onClick(DialogInterface dialog, int id) {
+                        userNotResponse = false;
+                        delayResponse = 10;
+                        dialog.dismiss();
+                    }
+                });
             builder = ocupationBuilder;
         }else{
             final AlertDialog.Builder freeBuilder = new AlertDialog.Builder(this,
@@ -1148,5 +1147,4 @@ public class HomeActivity extends AppCompatActivity {
         Intent chooser = Intent.createChooser(sendIntent, "Send bug report");
         startActivity(chooser);
     }
-
 }

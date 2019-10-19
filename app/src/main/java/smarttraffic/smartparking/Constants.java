@@ -19,6 +19,7 @@ public class Constants {
 
     public static final String CAR_PARKED_LOCATION_LATITUD = "CAR_PARKED_LOCATION_LATITUD";
     public static final String CAR_PARKED_LOCATION_LONGITUD = "CAR_PARKED_LOCATION_LATITUD";
+    public static final String REGISTRATION_NOT_DONE = "No se pudo registrar el perfil!";
     public static final String CONNECTION_FAILED = "Es necesaria una conexión a internet!";
     public static final int ADD_ALARM_REQUEST_CODE=130;
     public static final int REMOVE_ALARM_REQUEST_CODE=131;
@@ -50,6 +51,7 @@ public class Constants {
     public static final String GEOFENCE_TRIGGED = "GEOFENCE_TRIGGED";
     public static final String EVENT_BASIC = "entities/smartparking/event_types/";
     public static final String GATEWAYS = "GATEWAYS";
+    public static final String PROBLEM = "PROBLEM";
     public static final int NOT_IN_PARKINGSPOT = -1;
     public static final String GEOFENCE_LOTS_SHARED_PREFERENCES = "GEOFENCE_LOTS_SHARED_PREFERENCES";
     private static final String BROADCAST_GEOFENCE_TRIGGER_INTENT = "BROADCAST_GEOFENCE_TRIGGER_INTENT";
