@@ -76,6 +76,7 @@ import java.util.concurrent.TimeUnit;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -135,9 +136,9 @@ public class HomeActivity extends AppCompatActivity {
     int activityTransition;
     int geofenceTransition;
     int confidence;
+    int delayResponse;
     boolean userNotResponse = true;
     boolean dialogSendAllready = false;
-    Marker myCarMarker = new Marker(mapView);
     private Location mCurrentLocation;
     private List<Spot> spots = new ArrayList<Spot>();
     private ArrayList<String> geofencesTrigger = new ArrayList<>();
@@ -162,6 +163,8 @@ public class HomeActivity extends AppCompatActivity {
         geofencingClient = LocationServices.getGeofencingClient(this);
 
         removeGeofences();
+
+        Utils.addAlarmsGeofencingTask(this);
 
         setMapView();
 
@@ -235,6 +238,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setMapView(){
+        Utils.setTileServerCredentials(this);
         Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(
                 this));
 
@@ -283,17 +287,6 @@ public class HomeActivity extends AppCompatActivity {
         startMarker.setTextLabelForegroundColor(R.color.white);
         startMarker.setIcon(marker);
         mapView.getOverlays().add(startMarker);
-    }
-
-    private void setParkerSpotOnMap(GeoPoint carPosition) {
-        Drawable myCar = getDrawable(R.drawable.car_location);
-        myCarMarker.setPosition(carPosition);
-        myCarMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        myCarMarker.setTitle("Tu auto");
-        myCarMarker.setTextLabelBackgroundColor(R.color.white);
-        myCarMarker.setTextLabelForegroundColor(R.color.white);
-        myCarMarker.setIcon(myCar);
-        mapView.getOverlays().add(myCarMarker);
     }
 
     private void addOverlays() {
@@ -414,7 +407,7 @@ public class HomeActivity extends AppCompatActivity {
                 .create();
 
         final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(new AddGeoJsonInterceptor())
@@ -453,7 +446,6 @@ public class HomeActivity extends AppCompatActivity {
                                 }
                             }
                             addOverlays();
-                            setParkerSpotOnMap(Utils.loadLocationOfParkedCar(HomeActivity.this));
                         }
                         break;
                     default:
@@ -462,7 +454,7 @@ public class HomeActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<SpotList> call, Throwable t) {
-                if(!Utils.isInternetAvailable()){
+                if(!Utils.isNetworkConnected(HomeActivity.this)){
                     Utils.showToast(Constants.CONNECTION_FAILED, HomeActivity.this);
                 }
                 t.printStackTrace();
@@ -492,7 +484,7 @@ public class HomeActivity extends AppCompatActivity {
                 .create();
 
         final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(new ReceivedTimeStampInterceptor(this))
@@ -547,7 +539,6 @@ public class HomeActivity extends AppCompatActivity {
                                 }
                             }
                         }
-                        setParkerSpotOnMap(Utils.loadLocationOfParkedCar(HomeActivity.this));
                         break;
                     default:
                         break;
@@ -556,7 +547,7 @@ public class HomeActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
-                if(!Utils.isInternetAvailable()){
+                if(!Utils.isNetworkConnected(HomeActivity.this)){
                     Utils.showToast(Constants.CONNECTION_FAILED, HomeActivity.this);
                 }
                 t.printStackTrace();
@@ -618,7 +609,7 @@ public class HomeActivity extends AppCompatActivity {
                 .create();
 
         final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(new AddUserTokenInterceptor(this))
@@ -657,7 +648,7 @@ public class HomeActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<LotList> call, Throwable t) {
-                if(!Utils.isInternetAvailable()){
+                if(!Utils.isNetworkConnected(HomeActivity.this)){
                     Utils.showToast(Constants.CONNECTION_FAILED, HomeActivity.this);
                 }
                 t.printStackTrace();
@@ -704,8 +695,6 @@ public class HomeActivity extends AppCompatActivity {
                 ActivityCompat.shouldShowRequestPermissionRationale(this,
                         Manifest.permission.ACCESS_FINE_LOCATION);
 
-        // Provide an additional rationale to the user. This would happen if the user denied the
-        // request previously, but didn't check the "Don't ask again" checkbox.
         if (shouldProvideRationale) {
             Snackbar.make(
                     findViewById(R.id.home_layout),
@@ -714,7 +703,6 @@ public class HomeActivity extends AppCompatActivity {
                     .setAction(R.string.button_accept, new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            // Request permission
                             ActivityCompat.requestPermissions(HomeActivity.this,
                                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                                     Constants.getRequestPermissionsRequestCode());
@@ -722,9 +710,6 @@ public class HomeActivity extends AppCompatActivity {
                     })
                     .show();
         } else {
-            // Request permission. It's possible this can be auto answered if device policy
-            // sets the permission in a given state or the user denied the permission
-            // previously and checked "Never ask again".
             ActivityCompat.requestPermissions(HomeActivity.this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     Constants.getRequestPermissionsRequestCode());
@@ -739,12 +724,8 @@ public class HomeActivity extends AppCompatActivity {
                                            @NonNull int[] grantResults) {
         if (requestCode == Constants.getRequestPermissionsRequestCode()) {
             if (grantResults.length <= 0) {
-                // If user interaction was interrupted, the permission request is cancelled and you
-                // receive empty arrays.
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission was granted.
             } else {
-                // Permission denied.
                 Snackbar.make(
                         findViewById(R.id.home_layout),
                         R.string.permission_denied_explanation,
@@ -752,7 +733,6 @@ public class HomeActivity extends AppCompatActivity {
                         .setAction(R.string.settings, new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                // Build intent that displays the App settings screen.
                                 Intent intent = new Intent();
                                 intent.setAction(
                                         Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
@@ -890,10 +870,7 @@ public class HomeActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int id) {
                                 Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
                                 userNotResponse = false;
-                                if(currentLocation != null){
-                                    Utils.saveLocationOfParkedCar(HomeActivity.this,currentLocation);
-                                    setParkerSpotOnMap(Utils.getGeopointsFromLocation(currentLocation));
-                                }
+                                delayResponse = 60;
                                 final Timer geofencetimer = new Timer();
                                 Utils.changeStatusOfSpot(spotIdIn, spots, "O");
                                 geofencetimer.schedule(new TimerTask() {
@@ -913,8 +890,7 @@ public class HomeActivity extends AppCompatActivity {
                     Utils.setNewStateOnSpot(HomeActivity.this, false, spotIdIn);
                     Utils.changeStatusOfSpot(spotIdIn, spots, "F");
                     userNotResponse = false;
-                    Utils.deleteLocationOfParkedCar(HomeActivity.this);
-                    mapView.getOverlayManager().remove(myCarMarker);
+                    delayResponse = 60;
                     List<String> geofencesToRemove = new ArrayList<>();
                     geofencesToRemove.add("Tu vehiculo en " + spotIdIn);
                     geofencingClient.removeGeofences(geofencesToRemove);
@@ -923,6 +899,7 @@ public class HomeActivity extends AppCompatActivity {
             ocupationBuilder.setNeutralButton(R.string.no, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     userNotResponse = false;
+                    delayResponse = 10;
                     dialog.dismiss();
                 }
             });
@@ -936,8 +913,7 @@ public class HomeActivity extends AppCompatActivity {
                         Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
                         Utils.changeStatusOfSpot(spotIdIn, spots, "F");
                         userNotResponse = false;
-                        Utils.deleteLocationOfParkedCar(HomeActivity.this);
-                        mapView.getOverlayManager().remove(myCarMarker);
+                        delayResponse = 60;
                         List<String> geofencesToRemove = new ArrayList<>();
                         geofencesToRemove.add("Tu vehiculo en " + spotIdIn);
                         geofencingClient.removeGeofences(geofencesToRemove);
@@ -947,6 +923,7 @@ public class HomeActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int id) {
                     Utils.setNewStateOnSpot(HomeActivity.this, true, spotIdIn);
                     final Timer geofencetimer = new Timer();
+                    delayResponse = 60;
                     geofencetimer.schedule(new TimerTask() {
                         public void run() {
                             geofencingClient.addGeofences(getGeofenceRequest(
@@ -958,16 +935,13 @@ public class HomeActivity extends AppCompatActivity {
                             LocationUpdatesService.class);
                     stopService(serviceIntent);
                     userNotResponse = false;
-                    if(currentLocation != null){
-                        Utils.saveLocationOfParkedCar(HomeActivity.this,currentLocation);
-                        setParkerSpotOnMap(Utils.getGeopointsFromLocation(currentLocation));
-                    }
                 }
             });
             freeBuilder.setNeutralButton(R.string.no, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     userNotResponse = false;
+                    delayResponse = 10;
                     dialog.dismiss();
                 }
             });
@@ -983,10 +957,7 @@ public class HomeActivity extends AppCompatActivity {
                 if(userNotResponse){
                     if(isParking){
                         Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
-                        if(currentLocation != null){
-                            Utils.saveLocationOfParkedCar(HomeActivity.this,currentLocation);
-                            setParkerSpotOnMap(Utils.getGeopointsFromLocation(currentLocation));
-                        }                       final Timer geofencetimer = new Timer();
+                        final Timer geofencetimer = new Timer();
                         Utils.changeStatusOfSpot(spotIdIn, spots, "O");
                         geofencetimer.schedule(new TimerTask() {
                             public void run() {
@@ -1001,8 +972,6 @@ public class HomeActivity extends AppCompatActivity {
                     }else{
                         Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
                         Utils.changeStatusOfSpot(spotIdIn, spots, "F");
-                        Utils.deleteLocationOfParkedCar(HomeActivity.this);
-                        mapView.getOverlayManager().remove(myCarMarker);
                         List<String> geofencesToRemove = new ArrayList<>();
                         geofencesToRemove.add("Tu vehiculo en " + spotIdIn);
                         geofencingClient.removeGeofences(geofencesToRemove);
@@ -1016,7 +985,7 @@ public class HomeActivity extends AppCompatActivity {
                 dialogSendAllready = false;
                 dialogtimer.cancel();
             }
-        }, Constants.getSecondsInMilliseconds() * 30);
+        }, Constants.getSecondsInMilliseconds() * delayResponse);
     }
 
     public boolean isPointInsidePolygon(Spot spot, Location location){

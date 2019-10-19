@@ -113,7 +113,7 @@ public class Utils {
                 .create();
 
         final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(new AddUserTokenInterceptor(context))
@@ -191,7 +191,7 @@ public class Utils {
                 .create();
 
         final OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
                 .writeTimeout(20, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(new AddUserTokenInterceptor(context))
@@ -467,17 +467,6 @@ public class Utils {
         ArrayList<String> list = new ArrayList<String>(sharedPreferences.getStringSet(
                 Constants.GEOFENCES_TRIGGER, new HashSet<String>()));
         return list;
-    }
-
-    public static boolean isInternetAvailable() {
-        try {
-            InetAddress ipAddr = InetAddress.getByName("google.com");
-            //You can replace it with your name
-            return !ipAddr.equals("");
-
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     public static boolean isNetworkConnected(Context context) {

@@ -52,12 +52,13 @@
 
                 <ImageButton
                     android:id="@+id/setRandomUser"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/changepass_menu"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:layout_marginLeft="15dp"
                     android:layout_toRightOf="@+id/usernameSignUp"
-                    />
+                    android:background="@drawable/btn_rectangle"
+                    android:contentDescription="@string/randomic_user"
+                    android:src="@drawable/changepass_menu" />
 
         </RelativeLayout>
 
@@ -76,12 +77,13 @@
 
                 <ImageButton
                     android:id="@+id/passModeButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/showtext"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/btn_rectangle"
                     android:layout_marginLeft="15dp"
                     android:layout_toRightOf="@+id/passwordSignUp"
-                    />
+                    android:contentDescription="@string/show_password"
+                    android:src="@drawable/showtext" />
 
         </RelativeLayout>
 
@@ -101,7 +103,7 @@
                 <TextView
                     android:id="@+id/birthDate"
                     android:layout_width="wrap_content"
-                    android:layout_height="44dp"
+                    android:layout_height="48dp"
                     android:layout_below="@+id/ageTextView"
                     android:ems="10"
                     android:textSize="20dp"
@@ -111,8 +113,10 @@
 
                 <ImageButton
                     android:id="@+id/datePickerButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="48dp"
+                    android:background="@drawable/btn_rectangle"
+                    android:layout_height="48dp"
+                    android:contentDescription="@string/date_picker"
                     android:layout_below="@+id/ageTextView"
                     android:src="@drawable/datepicker"
                     android:layout_marginLeft="15dp"
@@ -139,15 +143,17 @@
             <RadioButton
                 android:id="@+id/maleRadButton"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_weight="1"
+                android:textAllCaps="true"
                 android:text="Hombre"/>
 
             <RadioButton
                 android:id="@+id/femaleRadButton"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_weight="1"
+                android:textAllCaps="true"
                 android:text="Mujer"
                 android:layout_marginBottom="25dp"/>
         </RadioGroup>

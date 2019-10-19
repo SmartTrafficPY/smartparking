@@ -75,15 +75,5 @@ public class InitActivity extends Activity {
         finish();
     }
 
-    private void showToast(String message) {
-        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.CENTER, 0, 0);
-        LinearLayout toastContentView = (LinearLayout) toast.getView();
-        ImageView imageView = new ImageView(getApplicationContext());
-        imageView.setImageResource(R.mipmap.smartparking_logo_round);
-        toastContentView.addView(imageView, 0);
-        toast.show();
-    }
-
 }
 
