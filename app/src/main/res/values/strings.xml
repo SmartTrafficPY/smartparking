@@ -123,4 +123,7 @@
     <string name="warning_already_parked">Ya tienes un lugar estacionado ! Volverás a estacionar?</string>
     <string name="internet_connection_required">Se requiere conexión a internet para el funcionamiento de SmartParking</string>
     <string name="not_get_spot_occupied">No, liberando</string>
+    <string name="how_its_state">¿En qué estado esta este lugar?</string>
+    <string name="free">Libre</string>
+    <string name="occupied">ocupado</string>
 </resources>

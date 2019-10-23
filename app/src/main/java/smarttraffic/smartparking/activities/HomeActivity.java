@@ -339,7 +339,7 @@ public class HomeActivity extends AppCompatActivity {
         mRotationGestureOverlay.setEnabled(true);
     }
 
-    public void drawPolygon(List<GeoPoint> geoPoints, String status){
+    public void drawPolygon(List<GeoPoint> geoPoints, String status, final int id){
         Polygon polygon = new Polygon();
         String color = "#C0C0C0";
         if (status.equals(StatesEnumerations.FREE.getEstado())) {
@@ -348,6 +348,13 @@ public class HomeActivity extends AppCompatActivity {
             color = "#FF0000";
         }
         polygon.setFillColor(Color.parseColor(color));
+        polygon.setOnClickListener(new Polygon.OnClickListener() {
+            @Override
+            public boolean onClick(Polygon polygon, MapView mapView, GeoPoint eventPos) {
+                setStatusOfSpot(id);
+                return false;
+            }
+        });
         polygon.setStrokeColor(Color.parseColor("#000000"));
         geoPoints.add(geoPoints.get(0));    //forces the loop to close
         polygon.setPoints(geoPoints);
@@ -437,7 +444,7 @@ public class HomeActivity extends AppCompatActivity {
                                 if(sharedPreferences.getString(Constants.DRAW_SETTINGS,
                                         Constants.POLYGON_TO_DRAW_SETTINGS).equals(Constants.POLYGON_TO_DRAW_SETTINGS)){
                                     drawPolygon(Utils.spotToListOfGeoPoints(spot),
-                                            spot.getProperties().getState());
+                                            spot.getProperties().getState(), spot.getProperties().getIdFromUrl());
                                     Utils.polygonWereDraw(HomeActivity.this,true);
                                 }else{
                                     setMarkersOnMap(Utils.spotToListOfGeoPoints(spot), spot.getProperties().getState());
@@ -513,7 +520,7 @@ public class HomeActivity extends AppCompatActivity {
                                         Constants.POLYGON_TO_DRAW_SETTINGS).equals(Constants.POLYGON_TO_DRAW_SETTINGS)){
                                     for(Spot spot : spotsUpdated){
                                         drawPolygon(Utils.spotToListOfGeoPoints(spot),
-                                                spot.getProperties().getState());
+                                                spot.getProperties().getState(), spot.getProperties().getIdFromUrl());
                                     }
                                 }else{
                                     mapView.getOverlays().clear();
@@ -528,7 +535,7 @@ public class HomeActivity extends AppCompatActivity {
                                     mapView.getOverlays().clear();
                                     for(Spot spot : spots){
                                         drawPolygon(Utils.spotToListOfGeoPoints(spot),
-                                                spot.getProperties().getState());
+                                                spot.getProperties().getState(), spot.getProperties().getIdFromUrl());
                                     }
                                     addOverlays();
                                 }else{
@@ -1147,4 +1154,26 @@ public class HomeActivity extends AppCompatActivity {
         Intent chooser = Intent.createChooser(sendIntent, "Send bug report");
         startActivity(chooser);
     }
+
+    private void setStatusOfSpot(final int spotIdIn) {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this,
+                    R.style.AppTheme_Dark_Dialog);
+        builder.setMessage(R.string.how_its_state)
+                    .setPositiveButton(R.string.occupied, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            Utils.setNewStateOnSpot(HomeActivity.this, true, spotIdIn);
+                        }
+                    })
+                .setNegativeButton(R.string.free, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    Utils.setNewStateOnSpot(HomeActivity.this, false, spotIdIn);
+                }
+            })
+                .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {}
+        });
+        final AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
 }
