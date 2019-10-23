@@ -51,7 +51,6 @@ import smarttraffic.smartparking.dataModels.Lots.Lot;
 import smarttraffic.smartparking.dataModels.Lots.LotList;
 import smarttraffic.smartparking.dataModels.Lots.PointGeometry;
 import smarttraffic.smartparking.dataModels.Point;
-import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbySpot;
 import smarttraffic.smartparking.dataModels.Spots.Spot;
 import smarttraffic.smartparking.receivers.AddAlarmReceiver;
 import smarttraffic.smartparking.receivers.RemoveAlarmReceiver;

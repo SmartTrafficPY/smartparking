@@ -160,6 +160,8 @@ public class HomeActivity extends AppCompatActivity {
         mActivityRecognitionClient = new ActivityRecognitionClient(this);
         geofencingClient = LocationServices.getGeofencingClient(this);
 
+        removeGeofences();
+
         setMapView();
 
         buttonRecenter.setOnClickListener(new View.OnClickListener() {
@@ -663,7 +665,7 @@ public class HomeActivity extends AppCompatActivity {
                         longitud,
                         radius
                 )
-                .setLoiteringDelay(1000 * 60 * 20)
+                .setLoiteringDelay((int) (Constants.getMinutesInMilliseconds() * 20))
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                         Geofence.GEOFENCE_TRANSITION_EXIT |
                         Geofence.GEOFENCE_TRANSITION_DWELL);
