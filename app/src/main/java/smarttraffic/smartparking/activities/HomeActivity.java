@@ -105,7 +105,6 @@ import smarttraffic.smartparking.receivers.AddAlarmReceiver;
 import smarttraffic.smartparking.receivers.GeofenceBroadcastReceiver;
 import smarttraffic.smartparking.receivers.RemoveAlarmReceiver;
 import smarttraffic.smartparking.services.DetectedActivitiesService;
-import smarttraffic.smartparking.services.GeofenceTransitionsJobIntentService;
 import smarttraffic.smartparking.services.LocationUpdatesService;
 
 import static smarttraffic.smartparking.Interceptors.ReceivedTimeStampInterceptor.X_TIMESTAMP;
@@ -161,10 +160,6 @@ public class HomeActivity extends AppCompatActivity {
         mActivityRecognitionClient = new ActivityRecognitionClient(this);
         geofencingClient = LocationServices.getGeofencingClient(this);
 
-        removeGeofences();
-
-        Utils.addAlarmsGeofencingTask(this);
-
         setMapView();
 
         buttonRecenter.setOnClickListener(new View.OnClickListener() {
@@ -212,7 +207,7 @@ public class HomeActivity extends AppCompatActivity {
                     geofencesTrigger = intent.getStringArrayListExtra(
                             Constants.GEOFENCE_TRIGGED);
                     geofenceTransition = intent.getIntExtra(
-                            GeofenceTransitionsJobIntentService.TRANSITION,
+                            GeofenceBroadcastReceiver.TRANSITION,
                             -1);
                     managerOfTransitions();
                 }
