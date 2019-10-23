@@ -830,14 +830,15 @@ public class HomeActivity extends AppCompatActivity {
         if (spotId != Constants.NOT_IN_PARKINGSPOT) {
             Spot spot = getSpotFromId(spots, spotId);
             SpotProperties spotProperties = spot.getProperties();
-            if (!spotProperties.getState().equals(StatesEnumerations.OCCUPIED.getEstado())){
-                if(!(activityTransition == DetectedActivity.RUNNING ||
-                        activityTransition == DetectedActivity.ON_FOOT ||
-                        activityTransition == DetectedActivity.WALKING) && !dialogSendAllready){
-                    confirmationOfActionDialog(spotId, true);
+            if(!dialogSendAllready){
+                if (!spotProperties.getState().equals(StatesEnumerations.OCCUPIED.getEstado())){
+                    if(!(activityTransition == DetectedActivity.RUNNING ||
+                            activityTransition == DetectedActivity.ON_FOOT ||
+                            activityTransition == DetectedActivity.WALKING)){
+                        confirmationOfActionDialog(spotId, true);
+                    }
                 }
-            } else {
-                if(!dialogSendAllready){
+                if(!spotProperties.getState().equals(StatesEnumerations.FREE.getEstado())) {
                     confirmationOfActionDialog(spotId, false);
                 }
             }
@@ -871,7 +872,6 @@ public class HomeActivity extends AppCompatActivity {
                                 userNotResponse = false;
                                 delayResponse = Constants.getMinutesInMilliseconds() * 5;
                                 final Timer geofencetimer = new Timer();
-                                Utils.changeStatusOfSpot(spotIdIn, spots, "O");
                                 geofencetimer.schedule(new TimerTask() {
                                     public void run() {
                                         geofencingClient.addGeofences(getGeofenceRequest(
@@ -887,7 +887,6 @@ public class HomeActivity extends AppCompatActivity {
             ocupationBuilder.setNegativeButton(R.string.not_get_spot_occupied, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     Utils.setNewStateOnSpot(HomeActivity.this, false, spotIdIn);
-                    Utils.changeStatusOfSpot(spotIdIn, spots, "F");
                     userNotResponse = false;
                     delayResponse = Constants.getMinutesInMilliseconds() * 5;
                     List<String> geofencesToRemove = new ArrayList<>();
@@ -899,7 +898,6 @@ public class HomeActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int id) {
                         userNotResponse = false;
                         delayResponse = Constants.getSecondsInMilliseconds() * 10;
-                        dialog.dismiss();
                     }
                 });
             builder = ocupationBuilder;
@@ -910,7 +908,6 @@ public class HomeActivity extends AppCompatActivity {
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
-                        Utils.changeStatusOfSpot(spotIdIn, spots, "F");
                         userNotResponse = false;
                         delayResponse = Constants.getMinutesInMilliseconds() * 5;
                         List<String> geofencesToRemove = new ArrayList<>();
@@ -941,7 +938,6 @@ public class HomeActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int which) {
                     userNotResponse = false;
                     delayResponse = Constants.getSecondsInMilliseconds() * 10;
-                    dialog.dismiss();
                 }
             });
             builder = freeBuilder;
@@ -949,15 +945,15 @@ public class HomeActivity extends AppCompatActivity {
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
         dialogSendAllready = true;
-        final Timer dialogtimer = new Timer();
-        dialogtimer.schedule(new TimerTask() {
+        final Timer userNotRespondtimer = new Timer();
+        final Timer resetDialogtimer = new Timer();
+        userNotRespondtimer.schedule(new TimerTask() {
             public void run() {
                 alertDialog.dismiss();
                 if(userNotResponse){
                     if(isParking){
                         Utils.setNewStateOnSpot(HomeActivity.this, true, spotIdIn);
                         final Timer geofencetimer = new Timer();
-                        Utils.changeStatusOfSpot(spotIdIn, spots, "O");
                         geofencetimer.schedule(new TimerTask() {
                             public void run() {
                                 geofencingClient.addGeofences(getGeofenceRequest(
@@ -970,20 +966,18 @@ public class HomeActivity extends AppCompatActivity {
                         stopService(serviceIntent);
                     }else{
                         Utils.setNewStateOnSpot(HomeActivity.this, false, spotIdIn);
-                        Utils.changeStatusOfSpot(spotIdIn, spots, "F");
                         List<String> geofencesToRemove = new ArrayList<>();
                         geofencesToRemove.add("Tu vehiculo en " + spotIdIn);
                         geofencingClient.removeGeofences(geofencesToRemove);
                     }
+                    delayResponse = Constants.getMinutesInMilliseconds();
                 }
                 userNotResponse = true;
-                delayResponse = Constants.getMinutesInMilliseconds();
             }
         }, Constants.getSecondsInMilliseconds() * 20);
-        dialogtimer.schedule(new TimerTask() {
+        resetDialogtimer.schedule(new TimerTask() {
             public void run() {
                 dialogSendAllready = false;
-                dialogtimer.cancel();
             }
         }, delayResponse);
     }
