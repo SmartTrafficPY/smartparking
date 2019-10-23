@@ -831,14 +831,14 @@ public class HomeActivity extends AppCompatActivity {
             Spot spot = getSpotFromId(spots, spotId);
             SpotProperties spotProperties = spot.getProperties();
             if(!dialogSendAllready){
+                dialogSendAllready = true;
                 if (!spotProperties.getState().equals(StatesEnumerations.OCCUPIED.getEstado())){
                     if(!(activityTransition == DetectedActivity.RUNNING ||
                             activityTransition == DetectedActivity.ON_FOOT ||
                             activityTransition == DetectedActivity.WALKING)){
                         confirmationOfActionDialog(spotId, true);
                     }
-                }
-                if(!spotProperties.getState().equals(StatesEnumerations.FREE.getEstado())) {
+                }else{
                     confirmationOfActionDialog(spotId, false);
                 }
             }
@@ -861,15 +861,12 @@ public class HomeActivity extends AppCompatActivity {
      * **/
     @SuppressWarnings("MissingPermission")
     private void confirmationOfActionDialog(final int spotIdIn, final boolean isParking) {
-        final AlertDialog.Builder builder;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         if (isParking) {
-            final AlertDialog.Builder ocupationBuilder = new AlertDialog.Builder(this,
-                    R.style.AppTheme_SmartParking_DialogOccupation);
-            ocupationBuilder.setMessage(R.string.are_you_parking)
+            builder.setMessage(R.string.are_you_parking)
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 Utils.setNewStateOnSpot(HomeActivity.this, true, spotIdIn);
-                                userNotResponse = false;
                                 delayResponse = Constants.getMinutesInMilliseconds() * 5;
                                 final Timer geofencetimer = new Timer();
                                 geofencetimer.schedule(new TimerTask() {
@@ -884,27 +881,14 @@ public class HomeActivity extends AppCompatActivity {
                                 stopService(serviceIntent);
                             }
                         });
-            ocupationBuilder.setNegativeButton(R.string.not_get_spot_occupied, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    Utils.setNewStateOnSpot(HomeActivity.this, false, spotIdIn);
-                    userNotResponse = false;
-                    delayResponse = Constants.getMinutesInMilliseconds() * 5;
-                    List<String> geofencesToRemove = new ArrayList<>();
-                    geofencesToRemove.add("Tu vehiculo en " + spotIdIn);
-                    geofencingClient.removeGeofences(geofencesToRemove);
-                }
-            });
-            ocupationBuilder.setNeutralButton(R.string.no, new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         userNotResponse = false;
                         delayResponse = Constants.getSecondsInMilliseconds() * 10;
                     }
                 });
-            builder = ocupationBuilder;
         }else{
-            final AlertDialog.Builder freeBuilder = new AlertDialog.Builder(this,
-                    R.style.AppTheme_SmartParking_DialogLiberation);
-            freeBuilder.setMessage(R.string.are_you_vacating_a_place)
+            builder.setMessage(R.string.are_you_vacating_a_place)
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
@@ -915,7 +899,7 @@ public class HomeActivity extends AppCompatActivity {
                         geofencingClient.removeGeofences(geofencesToRemove);
                     }
                 });
-            freeBuilder.setNegativeButton(R.string.not_get_spot_free, new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(R.string.not_get_spot_free, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     Utils.setNewStateOnSpot(HomeActivity.this, true, spotIdIn);
                     final Timer geofencetimer = new Timer();
@@ -933,18 +917,16 @@ public class HomeActivity extends AppCompatActivity {
                     userNotResponse = false;
                 }
             });
-            freeBuilder.setNeutralButton(R.string.no, new DialogInterface.OnClickListener() {
+            builder.setNeutralButton(R.string.no, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     userNotResponse = false;
                     delayResponse = Constants.getSecondsInMilliseconds() * 10;
                 }
             });
-            builder = freeBuilder;
         }
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
-        dialogSendAllready = true;
         final Timer userNotRespondtimer = new Timer();
         final Timer resetDialogtimer = new Timer();
         userNotRespondtimer.schedule(new TimerTask() {
@@ -972,11 +954,11 @@ public class HomeActivity extends AppCompatActivity {
                     }
                     delayResponse = Constants.getMinutesInMilliseconds();
                 }
-                userNotResponse = true;
             }
         }, Constants.getSecondsInMilliseconds() * 20);
         resetDialogtimer.schedule(new TimerTask() {
             public void run() {
+                userNotResponse = true;
                 dialogSendAllready = false;
             }
         }, delayResponse);
