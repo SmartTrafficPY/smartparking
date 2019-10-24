@@ -37,6 +37,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.DetectedActivity;
@@ -451,7 +452,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<SpotList> call, Throwable t) {
                 if(!Utils.isNetworkConnected(HomeActivity.this)){
-                    Utils.showToast(Constants.CONNECTION_FAILED, HomeActivity.this);
+                    Toast.makeText(HomeActivity.this, Constants.CONNECTION_FAILED, Toast.LENGTH_SHORT).show();
                 }
                 t.printStackTrace();
             }
@@ -544,7 +545,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
                 if(!Utils.isNetworkConnected(HomeActivity.this)){
-                    Utils.showToast(Constants.CONNECTION_FAILED, HomeActivity.this);
+                    Toast.makeText(HomeActivity.this, Constants.CONNECTION_FAILED, Toast.LENGTH_SHORT).show();
                 }
                 t.printStackTrace();
             }
@@ -645,7 +646,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<LotList> call, Throwable t) {
                 if(!Utils.isNetworkConnected(HomeActivity.this)){
-                    Utils.showToast(Constants.CONNECTION_FAILED, HomeActivity.this);
+                    Toast.makeText(HomeActivity.this, Constants.CONNECTION_FAILED, Toast.LENGTH_SHORT).show();
                 }
                 t.printStackTrace();
             }

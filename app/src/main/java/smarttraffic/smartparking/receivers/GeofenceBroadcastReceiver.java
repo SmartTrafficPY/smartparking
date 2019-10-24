@@ -146,12 +146,12 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
             Intent serviceIntent = new Intent(context, LocationUpdatesService.class);
             Utils.saveGeofencesTrigger(context,namesOfGeofencesTrigger(triggeringGeofences));
             context.startService(serviceIntent);
-        }
+    }
 
     public void stopLocationService(Context context) {
             Intent serviceIntent = new Intent(context, LocationUpdatesService.class);
             context.stopService(serviceIntent);
-        }
+    }
 
     public ArrayList<String> namesOfGeofencesTrigger(List<Geofence> triggeringGeofences){
             ArrayList<String> fencesTriggered = new ArrayList<>();
@@ -161,6 +161,6 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
                 }
             }
             return fencesTriggered;
-        }
+    }
 
 }
