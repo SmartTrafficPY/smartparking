@@ -25,6 +25,7 @@ import java.util.List;
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.Utils;
+import smarttraffic.smartparking.activities.HomeActivity;
 
 
 public class GeofenceTransitionsJobIntentService extends JobIntentService {
@@ -179,8 +180,6 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
     public void startLocationService(List<Geofence> triggeringGeofences) {
         Intent serviceIntent = new Intent(this, LocationUpdatesService.class);
         Utils.saveGeofencesTrigger(this,namesOfGeofencesTrigger(triggeringGeofences));
-//        serviceIntent.putStringArrayListExtra(Constants.GEOFENCE_TRIGGED,
-//                namesOfGeofencesTrigger(triggeringGeofences));
         startService(serviceIntent);
     }
 
