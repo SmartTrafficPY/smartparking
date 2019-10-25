@@ -884,7 +884,7 @@ public class HomeActivity extends AppCompatActivity {
             builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         userNotResponse = false;
-                        delayResponse = Constants.getSecondsInMilliseconds() * 10;
+                        delayResponse = Constants.getSecondsInMilliseconds() * 20;
                     }
                 });
         }else{
@@ -921,7 +921,7 @@ public class HomeActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     userNotResponse = false;
-                    delayResponse = Constants.getSecondsInMilliseconds() * 10;
+                    delayResponse = Constants.getSecondsInMilliseconds() * 20;
                 }
             });
         }
