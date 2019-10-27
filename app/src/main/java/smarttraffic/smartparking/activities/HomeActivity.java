@@ -368,6 +368,7 @@ public class HomeActivity extends AppCompatActivity {
         };
         switch (geofenceTransition) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
+                startLocationService();
                 handler.postDelayed(cronJob, delay);
                 requestActivityUpdates();
                 break;
@@ -377,10 +378,12 @@ public class HomeActivity extends AppCompatActivity {
                     Utils.setEntranceEvent(this, mCurrentLocation, Constants.EVENT_TYPE_EXIT);
                 }
                 handler.removeCallbacks(cronJob);
+                stopLocationService();
                 break;
             default:
                 removeActivityUpdates();
                 handler.removeCallbacks(cronJob);
+                stopLocationService();
                 break;
         }
     }
@@ -1128,5 +1131,15 @@ public class HomeActivity extends AppCompatActivity {
                 dialogSendAllready = false;
             }
         }, positiveResponse ? Constants.getMinutesInMilliseconds() * 3 : Constants.getSecondsInMilliseconds() * 20);
+    }
+
+    public void startLocationService() {
+        Intent serviceIntent = new Intent(this, LocationUpdatesService.class);
+        startService(serviceIntent);
+    }
+
+    public void stopLocationService() {
+        Intent serviceIntent = new Intent(this, LocationUpdatesService.class);
+        stopService(serviceIntent);
     }
 }
