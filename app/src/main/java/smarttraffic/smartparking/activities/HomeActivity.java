@@ -145,6 +145,8 @@ public class HomeActivity extends AppCompatActivity {
     private BroadcastReceiver locationReceiver;
     private GeofencingClient geofencingClient;
     private PendingIntent mGeofencePendingIntent;
+    final Handler handler = new Handler();
+    Runnable cronJob;
     //MAP...
     private MyLocationNewOverlay mLocationOverlay;
     private CompassOverlay mCompassOverlay;
@@ -357,10 +359,9 @@ public class HomeActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = this.getSharedPreferences(
                 Constants.SETTINGS, MODE_PRIVATE);
         getSpotsFromGeofence(geofencesTrigger, false);
-        final Handler handler = new Handler();
         final long delay = sharedPreferences.getLong(Constants.MAP_SPOTS_TIME_UPDATE_SETTINGS,
                 Constants.getSecondsInMilliseconds() * 45);
-        Runnable cronJob = new Runnable() {
+        cronJob = new Runnable() {
             public void run() {
                 getSpotsFromGeofence(geofencesTrigger, true);
                 handler.postDelayed(this, delay);
@@ -368,6 +369,7 @@ public class HomeActivity extends AppCompatActivity {
         };
         switch (geofenceTransition) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
+                startLocationService();
                 handler.postDelayed(cronJob, delay);
                 requestActivityUpdates();
                 break;
@@ -377,10 +379,12 @@ public class HomeActivity extends AppCompatActivity {
                     Utils.setEntranceEvent(this, mCurrentLocation, Constants.EVENT_TYPE_EXIT);
                 }
                 handler.removeCallbacks(cronJob);
+                stopLocationService();
                 break;
             default:
                 removeActivityUpdates();
                 handler.removeCallbacks(cronJob);
+                stopLocationService();
                 break;
         }
     }
@@ -587,6 +591,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        handler.removeCallbacksAndMessages(null);
     }
 
     @Override
@@ -1128,5 +1133,15 @@ public class HomeActivity extends AppCompatActivity {
                 dialogSendAllready = false;
             }
         }, positiveResponse ? Constants.getMinutesInMilliseconds() * 3 : Constants.getSecondsInMilliseconds() * 20);
+    }
+
+    public void startLocationService() {
+        Intent serviceIntent = new Intent(this, LocationUpdatesService.class);
+        startService(serviceIntent);
+    }
+
+    public void stopLocationService() {
+        Intent serviceIntent = new Intent(this, LocationUpdatesService.class);
+        stopService(serviceIntent);
     }
 }
