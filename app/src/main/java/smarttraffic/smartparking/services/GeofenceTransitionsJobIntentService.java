@@ -64,8 +64,9 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
         // Test that the reported transition was of interest.
         switch (geofenceTransition) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
+                Utils.saveGeofencesTrigger(this,namesOfGeofencesTrigger(triggeringGeofences));
                 sendNotification(geofenceTransitionDetails, triggeringGeofences);
-                startLocationService(triggeringGeofences);
+                startLocationService();
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 stopLocationService();
@@ -177,9 +178,8 @@ public class GeofenceTransitionsJobIntentService extends JobIntentService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    public void startLocationService(List<Geofence> triggeringGeofences) {
+    public void startLocationService() {
         Intent serviceIntent = new Intent(this, LocationUpdatesService.class);
-        Utils.saveGeofencesTrigger(this,namesOfGeofencesTrigger(triggeringGeofences));
         startService(serviceIntent);
     }
 
