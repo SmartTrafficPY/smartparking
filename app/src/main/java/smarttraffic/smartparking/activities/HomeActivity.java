@@ -135,7 +135,6 @@ public class HomeActivity extends AppCompatActivity {
     int activityTransition;
     int geofenceTransition;
     int confidence;
-    int delayResponse;
     boolean userNotResponse = true;
     boolean dialogSendAllready = false;
     private Location mCurrentLocation;
@@ -146,6 +145,8 @@ public class HomeActivity extends AppCompatActivity {
     private BroadcastReceiver locationReceiver;
     private GeofencingClient geofencingClient;
     private PendingIntent mGeofencePendingIntent;
+    final Handler handler = new Handler();
+    Runnable cronJob;
     //MAP...
     private MyLocationNewOverlay mLocationOverlay;
     private CompassOverlay mCompassOverlay;
@@ -365,10 +366,9 @@ public class HomeActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = this.getSharedPreferences(
                 Constants.SETTINGS, MODE_PRIVATE);
         getSpotsFromGeofence(geofencesTrigger, false);
-        final Handler handler = new Handler();
         final long delay = sharedPreferences.getLong(Constants.MAP_SPOTS_TIME_UPDATE_SETTINGS,
                 Constants.getSecondsInMilliseconds() * 45);
-        Runnable cronJob = new Runnable() {
+        cronJob = new Runnable() {
             public void run() {
                 getSpotsFromGeofence(geofencesTrigger, true);
                 handler.postDelayed(this, delay);
@@ -376,6 +376,7 @@ public class HomeActivity extends AppCompatActivity {
         };
         switch (geofenceTransition) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
+                startLocationService();
                 handler.postDelayed(cronJob, delay);
                 requestActivityUpdates();
                 break;
@@ -385,10 +386,12 @@ public class HomeActivity extends AppCompatActivity {
                     Utils.setEntranceEvent(this, mCurrentLocation, Constants.EVENT_TYPE_EXIT);
                 }
                 handler.removeCallbacks(cronJob);
+                stopLocationService();
                 break;
             default:
                 removeActivityUpdates();
                 handler.removeCallbacks(cronJob);
+                stopLocationService();
                 break;
         }
     }
@@ -595,6 +598,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        handler.removeCallbacksAndMessages(null);
     }
 
     @Override
@@ -837,14 +841,15 @@ public class HomeActivity extends AppCompatActivity {
         if (spotId != Constants.NOT_IN_PARKINGSPOT) {
             Spot spot = getSpotFromId(spots, spotId);
             SpotProperties spotProperties = spot.getProperties();
-            if (!spotProperties.getState().equals(StatesEnumerations.OCCUPIED.getEstado())){
-                if(!(activityTransition == DetectedActivity.RUNNING ||
-                        activityTransition == DetectedActivity.ON_FOOT ||
-                        activityTransition == DetectedActivity.WALKING) && !dialogSendAllready){
-                    confirmationOfActionDialog(spotId, true);
-                }
-            } else {
-                if(!dialogSendAllready){
+            if(!dialogSendAllready){
+                dialogSendAllready = true;
+                if (!spotProperties.getState().equals(StatesEnumerations.OCCUPIED.getEstado())){
+                    if(!(activityTransition == DetectedActivity.RUNNING ||
+                            activityTransition == DetectedActivity.ON_FOOT ||
+                            activityTransition == DetectedActivity.WALKING)){
+                        confirmationOfActionDialog(spotId, true);
+                    }
+                }else{
                     confirmationOfActionDialog(spotId, false);
                 }
             }
@@ -867,18 +872,15 @@ public class HomeActivity extends AppCompatActivity {
      * **/
     @SuppressWarnings("MissingPermission")
     private void confirmationOfActionDialog(final int spotIdIn, final boolean isParking) {
-        final AlertDialog.Builder builder;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         if (isParking) {
-            final AlertDialog.Builder ocupationBuilder = new AlertDialog.Builder(this,
-                    R.style.AppTheme_SmartParking_DialogOccupation);
-            ocupationBuilder.setMessage(R.string.are_you_parking)
+            builder.setMessage(R.string.are_you_parking)
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
-                                userNotResponse = false;
-                                delayResponse = 60;
+                                Utils.setNewStateOnSpot(HomeActivity.this, true, spotIdIn);
                                 final Timer geofencetimer = new Timer();
-                                Utils.changeStatusOfSpot(spotIdIn, spots, "O");
+                                userNotResponse = false;
+                                resetFlags(true);
                                 geofencetimer.schedule(new TimerTask() {
                                     public void run() {
                                         geofencingClient.addGeofences(getGeofenceRequest(
@@ -891,45 +893,28 @@ public class HomeActivity extends AppCompatActivity {
                                 stopService(serviceIntent);
                             }
                         });
-            ocupationBuilder.setNegativeButton(R.string.not_get_spot_occupied, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    Utils.setNewStateOnSpot(HomeActivity.this, false, spotIdIn);
-                    Utils.changeStatusOfSpot(spotIdIn, spots, "F");
-                    userNotResponse = false;
-                    delayResponse = 60;
-                    List<String> geofencesToRemove = new ArrayList<>();
-                    geofencesToRemove.add("Tu vehiculo en " + spotIdIn);
-                    geofencingClient.removeGeofences(geofencesToRemove);
-                }
-            });
-            ocupationBuilder.setNeutralButton(R.string.no, new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         userNotResponse = false;
-                        delayResponse = 10;
-                        dialog.dismiss();
+                        resetFlags(false);
                     }
                 });
-            builder = ocupationBuilder;
         }else{
-            final AlertDialog.Builder freeBuilder = new AlertDialog.Builder(this,
-                    R.style.AppTheme_SmartParking_DialogLiberation);
-            freeBuilder.setMessage(R.string.are_you_vacating_a_place)
+            builder.setMessage(R.string.are_you_vacating_a_place)
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
-                        Utils.changeStatusOfSpot(spotIdIn, spots, "F");
                         userNotResponse = false;
-                        delayResponse = 60;
+                        resetFlags(true);
                         List<String> geofencesToRemove = new ArrayList<>();
                         geofencesToRemove.add("Tu vehiculo en " + spotIdIn);
                         geofencingClient.removeGeofences(geofencesToRemove);
                     }
                 });
-            freeBuilder.setNegativeButton(R.string.not_get_spot_free, new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(R.string.not_get_spot_free, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     Utils.setNewStateOnSpot(HomeActivity.this, true, spotIdIn);
                     final Timer geofencetimer = new Timer();
-                    delayResponse = 60;
                     geofencetimer.schedule(new TimerTask() {
                         public void run() {
                             geofencingClient.addGeofences(getGeofenceRequest(
@@ -941,30 +926,28 @@ public class HomeActivity extends AppCompatActivity {
                             LocationUpdatesService.class);
                     stopService(serviceIntent);
                     userNotResponse = false;
+                    resetFlags(true);
                 }
             });
-            freeBuilder.setNeutralButton(R.string.no, new DialogInterface.OnClickListener() {
+            builder.setNeutralButton(R.string.no, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     userNotResponse = false;
-                    delayResponse = 10;
-                    dialog.dismiss();
+                    resetFlags(false);
                 }
             });
-            builder = freeBuilder;
         }
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
-        dialogSendAllready = true;
-        final Timer dialogtimer = new Timer();
-        dialogtimer.schedule(new TimerTask() {
+        final Handler userNotRespond = new Handler();
+        userNotRespond.postDelayed(new Runnable() {
+            @Override
             public void run() {
                 alertDialog.dismiss();
                 if(userNotResponse){
                     if(isParking){
-                        Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
+                        Utils.setNewStateOnSpot(HomeActivity.this, true, spotIdIn);
                         final Timer geofencetimer = new Timer();
-                        Utils.changeStatusOfSpot(spotIdIn, spots, "O");
                         geofencetimer.schedule(new TimerTask() {
                             public void run() {
                                 geofencingClient.addGeofences(getGeofenceRequest(
@@ -976,22 +959,16 @@ public class HomeActivity extends AppCompatActivity {
                                 LocationUpdatesService.class);
                         stopService(serviceIntent);
                     }else{
-                        Utils.setNewStateOnSpot(HomeActivity.this, isParking, spotIdIn);
-                        Utils.changeStatusOfSpot(spotIdIn, spots, "F");
+                        Utils.setNewStateOnSpot(HomeActivity.this, false, spotIdIn);
                         List<String> geofencesToRemove = new ArrayList<>();
                         geofencesToRemove.add("Tu vehiculo en " + spotIdIn);
                         geofencingClient.removeGeofences(geofencesToRemove);
                     }
+                    resetFlags(true);
                 }
                 userNotResponse = true;
             }
         }, Constants.getSecondsInMilliseconds() * 20);
-        dialogtimer.schedule(new TimerTask() {
-            public void run() {
-                dialogSendAllready = false;
-                dialogtimer.cancel();
-            }
-        }, Constants.getSecondsInMilliseconds() * delayResponse);
     }
 
     public boolean isPointInsidePolygon(Spot spot, Location location){
@@ -1153,6 +1130,27 @@ public class HomeActivity extends AppCompatActivity {
         sendIntent.putExtra(Intent.EXTRA_TEXT, message);
         Intent chooser = Intent.createChooser(sendIntent, "Send bug report");
         startActivity(chooser);
+    }
+
+    public void resetFlags(boolean positiveResponse){
+        final Handler resetDialogtimer = new Handler();
+        resetDialogtimer.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                userNotResponse = true;
+                dialogSendAllready = false;
+            }
+        }, positiveResponse ? Constants.getMinutesInMilliseconds() * 3 : Constants.getSecondsInMilliseconds() * 20);
+    }
+
+    public void startLocationService() {
+        Intent serviceIntent = new Intent(this, LocationUpdatesService.class);
+        startService(serviceIntent);
+    }
+
+    public void stopLocationService() {
+        Intent serviceIntent = new Intent(this, LocationUpdatesService.class);
+        stopService(serviceIntent);
     }
 
     private void setStatusOfSpot(final int spotIdIn) {

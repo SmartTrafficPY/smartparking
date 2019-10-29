@@ -45,6 +45,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
+import smarttraffic.smartparking.dataModels.AppToken;
 import smarttraffic.smartparking.dataModels.EventProperties;
 import smarttraffic.smartparking.dataModels.Events;
 import smarttraffic.smartparking.dataModels.Lots.Lot;
@@ -53,6 +54,7 @@ import smarttraffic.smartparking.dataModels.Lots.PointGeometry;
 import smarttraffic.smartparking.dataModels.Point;
 import smarttraffic.smartparking.dataModels.Spots.NearbySpot.NearbySpot;
 import smarttraffic.smartparking.dataModels.Spots.Spot;
+import smarttraffic.smartparking.dataModels.TokenProperties;
 import smarttraffic.smartparking.receivers.AddAlarmReceiver;
 import smarttraffic.smartparking.receivers.RemoveAlarmReceiver;
 
@@ -108,6 +110,10 @@ public class Utils {
     }
 
     public static void setNewStateOnSpot(final Context context, boolean isParking, int spotId) {
+        TokenProperties tokenProperties = new TokenProperties(SmartParkingInitialData.getToken());
+        AppToken appToken = new AppToken();
+        appToken.setProperties(tokenProperties);
+        appToken.setType("Feature");
         Gson gson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -127,7 +133,8 @@ public class Utils {
 
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
         if(isParking){
-            Call<ResponseBody> call = smartParkingAPI.setOccupiedSpot(spotId);
+            Call<ResponseBody> call = smartParkingAPI.setOccupiedSpot("application/vnd.geo+json",
+                    spotId, appToken);
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -147,7 +154,8 @@ public class Utils {
                 }
             });
         }else{
-            Call<ResponseBody> call = smartParkingAPI.resetFreeSpot(spotId);
+            Call<ResponseBody> call = smartParkingAPI.resetFreeSpot("application/vnd.geo+json",
+                    spotId, appToken);
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
