@@ -145,6 +145,8 @@ public class HomeActivity extends AppCompatActivity {
     private BroadcastReceiver locationReceiver;
     private GeofencingClient geofencingClient;
     private PendingIntent mGeofencePendingIntent;
+    final Handler handler = new Handler();
+    Runnable cronJob;
     //MAP...
     private MyLocationNewOverlay mLocationOverlay;
     private CompassOverlay mCompassOverlay;
@@ -357,10 +359,9 @@ public class HomeActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = this.getSharedPreferences(
                 Constants.SETTINGS, MODE_PRIVATE);
         getSpotsFromGeofence(geofencesTrigger, false);
-        final Handler handler = new Handler();
         final long delay = sharedPreferences.getLong(Constants.MAP_SPOTS_TIME_UPDATE_SETTINGS,
                 Constants.getSecondsInMilliseconds() * 45);
-        Runnable cronJob = new Runnable() {
+        cronJob = new Runnable() {
             public void run() {
                 getSpotsFromGeofence(geofencesTrigger, true);
                 handler.postDelayed(this, delay);
@@ -590,6 +591,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        handler.removeCallbacksAndMessages(null);
     }
 
     @Override

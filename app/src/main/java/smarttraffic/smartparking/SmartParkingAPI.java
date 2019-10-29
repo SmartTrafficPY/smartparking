@@ -37,11 +37,13 @@ public interface SmartParkingAPI {
 
     /**SPOTS**/
     @POST("smartparking/spots/{spotId}/reset/")
-    Call<ResponseBody> resetFreeSpot(@Path("spotId") Integer spotId,
+    Call<ResponseBody> resetFreeSpot(@Header("Content-Type") String content_type,
+                                     @Path("spotId") Integer spotId,
                                      @Body AppToken appToken);
 
     @POST("smartparking/spots/{spotId}/set/")
-    Call<ResponseBody> setOccupiedSpot(@Path("spotId") Integer spotId,
+    Call<ResponseBody> setOccupiedSpot(@Header("Content-Type") String content_type,
+                                       @Path("spotId") Integer spotId,
                                        @Body AppToken appToken);
 
     @POST("smartparking/spots/nearby/")
