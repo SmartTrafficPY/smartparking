@@ -30,6 +30,7 @@ import org.osmdroid.util.GeoPoint;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -400,6 +401,7 @@ public class Utils {
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(Constants.HAS_ENTER_IN_LOT, flag).apply();
+        editor.putString(Constants.ENTER_LOT_TIMESTAMP, getCurrentTimeStamp()).apply();
         editor.commit();
     }
 
@@ -515,7 +517,8 @@ public class Utils {
         return getGeopointsFromLocation(myCarParkedLocation);
     }
 
-    public static void compareUncomingGateways(Context context, Location currentLocation, List<List<LatLng>> lotsPolygons) {
+    public static void compareUncomingGateways(Context context, Location currentLocation,
+                                               List<List<LatLng>> lotsPolygons) {
         if (lotsPolygons != null && !lotsPolygons.isEmpty()) {
             for (List linkedTrees : lotsPolygons) {
                 compareToEntranceLot(context, currentLocation, toLatLngList(linkedTrees));
@@ -526,19 +529,20 @@ public class Utils {
     public static void compareToEntranceLot(Context context, Location location, List<LatLng> polygonEntrance) {
         if (PolyUtil.containsLocation(location.getLatitude(), location.getLongitude(),
                 polygonEntrance, true)) {
-            if (!Utils.returnEnterLotFlag(context)) {
+            //TODO:check if today he is inside...
+            if (!Utils.isTodayEnterTheLot(context)) {
                 Utils.setEntranceEvent(context, location, Constants.EVENT_TYPE_ENTRACE);
                 Utils.hasEnterLotFlag(context, true);
             }
         }else{
-            if (Utils.returnEnterLotFlag(context)) {
+            if (Utils.isTodayEnterTheLot(context)) {
                 Utils.setEntranceEvent(context, location, Constants.EVENT_TYPE_EXIT);
                 Utils.hasEnterLotFlag(context, false);
             }
         }
     }
 
-    public List<LatLng> toLatLngList(List<LinkedTreeMap> linkedTrees) {
+    public static List<LatLng> toLatLngList(List<LinkedTreeMap> linkedTrees) {
         List<LatLng> listToReturn = new ArrayList<>();
         if (linkedTrees != null && !linkedTrees.isEmpty()) {
             for (LinkedTreeMap tree : linkedTrees) {
@@ -548,5 +552,32 @@ public class Utils {
             }
         }
         return listToReturn;
+    }
+
+    private static boolean isTodayEnterTheLot(Context context){
+        String lastLotFlagUpdated;
+        if(Utils.returnEnterLotFlag(context)){
+            SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.ENTER_LOT_FLAG,
+                    Context.MODE_PRIVATE);
+            lastLotFlagUpdated = sharedPreferences.getString(Constants.ENTER_LOT_TIMESTAMP, "");
+            if(lastLotFlagUpdated.equals("")){
+                return false;
+            }else{
+                if(!(getCurrentTimeStamp().equals(lastLotFlagUpdated))){
+                    return false;
+                }else{
+                    return true;
+                }
+            }
+        }else{
+            return false;
+        }
+    }
+
+    private static String getCurrentTimeStamp() {
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+        Date today = Calendar.getInstance().getTime();
+        String strDate = sdfDate.format(today);
+        return strDate;
     }
 }
