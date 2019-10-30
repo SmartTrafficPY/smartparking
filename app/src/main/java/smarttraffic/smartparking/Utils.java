@@ -554,11 +554,10 @@ public class Utils {
     }
 
     private static boolean isTodayEnterTheLot(Context context){
-        String lastLotFlagUpdated;
         if(Utils.returnEnterLotFlag(context)){
             SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.ENTER_LOT_FLAG,
                     Context.MODE_PRIVATE);
-            lastLotFlagUpdated = sharedPreferences.getString(Constants.ENTER_LOT_TIMESTAMP, "");
+            String lastLotFlagUpdated = sharedPreferences.getString(Constants.ENTER_LOT_TIMESTAMP, "");
             if(lastLotFlagUpdated.equals("")){
                 return false;
             }else{

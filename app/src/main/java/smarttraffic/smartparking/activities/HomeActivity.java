@@ -1161,16 +1161,18 @@ public class HomeActivity extends AppCompatActivity {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this,
                     R.style.AppTheme_Dark_Dialog);
         builder.setMessage(R.string.how_its_state)
-                    .setPositiveButton(R.string.occupied, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            Utils.setNewStateOnSpot(HomeActivity.this, true, spotIdIn);
-                        }
-                    })
+                .setPositiveButton(R.string.occupied, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Utils.setNewStateOnSpot(HomeActivity.this, true, spotIdIn);
+                        dialog.dismiss();
+                    }
+                })
                 .setNegativeButton(R.string.free, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    Utils.setNewStateOnSpot(HomeActivity.this, false, spotIdIn);
-                }
-            });
+                    public void onClick(DialogInterface dialog, int id) {
+                        Utils.setNewStateOnSpot(HomeActivity.this, false, spotIdIn);
+                        dialog.dismiss();
+                    }
+                });
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
