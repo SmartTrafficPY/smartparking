@@ -225,6 +225,10 @@ public class HomeActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 mCurrentLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
                 if (mCurrentLocation != null) {
+                    if(!Utils.returnListOfGateways(HomeActivity.this, geofencesTrigger).isEmpty()){
+                        Utils.compareUncomingGateways(HomeActivity.this, mCurrentLocation,
+                                Utils.returnListOfGateways(HomeActivity.this, geofencesTrigger));
+                    }
                     checkForUserLocation(mCurrentLocation);
                 }
             }
@@ -1166,10 +1170,7 @@ public class HomeActivity extends AppCompatActivity {
                 public void onClick(DialogInterface dialog, int id) {
                     Utils.setNewStateOnSpot(HomeActivity.this, false, spotIdIn);
                 }
-            })
-                .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {}
-        });
+            });
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
