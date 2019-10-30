@@ -89,7 +89,7 @@
     <string name="insufficient_permissions">Permisos insuficientes</string>
     <string name="settings">Configuraciones</string>
     <string name="permission_denied_explanation">Se denegó el permiso, pero es necesario para el núcleo funcionalidad</string>
-    <string name="geofence_transition_dwell">Geofence: transición de permanencia</string>
+    <string name="geofence_transition_dwell">Permanencia en predio: </string>
     <string name="launch_activity">Empezar</string>
     <string name="remove_location_updates">Eliminar actualizaciones de ubicación</string>
     <string name="location_updated">Ubicacion actualizada</string>
