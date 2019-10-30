@@ -46,8 +46,9 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
         // Test that the reported transition was of interest.
         switch (geofenceTransition) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
+                Utils.saveGeofencesTrigger(context,namesOfGeofencesTrigger(triggeringGeofences));
                 sendNotification(context, geofenceTransitionDetails, triggeringGeofences);
-                startLocationService(context, triggeringGeofences);
+                startLocationService(context);
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 stopLocationService(context);
@@ -142,9 +143,8 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         }
 
-    public void startLocationService(Context context, List<Geofence> triggeringGeofences) {
+    public void startLocationService(Context context) {
             Intent serviceIntent = new Intent(context, LocationUpdatesService.class);
-            Utils.saveGeofencesTrigger(context,namesOfGeofencesTrigger(triggeringGeofences));
             context.startService(serviceIntent);
     }
 

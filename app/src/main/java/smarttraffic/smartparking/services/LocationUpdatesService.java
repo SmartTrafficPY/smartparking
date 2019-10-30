@@ -281,7 +281,7 @@ public class LocationUpdatesService extends Service implements LocationListener{
     public void onLocationChanged(Location location) {
         mLocation = location;
         broadcastLocation(mLocation);
-        compareUncomingGateways(mLocation);
+        Utils.compareUncomingGateways(LocationUpdatesService.this, mLocation, lotsPolygons);
     }
 
     @Override
