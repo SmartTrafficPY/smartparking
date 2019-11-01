@@ -526,16 +526,18 @@ public class Utils {
     }
 
     public static void compareToEntranceLot(Context context, Location location, List<LatLng> polygonEntrance) {
-        if (PolyUtil.containsLocation(location.getLatitude(), location.getLongitude(),
-                polygonEntrance, true)) {
-            if (!Utils.isTodayEnterTheLot(context)) {
-                Utils.setEntranceEvent(context, location, Constants.EVENT_TYPE_ENTRACE);
-                Utils.hasEnterLotFlag(context, true);
-            }
-        }else{
-            if (Utils.isTodayEnterTheLot(context)) {
-                Utils.setEntranceEvent(context, location, Constants.EVENT_TYPE_EXIT);
-                Utils.hasEnterLotFlag(context, false);
+        if(location != null && polygonEntrance != null){
+            if (PolyUtil.containsLocation(location.getLatitude(), location.getLongitude(),
+                    polygonEntrance, true)) {
+                if (!Utils.isTodayEnterTheLot(context)) {
+                    Utils.setEntranceEvent(context, location, Constants.EVENT_TYPE_ENTRACE);
+                    Utils.hasEnterLotFlag(context, true);
+                }
+            }else{
+                if (Utils.isTodayEnterTheLot(context)) {
+                    Utils.setEntranceEvent(context, location, Constants.EVENT_TYPE_EXIT);
+                    Utils.hasEnterLotFlag(context, false);
+                }
             }
         }
     }

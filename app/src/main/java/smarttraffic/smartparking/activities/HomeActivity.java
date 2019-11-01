@@ -645,7 +645,6 @@ public class HomeActivity extends AppCompatActivity {
                                     properties.getName(), false));
                         }
                         addGeofences(geofenceList);
-                        Toast.makeText(HomeActivity.this, "geofences addde", Toast.LENGTH_SHORT).show();
                         Utils.saveListOfGateways(HomeActivity.this, response.body());
                         break;
                     default:
