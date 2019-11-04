@@ -37,6 +37,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.DetectedActivity;
@@ -105,7 +106,6 @@ import smarttraffic.smartparking.receivers.AddAlarmReceiver;
 import smarttraffic.smartparking.receivers.GeofenceBroadcastReceiver;
 import smarttraffic.smartparking.receivers.RemoveAlarmReceiver;
 import smarttraffic.smartparking.services.DetectedActivitiesService;
-import smarttraffic.smartparking.services.GeofenceTransitionsJobIntentService;
 import smarttraffic.smartparking.services.LocationUpdatesService;
 
 import static smarttraffic.smartparking.Interceptors.ReceivedTimeStampInterceptor.X_TIMESTAMP;
@@ -164,8 +164,6 @@ public class HomeActivity extends AppCompatActivity {
 
         removeGeofences();
 
-        Utils.addAlarmsGeofencingTask(this);
-
         setMapView();
 
         buttonRecenter.setOnClickListener(new View.OnClickListener() {
@@ -213,7 +211,7 @@ public class HomeActivity extends AppCompatActivity {
                     geofencesTrigger = intent.getStringArrayListExtra(
                             Constants.GEOFENCE_TRIGGED);
                     geofenceTransition = intent.getIntExtra(
-                            GeofenceTransitionsJobIntentService.TRANSITION,
+                            GeofenceBroadcastReceiver.TRANSITION,
                             -1);
                     managerOfTransitions();
                 }
@@ -225,6 +223,10 @@ public class HomeActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 mCurrentLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
                 if (mCurrentLocation != null) {
+                    if(!Utils.returnListOfGateways(HomeActivity.this, geofencesTrigger).isEmpty()){
+                        Utils.compareUncomingGateways(HomeActivity.this, mCurrentLocation,
+                                Utils.returnListOfGateways(HomeActivity.this, geofencesTrigger));
+                    }
                     checkForUserLocation(mCurrentLocation);
                 }
             }
@@ -457,7 +459,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<SpotList> call, Throwable t) {
                 if(!Utils.isNetworkConnected(HomeActivity.this)){
-                    Utils.showToast(Constants.CONNECTION_FAILED, HomeActivity.this);
+                    Toast.makeText(HomeActivity.this, Constants.CONNECTION_FAILED, Toast.LENGTH_SHORT).show();
                 }
                 t.printStackTrace();
             }
@@ -550,7 +552,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
                 if(!Utils.isNetworkConnected(HomeActivity.this)){
-                    Utils.showToast(Constants.CONNECTION_FAILED, HomeActivity.this);
+                    Toast.makeText(HomeActivity.this, Constants.CONNECTION_FAILED, Toast.LENGTH_SHORT).show();
                 }
                 t.printStackTrace();
             }
@@ -652,7 +654,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<LotList> call, Throwable t) {
                 if(!Utils.isNetworkConnected(HomeActivity.this)){
-                    Utils.showToast(Constants.CONNECTION_FAILED, HomeActivity.this);
+                    Toast.makeText(HomeActivity.this, Constants.CONNECTION_FAILED, Toast.LENGTH_SHORT).show();
                 }
                 t.printStackTrace();
             }
@@ -672,7 +674,7 @@ public class HomeActivity extends AppCompatActivity {
                         longitud,
                         radius
                 )
-                .setLoiteringDelay(1000 * 60 * 20)
+                .setLoiteringDelay((int) (Constants.getMinutesInMilliseconds() * 20))
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                         Geofence.GEOFENCE_TRANSITION_EXIT |
                         Geofence.GEOFENCE_TRANSITION_DWELL);

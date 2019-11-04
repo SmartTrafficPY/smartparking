@@ -9,6 +9,7 @@ package smarttraffic.smartparking;
 public class Constants {
 
 
+
     /**
      * Add here all variables used at width in the project...
      * **/
@@ -17,6 +18,7 @@ public class Constants {
         // Persistence Constructor
     }
 
+    public static final String ENTER_LOT_TIMESTAMP = "ENTER_LOT_TIMESTAMP";
     public static final String CAR_PARKED_LOCATION_LATITUD = "CAR_PARKED_LOCATION_LATITUD";
     public static final String CAR_PARKED_LOCATION_LONGITUD = "CAR_PARKED_LOCATION_LATITUD";
     public static final String REGISTRATION_NOT_DONE = "No se pudo registrar el perfil!";

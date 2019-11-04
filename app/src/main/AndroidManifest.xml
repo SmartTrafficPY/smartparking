@@ -129,7 +129,7 @@
         <receiver
             android:name=".receivers.GeofenceBroadcastReceiver"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"/>
 
         <receiver
             android:name=".receivers.AddAlarmReceiver"
@@ -140,11 +140,6 @@
             android:name=".receivers.RemoveAlarmReceiver"
             android:enabled="true"
             android:exported="true" />
-
-        <service
-            android:name=".services.GeofenceTransitionsJobIntentService"
-            android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
 
     </application>
 

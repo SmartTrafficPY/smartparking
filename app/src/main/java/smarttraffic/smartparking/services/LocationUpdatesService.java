@@ -105,42 +105,6 @@ public class LocationUpdatesService extends Service implements LocationListener{
         }
     }
 
-    private void compareUncomingGateways(Location currentLocation) {
-        if (lotsPolygons != null && !lotsPolygons.isEmpty()) {
-            for (List linkedTrees : lotsPolygons) {
-                compareToEntranceLot(currentLocation, toLatLngList(linkedTrees));
-            }
-        }
-    }
-
-    private List<LatLng> toLatLngList(List<LinkedTreeMap> linkedTrees) {
-        List<LatLng> listToReturn = new ArrayList<>();
-        if (linkedTrees != null && !linkedTrees.isEmpty()) {
-            for (LinkedTreeMap tree : linkedTrees) {
-                LatLng point = new LatLng(Double.valueOf(tree.get("latitude").toString()),
-                        Double.valueOf(tree.get("longitude").toString()));
-                listToReturn.add(point);
-            }
-        }
-        return listToReturn;
-    }
-
-    private void compareToEntranceLot(Location location, List<LatLng> polygonEntrance) {
-        if (PolyUtil.containsLocation(location.getLatitude(), location.getLongitude(),
-                polygonEntrance, true)) {
-            if (!Utils.returnEnterLotFlag(LocationUpdatesService.this)) {
-                Utils.setEntranceEvent(LocationUpdatesService.this, location, Constants.EVENT_TYPE_ENTRACE);
-                Utils.hasEnterLotFlag(LocationUpdatesService.this, true);
-            }
-        }else{
-            if (Utils.returnEnterLotFlag(LocationUpdatesService.this)) {
-                Utils.setEntranceEvent(LocationUpdatesService.this, location, Constants.EVENT_TYPE_EXIT);
-                Utils.hasEnterLotFlag(LocationUpdatesService.this, false);
-                stopSelf();
-            }
-        }
-    }
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         boolean startedFromNotification = intent.getBooleanExtra(EXTRA_STARTED_FROM_NOTIFICATION,
@@ -281,7 +245,7 @@ public class LocationUpdatesService extends Service implements LocationListener{
     public void onLocationChanged(Location location) {
         mLocation = location;
         broadcastLocation(mLocation);
-        compareUncomingGateways(mLocation);
+        Utils.compareUncomingGateways(LocationUpdatesService.this, mLocation, lotsPolygons);
     }
 
     @Override
