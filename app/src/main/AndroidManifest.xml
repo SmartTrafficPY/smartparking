@@ -110,6 +110,10 @@
             android:name=".services.LocationUpdatesService"
             android:enabled="true"
             android:exported="true"></service>
+        <service
+            android:name=".services.GeofenceLocationService"
+            android:enabled="true"
+            android:exported="true"></service>
 
         <receiver android:name=".receivers.LoginReceiver"
             android:exported="true"

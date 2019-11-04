@@ -18,6 +18,9 @@ public class Constants {
         // Persistence Constructor
     }
 
+    public static final String LAST_GEOFENCE_TRIGGER = "LAST_GEOFENCE_TRIGGER";
+    public static final String GEOFENCE_TIMESTAMP = "GEOFENCE_TIMESTAMP";
+    public static final String LOTS_NAME_LIST = "LOTS_NAME_LIST";
     public static final String ENTER_LOT_TIMESTAMP = "ENTER_LOT_TIMESTAMP";
     public static final String CAR_PARKED_LOCATION_LATITUD = "CAR_PARKED_LOCATION_LATITUD";
     public static final String CAR_PARKED_LOCATION_LONGITUD = "CAR_PARKED_LOCATION_LATITUD";

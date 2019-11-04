@@ -93,6 +93,7 @@
     <string name="launch_activity">Empezar</string>
     <string name="remove_location_updates">Eliminar actualizaciones de ubicación</string>
     <string name="location_updated">Ubicacion actualizada</string>
+    <string name="geofence_updated">SmartParking service</string>
     <string name="in_vehicle">En vehículo</string>
     <string name="on_bicycle">Bicicleta</string>
     <string name="on_foot">A pie</string>
@@ -115,6 +116,7 @@
     <string name="unsuccessful">Actividad no procesada!</string>
     <string name="free_successfull">Has liberado un lugar!</string>
     <string name="foreground_notification">Servicio SmartParking en ejecución</string>
+    <string name="geofence_background">Servicio geofence de SmartParking en ejecución</string>
     <string name="new_configurations_accepted">Nueva configuración guardada</string>
     <string name="not_get_spot_free">No, ocupando</string>
     <string name="without_spaces">*Sin espacios</string>

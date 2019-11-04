@@ -141,7 +141,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
                     namesOfGeofencesTrigger(triggeringGeofences));
             intent.putExtra(TRANSITION, geofenceTransition);
             LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-        }
+    }
 
     public void startLocationService(Context context) {
             Intent serviceIntent = new Intent(context, LocationUpdatesService.class);

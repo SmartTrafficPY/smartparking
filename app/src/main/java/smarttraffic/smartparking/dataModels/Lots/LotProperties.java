@@ -1,5 +1,10 @@
 package smarttraffic.smartparking.dataModels.Lots;
 
+import android.location.Location;
+
+import smarttraffic.smartparking.dataModels.Point;
+import smarttraffic.smartparking.dataModels.Spots.PolygonGeometry;
+
 /**
  * Created by Joaquin on 09/2019.
  * <p>
@@ -54,6 +59,14 @@ public class LotProperties {
     public PointGeometry getCenter() {
         return center;
     }
+
+    public Location getLocationCenter(){
+        Location center = new Location("ServerProvider");
+        Point pointGeometry = getCenter().getPointCoordinates();
+        center.setLatitude(pointGeometry.getLatitud());
+        center.setLongitude(pointGeometry.getLongitud());
+        return center;
+   }
 
     public void setCenter(PointGeometry center) {
         this.center = center;

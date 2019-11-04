@@ -106,6 +106,7 @@ import smarttraffic.smartparking.receivers.AddAlarmReceiver;
 import smarttraffic.smartparking.receivers.GeofenceBroadcastReceiver;
 import smarttraffic.smartparking.receivers.RemoveAlarmReceiver;
 import smarttraffic.smartparking.services.DetectedActivitiesService;
+import smarttraffic.smartparking.services.GeofenceLocationService;
 import smarttraffic.smartparking.services.LocationUpdatesService;
 
 import static smarttraffic.smartparking.Interceptors.ReceivedTimeStampInterceptor.X_TIMESTAMP;
@@ -423,9 +424,9 @@ public class HomeActivity extends AppCompatActivity {
                 .baseUrl(Constants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
-        int lotId = Utils.getLotInSharedPreferences(HomeActivity.this, geofencesTrigger);
+        Lot lot = Utils.getLotsSaved(HomeActivity.this, geofencesTrigger);
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
-        Call<SpotList> call = smartParkingAPI.getAllGeoJsonSpotsInLot(lotId);
+        Call<SpotList> call = smartParkingAPI.getAllGeoJsonSpotsInLot(lot.getProperties().getIdFromUrl());
 
         call.enqueue(new Callback<SpotList>() {
             @Override
@@ -625,6 +626,7 @@ public class HomeActivity extends AppCompatActivity {
                 .baseUrl(Constants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
+
         SmartParkingAPI smartParkingAPI = retrofit.create(SmartParkingAPI.class);
         Call<LotList> call = smartParkingAPI.getAllLots();
 
@@ -636,15 +638,19 @@ public class HomeActivity extends AppCompatActivity {
                         List<Lot> lots = response.body().getFeatures();
                         Utils.saveLotInSharedPreferences(HomeActivity.this, lots);
                         ArrayList<Geofence> geofenceList = new ArrayList<>();
+                        ArrayList<String> lotsNameList = new ArrayList<>();
                         for (Lot lot : lots) {
+                            Utils.saveLotList(HomeActivity.this, lot);
                             LotProperties properties = lot.getProperties();
                             Point center = properties.getCenter().getPointCoordinates();
                             geofenceList.add(generateGeofence(center.getLatitud(),
                                     center.getLongitud(),
                                     properties.getRadio(),
                                     properties.getName(), false));
+                            lotsNameList.add(properties.getName());
                         }
-                        addGeofences(geofenceList);
+                        startOwnGeofenceService(lotsNameList);
+//                        addGeofences(geofenceList);
                         Utils.saveListOfGateways(HomeActivity.this, response.body());
                         break;
                     default:
@@ -1145,5 +1151,11 @@ public class HomeActivity extends AppCompatActivity {
     public void stopLocationService() {
         Intent serviceIntent = new Intent(this, LocationUpdatesService.class);
         stopService(serviceIntent);
+    }
+
+    public void startOwnGeofenceService(ArrayList<String> listOfLots) {
+        Intent serviceIntent = new Intent(this, GeofenceLocationService.class);
+        serviceIntent.putStringArrayListExtra(Constants.LOTS_NAME_LIST, listOfLots);
+        startService(serviceIntent);
     }
 }

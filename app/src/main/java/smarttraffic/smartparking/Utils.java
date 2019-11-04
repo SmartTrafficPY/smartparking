@@ -48,6 +48,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import smarttraffic.smartparking.Interceptors.AddUserTokenInterceptor;
+import smarttraffic.smartparking.activities.HomeActivity;
 import smarttraffic.smartparking.dataModels.AppToken;
 import smarttraffic.smartparking.dataModels.EventProperties;
 import smarttraffic.smartparking.dataModels.Events;
@@ -59,6 +60,7 @@ import smarttraffic.smartparking.dataModels.Spots.Spot;
 import smarttraffic.smartparking.dataModels.TokenProperties;
 import smarttraffic.smartparking.receivers.AddAlarmReceiver;
 import smarttraffic.smartparking.receivers.RemoveAlarmReceiver;
+import smarttraffic.smartparking.services.GeofenceLocationService;
 import smarttraffic.smartparking.services.LocationUpdatesService;
 
 import java.text.DateFormat;
@@ -90,9 +92,9 @@ public class Utils {
                 Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         for(Lot lot : lots){
-            editor.putInt(lot.getProperties().getName(),lot.getProperties().getIdFromUrl());
-            editor.apply();
+            editor.putInt(lot.getProperties().getName(),lot.getProperties().getIdFromUrl()).apply();
         }
+        editor.commit();
     }
 
     public static int getLotInSharedPreferences(Context context, String lotName) {
@@ -350,6 +352,13 @@ public class Utils {
                 DateFormat.getDateTimeInstance().format(new Date()));
     }
 
+    @SuppressLint("StringFormatInvalid")
+    public static String getGeofenceTitle(Context context) {
+        return context.getString(R.string.geofence_updated,
+                DateFormat.getDateTimeInstance().format(new Date()));
+    }
+
+
 
     /**
      * Stores the location updates state in SharedPreferences.
@@ -580,4 +589,53 @@ public class Utils {
         String strDate = sdfDate.format(today);
         return strDate;
     }
+
+    public static void saveLotList(Context context, Lot lot) {
+        SharedPreferences prefs = context.getSharedPreferences(LOTS_SYSTEM,
+                Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        SharedPreferences.Editor editor = prefs.edit();
+        String json = gson.toJson(lot);
+        editor.putString(lot.getProperties().getName(), json).apply();
+        editor.commit();
+    }
+
+    public static Lot getLotsSaved(Context context, String lotName) {
+        SharedPreferences prefs = context.getSharedPreferences(LOTS_SYSTEM,
+                Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = prefs.getString(lotName, "");
+        Lot lot = gson.fromJson(json, Lot.class);
+        return lot;
+    }
+
+    public static Long getLastTimeInsideGeofence(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(Constants.GEOFENCE_TIMESTAMP, Context.MODE_PRIVATE);
+        String lastTimeInside = preferences.getString(Constants.GEOFENCE_TIMESTAMP, "");
+        return Long.valueOf(lastTimeInside);
+    }
+
+    public static void setLastTimeInsideGeofence(Context context, boolean delete) {
+        SharedPreferences preferences = context.getSharedPreferences(Constants.GEOFENCE_TIMESTAMP, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        if(delete){
+            editor.putString(Constants.GEOFENCE_TIMESTAMP, "").apply();
+        }else{
+            editor.putString(Constants.GEOFENCE_TIMESTAMP, String.valueOf(System.currentTimeMillis())).apply();
+        }
+        editor.commit();
+    }
+
+    public static void setLastGeofenceTrigger(Context context, String geofenceTrigger){
+        SharedPreferences preferences = context.getSharedPreferences(Constants.GEOFENCE_TIMESTAMP, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(Constants.LAST_GEOFENCE_TRIGGER, geofenceTrigger).apply();
+        editor.commit();
+    }
+
+    public static String getLastGeofenceTrigger(Context context){
+        return context.getSharedPreferences(Constants.GEOFENCE_TIMESTAMP, Context.MODE_PRIVATE).
+                getString(Constants.LAST_GEOFENCE_TRIGGER, "");
+    }
+
 }

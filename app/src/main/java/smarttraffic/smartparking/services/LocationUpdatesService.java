@@ -40,7 +40,7 @@ import static smarttraffic.smartparking.Utils.getGeofencesTrigger;
 
 public class LocationUpdatesService extends Service implements LocationListener{
 
-    private static final String PACKAGE_NAME = "smarttraffic.smartparking.services";
+    private static final String PACKAGE_NAME = "smarttraffic.smartparking.locationServices";
 
     private static final String CHANNEL_ID = "location_updates_channel";
 
