@@ -612,7 +612,11 @@ public class Utils {
     public static Long getLastTimeInsideGeofence(Context context) {
         SharedPreferences preferences = context.getSharedPreferences(Constants.GEOFENCE_TIMESTAMP, Context.MODE_PRIVATE);
         String lastTimeInside = preferences.getString(Constants.GEOFENCE_TIMESTAMP, "");
-        return Long.valueOf(lastTimeInside);
+        if(lastTimeInside.equals("")){
+            return Long.valueOf(0);
+        }else{
+            return Long.valueOf(lastTimeInside);
+        }
     }
 
     public static void setLastTimeInsideGeofence(Context context, boolean delete) {

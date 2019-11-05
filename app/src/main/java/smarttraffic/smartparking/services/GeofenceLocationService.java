@@ -64,7 +64,7 @@ public class GeofenceLocationService extends Service implements LocationListener
      * than this value.
      */
     private static final long UPDATE_INTERVAL =
-            Constants.getMinutesInMilliseconds() * 5;
+            Constants.getSecondsInMilliseconds() * 5;
     /**
      * The identifier for the notification displayed for the foreground service.
      */
@@ -171,8 +171,6 @@ public class GeofenceLocationService extends Service implements LocationListener
      * Returns the {@link NotificationCompat} used as part of the foreground service.
      */
     private Notification getNotification() {
-        Intent intent = new Intent(this, LocationUpdatesService.class);
-
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setContentText(this.getString(R.string.geofence_background))
                 .setContentTitle(Utils.getGeofenceTitle(this))
@@ -205,7 +203,10 @@ public class GeofenceLocationService extends Service implements LocationListener
             return;
         }
         if(locationManager != null){
-            locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null){
+                mLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+            }
         }
     }
 
@@ -242,9 +243,15 @@ public class GeofenceLocationService extends Service implements LocationListener
     }
 
     private boolean haveBeenLongTimeInside() {
+        Long lastUpdate = Utils.getLastTimeInsideGeofence(GeofenceLocationService.this);
         Long today = System.currentTimeMillis();
-        if((today - Utils.getLastTimeInsideGeofence(GeofenceLocationService.this)) / Constants.getMinutesInMilliseconds() >= 20){
-            return true;
+        long minutesPast = ((today - lastUpdate) / Constants.getMinutesInMilliseconds());
+        if(!lastUpdate.equals(0)){
+            if(minutesPast >= 20){
+                return true;
+            }else{
+                return false;
+            }
         }else{
             return false;
         }
@@ -258,7 +265,6 @@ public class GeofenceLocationService extends Service implements LocationListener
     @Override
     public void onProviderEnabled(String provider) {
         //No need to implement...
-
     }
 
     @Override
