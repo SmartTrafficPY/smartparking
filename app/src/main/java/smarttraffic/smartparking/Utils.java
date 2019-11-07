@@ -642,4 +642,21 @@ public class Utils {
                 getString(Constants.LAST_GEOFENCE_TRIGGER, "");
     }
 
+
+    public static boolean requestingLocationUpdates(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(KEY_REQUESTING_LOCATION_UPDATES, false);
+    }
+
+    public static int getLastTransitionGeofence(Context context) {
+        return context.getSharedPreferences(Constants.GEOFENCE_TRANSITION_TYPE, Context.MODE_PRIVATE).
+                getInt(Constants.LAST_GEOFENCE_TRANSITION, 0);
+    }
+
+    public static void setLastTransitionGeofenceNotify(Context context, int transition) {
+        SharedPreferences preferences = context.getSharedPreferences(Constants.GEOFENCE_TRANSITION_TYPE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(Constants.LAST_GEOFENCE_TRANSITION, transition).apply();
+        editor.commit();
+    }
 }

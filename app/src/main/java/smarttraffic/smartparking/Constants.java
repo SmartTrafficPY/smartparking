@@ -9,7 +9,6 @@ package smarttraffic.smartparking;
 public class Constants {
 
 
-
     /**
      * Add here all variables used at width in the project...
      * **/
@@ -18,6 +17,8 @@ public class Constants {
         // Persistence Constructor
     }
 
+
+    public static final String LAST_GEOFENCE_TRANSITION = "LAST_GEOFENCE_TRANSITION";
     public static final String LAST_GEOFENCE_TRIGGER = "LAST_GEOFENCE_TRIGGER";
     public static final String GEOFENCE_TIMESTAMP = "GEOFENCE_TIMESTAMP";
     public static final String LOTS_NAME_LIST = "LOTS_NAME_LIST";

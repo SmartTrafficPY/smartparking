@@ -5,10 +5,12 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -18,6 +20,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -132,6 +135,27 @@ public class HomeActivity extends AppCompatActivity {
     RemoveAlarmReceiver removeAlarmReceiver = new RemoveAlarmReceiver();
 
     private ActivityRecognitionClient mActivityRecognitionClient;
+
+    private GeofenceLocationService mGeofence = null;
+    private boolean mBound = false;
+
+    // Monitors the state of the connection to the service.
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            GeofenceLocationService.LocalBinder binder = (GeofenceLocationService.LocalBinder) service;
+            mGeofence = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mGeofence = null;
+            mBound = false;
+        }
+    };
+
 
     int activityTransition;
     int geofenceTransition;
@@ -569,12 +593,23 @@ public class HomeActivity extends AppCompatActivity {
         if (!checkPermissions()) {
             requestPermissions();
         }
+        // Bind to the service. If the service is in foreground mode, this signals to the service
+        // that since this activity is in the foreground, the service can exit foreground mode.
+        bindService(new Intent(this, GeofenceLocationService.class), mServiceConnection,
+                Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         removeActivityUpdates();
+        if (mBound) {
+            // Unbind from the service. This signals to the service that this activity is no longer
+            // in the foreground, and the service can respond by promoting itself to a foreground
+            // service.
+            unbindService(mServiceConnection);
+            mBound = false;
+        }
     }
 
     @Override
@@ -649,7 +684,8 @@ public class HomeActivity extends AppCompatActivity {
                                     properties.getName(), false));
                             lotsNameList.add(properties.getName());
                         }
-                        startOwnGeofenceService(lotsNameList);
+                        mGeofence.requestLocationUpdates(lotsNameList);
+//                        startOwnGeofenceService(lotsNameList);
 //                        addGeofences(geofenceList);
                         Utils.saveListOfGateways(HomeActivity.this, response.body());
                         break;
