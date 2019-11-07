@@ -75,6 +75,8 @@ public class GeofenceLocationService extends Service{
      */
     private static final String CHANNEL_ID = "geofence_channel";
 
+    private static final String TRANSITION_CHANNEL = "Transicion SmartParking";
+
     static final String ACTION_BROADCAST = PACKAGE_NAME + ".broadcast";
 
     static final String EXTRA_LOCATION = PACKAGE_NAME + ".location";
@@ -271,12 +273,10 @@ public class GeofenceLocationService extends Service{
                         R.drawable.notifications_smart_parking))
                 .setTicker("SmartParking geofence")
                 .setWhen(System.currentTimeMillis());
-
         // Set the Channel ID for Android O.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             builder.setChannelId(CHANNEL_ID); // Channel ID
         }
-
         return builder.build();
     }
 
@@ -415,8 +415,8 @@ public class GeofenceLocationService extends Service{
                             startLocationService(GeofenceLocationService.this);
                             Utils.setLastGeofenceTrigger(GeofenceLocationService.this, lot.getProperties().getName());
                             Utils.setLastTimeInsideGeofence(GeofenceLocationService.this, false);
+                            Utils.setLastTransitionGeofenceNotify(GeofenceLocationService.this, transition);
                         }
-                        Utils.setLastTransitionGeofenceNotify(GeofenceLocationService.this, transition);
                     }
                 }else{
                     if(Utils.getLastTransitionGeofence(GeofenceLocationService.this) != Geofence.GEOFENCE_TRANSITION_EXIT){
@@ -439,7 +439,7 @@ public class GeofenceLocationService extends Service{
 
         createNotificationChannel(context);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, TRANSITION_CHANNEL)
                 .setSmallIcon(R.drawable.notifications_smart_parking)
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),
                         R.drawable.notifications_smart_parking))
@@ -452,7 +452,7 @@ public class GeofenceLocationService extends Service{
 
         // Set the Channel ID for Android O.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            builder.setChannelId(CHANNEL_ID); // Channel ID
+            builder.setChannelId(TRANSITION_CHANNEL); // Channel ID
         }
         // Issue the notification
         mNotificationManager.notify(0, builder.build());
