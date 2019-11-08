@@ -568,6 +568,7 @@ public class HomeActivity extends AppCompatActivity {
         if (!checkPermissions()) {
             requestPermissions();
         }
+        Utils.checkForGPS(this);
     }
 
     @Override
