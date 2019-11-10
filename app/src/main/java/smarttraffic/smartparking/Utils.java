@@ -4,13 +4,17 @@ import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
+import android.support.v7.app.AlertDialog;
 import android.util.Base64;
 import android.view.Gravity;
 import android.widget.ImageView;
@@ -579,5 +583,45 @@ public class Utils {
         Date today = Calendar.getInstance().getTime();
         String strDate = sdfDate.format(today);
         return strDate;
+    }
+
+    public static void toLocationSourceSettings(Context context){
+        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        context.startActivity(intent);
+    }
+
+    public static boolean isGPSenabled(Context context){
+        LocationManager locationManager = (LocationManager) context.getSystemService(context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    public static void checkForGPS(Context context){
+        if(!isGPSenabled(context)){
+            showGPSDisabledAlertToUser(context);
+        }
+    }
+
+    private static void showGPSDisabledAlertToUser(final Context context){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+            alertDialogBuilder.setMessage("Es necesario habilitar el GPS")
+                    .setCancelable(false)
+                    .setPositiveButton("Ir a ajustes",
+                            new DialogInterface.OnClickListener(){
+                                public void onClick(DialogInterface dialog, int id){
+                                    toLocationSourceSettings(context);
+                                }
+                            });
+            alertDialogBuilder.setNegativeButton("Cancelar",
+                    new DialogInterface.OnClickListener(){
+                        public void onClick(DialogInterface dialog, int id){
+                            if(!isGPSenabled(context)){
+                                showGPSDisabledAlertToUser(context);
+                            }
+                            dialog.cancel();
+                        }
+                    });
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.show();
     }
 }
