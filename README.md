@@ -1,5 +1,5 @@
 <p align="center">
-    <a href="http://smarttraffic.com.py"><img src="https://github.com/SmartTrafficPY/smartparking/blob/master/header-smartTraffic.png"        title="SmartTraffic" alt="SmartTraffic"></a>
+    <a href="http://smarttraffic.com.py"><img src="https://github.com/SmartTrafficPY/smartparking/blob/master/header.JPG"        title="SmartTraffic" alt="SmartTraffic"></a>
 </p>
 
 # SmartParking: facilitating the search for parking places.
