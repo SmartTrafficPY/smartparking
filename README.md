@@ -5,7 +5,7 @@
 # SmartParking: facilitating the search for parking places.
 
 <p align="center">
-  <a href="https://www.smarttraffic.com.py/SmartParking/"><img  src="https://github.com/SmartTrafficPY/smartparking/blob/master/Smartparking.png" title="SmartParking" alt="SmartParking"></a>
+  <a href="https://www.smarttraffic.com.py/SmartParking/"><img  src="https://github.com/SmartTrafficPY/smartparking/blob/master/miniSmartParkingIcon.png" title="SmartParking" alt="SmartParking"></a>
 </p>
 
 Repository corresponding to the development of the client part of the SmartParking tool, one of the case studies within the SmartTraffic project framework.
