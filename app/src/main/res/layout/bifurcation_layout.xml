@@ -6,8 +6,8 @@
 
     <ImageView
         android:id="@+id/initImageView"
-        android:layout_width="75dp"
-        android:layout_height="75dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="50dp"
         android:src="@mipmap/bifurcation_icon"/>
@@ -17,11 +17,39 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:layout_marginTop="50dp"
         android:layout_margin="25dp"
         android:text="@string/not_login_message"
         android:textColor="@color/colorPrimary"
         android:textSize="25dp" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TableRow
+            android:layout_gravity="center"
+            android:gravity="center">
+            <ImageView
+                android:src="@drawable/free_location"/>
+            <TextView
+                android:text="@string/free_spot_meaning"/>
+        </TableRow>
+        <TableRow
+            android:layout_gravity="center"
+            android:gravity="center">
+            <ImageView
+                android:src="@drawable/occupied_location"/>
+            <TextView
+                android:text="@string/occupied_spot_meaning"/>
+        </TableRow>
+        <TableRow
+            android:layout_gravity="center"
+            android:gravity="center">
+            <ImageView
+                android:src="@drawable/unknown_location"/>
+            <TextView
+                android:text="@string/unknown_spot_meaning"/>
+        </TableRow>
+    </TableLayout>
 
     <Button
         android:id="@+id/createAccountButton"
@@ -45,8 +73,8 @@
         android:id="@+id/initSession"
         android:focusable="false"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="75dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="25dp"
         android:textIsSelectable="true"
         android:textColor="@color/blue"
         android:gravity="center"

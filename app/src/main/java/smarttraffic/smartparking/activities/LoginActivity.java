@@ -56,7 +56,6 @@ public class LoginActivity extends Activity {
             public void onClick(View v) {
                 if(checkCredentialsInput()){
                     makeLoginHappen();
-                    // function that makes the makeLoginHappen process...
                 }
             }
         });
@@ -103,7 +102,7 @@ public class LoginActivity extends Activity {
                         loginButton.setEnabled(true);
                         progressDialog.dismiss();
                     }
-                }, 20 * Constants.getSecondsInMilliseconds());
+                }, 10 * Constants.getSecondsInMilliseconds());
         eraseCredentials();
     }
 
@@ -119,7 +118,6 @@ public class LoginActivity extends Activity {
         startService(loginIntent);
     }
 
-    // Show images in Toast prompt.
     private void showToast(String message) {
         Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
         toast.setGravity(Gravity.CENTER, 0, 0);

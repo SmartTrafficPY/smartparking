@@ -18,6 +18,15 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.security.ProviderInstaller;
+
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.net.ssl.SSLContext;
+
 import smarttraffic.smartparking.Constants;
 import smarttraffic.smartparking.R;
 import smarttraffic.smartparking.Utils;
@@ -36,6 +45,18 @@ public class InitActivity extends Activity {
         final SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
                 Constants.CLIENTE_DATA, Context.MODE_PRIVATE);
 
+        try {
+            // Google Play will install latest OpenSSL
+            ProviderInstaller.installIfNeeded(getApplicationContext());
+            SSLContext sslContext;
+            sslContext = SSLContext.getInstance("TLSv1.2");
+            sslContext.init(null, null, null);
+            sslContext.createSSLEngine();
+        } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException
+                | NoSuchAlgorithmException | KeyManagementException e) {
+            e.printStackTrace();
+        }
+
         final ProgressDialog progressDialog = new ProgressDialog(InitActivity.this,
                 R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
@@ -44,23 +65,11 @@ public class InitActivity extends Activity {
         new android.os.Handler().postDelayed(
                 new Runnable() {
                     public void run() {
-                        if (isNetworkAvailable()) {
-                            initializeFirstActivity(sharedPreferences);
-                        } else {
-                            showToast(getString(R.string.no_network_connection));
-                        }
+                        initializeFirstActivity(sharedPreferences);
                         progressDialog.dismiss();
                     }
                 }, Constants.getSecondsInMilliseconds());
     }
-
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-
 
     @Override
     public void onResume() {
@@ -85,16 +94,6 @@ public class InitActivity extends Activity {
             startActivity(registration);
         }
         finish();
-    }
-
-    private void showToast(String message) {
-        Toast toast = Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.CENTER, 0, 0);
-        LinearLayout toastContentView = (LinearLayout) toast.getView();
-        ImageView imageView = new ImageView(getApplicationContext());
-        imageView.setImageResource(R.mipmap.smartparking_logo_round);
-        toastContentView.addView(imageView, 0);
-        toast.show();
     }
 
 }

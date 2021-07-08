@@ -8,16 +8,16 @@ package smarttraffic.smartparking.dataModels;
 
 public class ProfileRegistry {
 
-    private String username;
     private String password;
+    private String username;
     private SmartParkingProfile smartparkingprofile;
 
     @Override
     public String toString() {
         return "ProfileRegistry{" +
-                "username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", smartParkingProfile=" + smartparkingprofile +
+                "password='" + password + '\'' +
+                ", username='" + username + '\'' +
+                ", smartparkingprofile=" + smartparkingprofile +
                 '}';
     }
 

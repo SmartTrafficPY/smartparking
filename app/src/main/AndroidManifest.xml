@@ -15,7 +15,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
     <!-- Needed only if your app targets Android 5.0 (API level 21) or higher. -->
     <uses-feature android:name="android.hardware.location.gps" />
     <uses-feature android:name="android.hardware.location.network" />
@@ -130,7 +129,7 @@
         <receiver
             android:name=".receivers.GeofenceBroadcastReceiver"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"/>
 
         <receiver
             android:name=".receivers.AddAlarmReceiver"
@@ -141,11 +140,6 @@
             android:name=".receivers.RemoveAlarmReceiver"
             android:enabled="true"
             android:exported="true" />
-
-        <service
-            android:name=".services.GeofenceTransitionsJobIntentService"
-            android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
 
     </application>
 

@@ -15,7 +15,9 @@
     <string name="settings_descriptions">Configurar tiempos de la aplicación</string>
     <string name="version_number">v1.0 Beta</string>
     <string name="report_bug">Reportar problema</string>
-    report_bug
+    <string name="randomic_user">Usuario al azar</string>
+    <string name="show_password">Ocultar/mostrar contraseña</string>
+    <string name="date_picker">Selector de fecha</string>
     <string name="conacytThanks">
         Esta aplicación es uno de los casos de estudio del proyecto SmartTraffic que es cofinanciado
         por el CONACYT a través del programa PROCIENCIA- FEEI, FONACIDE.</string>
@@ -49,6 +51,9 @@
     <string name="password_key">password</string>
     <string name="age_key">age</string>
     <string name="sex_key">sexo</string>
+    <string name="free_spot_meaning">Este color indica un lugar LIBRE</string>
+    <string name="occupied_spot_meaning">Este color indica un lugar OCUPADO</string>
+    <string name="unknown_spot_meaning">Este color indica un lugar DESCONOCIDO</string>
     <string name="not_login_message">Accede a un mapa con información sobre la disponibilidad
         de lugares de estacionamiento.</string>
     <string name="id_key">identificador</string>
@@ -112,7 +117,10 @@
     <string name="foreground_notification">Servicio SmartParking en ejecución</string>
     <string name="new_configurations_accepted">Nueva configuración guardada</string>
     <string name="not_get_spot_free">No, ocupando</string>
+    <string name="without_spaces">*Sin espacios</string>
     <string name="yes">Si</string>
     <string name="no">No</string>
     <string name="warning_already_parked">Ya tienes un lugar estacionado ! Volverás a estacionar?</string>
+    <string name="internet_connection_required">Se requiere conexión a internet para el funcionamiento de SmartParking</string>
+    <string name="not_get_spot_occupied">No, liberando</string>
 </resources>

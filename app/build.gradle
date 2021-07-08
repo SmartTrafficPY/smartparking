@@ -5,10 +5,10 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "smarttraffic.smartparking"
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdkVersion 28
-        versionCode 3
-        versionName "1.0"
+        versionCode 9
+        versionName "1.2.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -23,7 +23,7 @@ sonarqube {
     properties {
         property "sonar.projectName", "SmartParking"
         property "sonar.projectKey", "smartparking0"
-        property "sonar.host.url", "http://10.50.225.75:9000"
+        property "sonar.host.url", "http://192.168.100.5:9000"
         property "sonar.language", "java"
         property "sonar.sources", "src/main/"
         property "sonar.login", "admin"
